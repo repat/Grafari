@@ -1,0 +1,39 @@
+body {
+  padding-top: 50px;
+}
+
+.hidden {
+	display: none !important;
+}
+
+.center {
+	margin-top: 150px;
+}
+
+.trans {
+	transition: all 0.4s ease 0s;
+}
+
+.search-form-row {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+.result-row {
+	padding: 0px 15px;
+	text-align: center;
+}
+
+.login-form {
+	padding: 20px;
+}
+
+.login-input {
+	padding: 10px 15px;
+}
+
+#resultWell > .well {
+	min-height: 200px;
+}
+
+
