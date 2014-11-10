@@ -8,7 +8,7 @@
     <meta name="author" content="">
     <link rel="icon" href="../../favicon.ico">
 
-    <title>MiSearch</title>
+    <title>Grafari</title>
 
     <!-- CSS Dependencies -->
     <link href="./assets/css/lib/bootstrap.min.css" rel="stylesheet">
@@ -37,7 +37,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#"><i class="fa fa-facebook"></i> MiSearch</a>
+          <a class="navbar-brand" href="#">Gra<i class="fa fa-facebook"></i>ari</a>
         </div>
         <div class="collapse navbar-collapse">
 		  <!-- FB Login -->
@@ -58,9 +58,14 @@
 	<!-- CONTENT -->
     <div class="container">
 	
+		<!-- Result Pane -->
+		<div id="brandRow" class="row brand-row center trans">
+			<span>Gra<i class="fa fa-facebook"></i>ari</span>
+		</div>
+	
 		<!-- Search Form -->
 		<div class="row search-form-row">
-			<div id="searchForm" class="col-lg-10 center trans">
+			<div id="searchForm" class="trans">
 				<div class="input-group">
 				  <input type="text" class="form-control" placeholder="Type Query ...">
 				  <div class="input-group-btn">
@@ -77,15 +82,152 @@
 			</div>
 		</div>
 		
-		<!-- Result Pane -->
-		<div class="row result-row">	
-			<div id="resultWell" class="col-lg-10 hidden">
-				<div class="well well-lg">
-					<!-- Loading Query Spinner -->
-					<i class="fa fa-cog fa-spin fa-2x"></i>
-				</div>
-			<div>
+		<div class="row">
+
+	        <div id="resultWell" class="col-md-6 hidden">
+	            <!-- Result Pane -->
+					<div class="well well-lg">
+						<!-- Loading Query Spinner -->
+						<i id="resultSpinner" class="fa fa-cog fa-spin fa-2x"></i>
+						
+						
+						
+						<!-- TESTDATA -->
+						<div id="results" class="hidden" data-isotope-options='{ "itemSelector": ".item" }'>
+							
+							<div class="result well userWell 1 2">
+								<a class="media-left" href="#">
+									<i class="fa fa-user fa-5x"></i>
+								</a>
+								<div class="media-body">
+									Kheldas Kazag
+									Amsinckstrasse 51
+									07349 Bärenstein
+								</div>
+							</div>
+							<div class="result well userWell 1 2">
+								<a class="media-left" href="#">
+									<i class="fa fa-user fa-5x"></i>
+								</a>
+								<div class="media-body">
+									Ch'Troka Avell
+									Anhalter Strasse 10
+									67811 Dielkirchen
+								</div>
+							</div>
+							<div class="result well userWell 1">
+								<a class="media-left" href="#">
+									<i class="fa fa-user fa-5x"></i>
+								</a>
+								<div class="media-body">								
+									Lursa Mnetic
+									Jahnstrasse 39
+									84189 Wurmsham
+								</div>
+							</div>
+							<div class="result well userWell 1 3">
+								<a class="media-left" href="#">
+									<i class="fa fa-user fa-5x"></i>
+								</a>
+								<div class="media-body">								
+									Ragga Khard
+									Schaarsteinweg 91
+									94340 Straßkirchen
+								</div>
+							</div>
+							<div class="result well userWell 1 3">
+								<a class="media-left" href="#">
+									<i class="fa fa-user fa-5x"></i>
+								</a>
+								<div class="media-body">								
+									Ba'el Mong
+									Spresstrasse 82
+									33605 Bielefeld Innenstadt
+								</div>
+							</div>
+							<div class="result well userWell 1 2">
+								<a class="media-left" href="#">
+									<i class="fa fa-user fa-5x"></i>
+								</a>
+								<div class="media-body">								
+									Karhammur Axenni
+									Boxhagener Str. 90
+									20537 Hamburg Hamm-Süd
+								</div>
+							</div>
+							<div class="result well userWell 1 3">
+								<a class="media-left" href="#">
+									<i class="fa fa-user fa-5x"></i>
+								</a>
+								<div class="media-body">							
+									Gorrod Vallic
+									Rudower Strasse 36
+									54655 Kyllburg
+								</div>
+							</div>
+							<div class="result well userWell 1 2">
+								<a class="media-left" href="#">
+									<i class="fa fa-user fa-5x"></i>
+								</a>
+								<div class="media-body">								
+									M'Leyra Toragh
+									Albrechtstrasse 43
+									83264 Traunstein
+								</div>
+							</div>
+							<div class="result well userWell 1 2">
+								<a class="media-left" href="#">
+									<i class="fa fa-user fa-5x"></i>
+								</a>
+								<div class="media-body">
+									Divok Querur
+									Sömmeringstr. 80
+									76689 Karlsdorf-Neuthard
+								</div>
+							</div>
+							<div class="result well userWell 1 2">
+								<a class="media-left" href="#">
+									<i class="fa fa-user fa-5x"></i>
+								</a>
+								<div class="media-body">								
+									D'Kora Khornezh
+									Knesebeckstraße 48
+									46282 Dorsten
+								</div>
+							</div>
+						</div>
+					</div>
+	        </div>
+
+	        <div id="queryHistory" class="col-md-6 hidden">
+	        	<div class="well">
+	            	<b>Last Queries:</b>
+						<div class="result well queryWell">
+							<div class="mainQuery">All people who live in Germany AND ( people who are self-employed OR NOT people who are homeless )</div>
+							<ul>
+								<li class="subQuery" data-id=".1">All people who live in Germany</li>
+								<li class="token nav">AND</li>
+								<ul>
+									<li class="subQuery" data-id=".2">people who are self-employed</li>
+									<li class="token nav">OR NOT</li>
+									<li class="subQuery" data-id=".3">people who are homeless</li>	
+								</ul>
+							</ul>					
+						</div>  
+						<div class="result well queryWell">
+							<div class="mainQuery">All people who live in Poland AND people who are over 20 years old</div>
+							<ul>
+								<li class="subQuery">All people who live in Poland</li>
+								<li class="token nav">AND</li>
+								<li class="subQuery">people who are over 20 years old</li>
+							</ul>					
+						</div>   	
+	            </div>
+	        </div>
+
 		</div>
+
+		
 		
     </div><!-- /.container -->
 
@@ -130,5 +272,6 @@
 	<!-- MISearch Scripts -->
 	<script src="./assets/js/main.js"></script>
 	<script src="./assets/js/fb_login.js"></script>
+	<script src="./assets/js/lib/isotope.pkgd.min.js"></script>
   </body>
 </html>

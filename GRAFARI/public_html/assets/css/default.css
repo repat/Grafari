@@ -7,7 +7,7 @@ body {
 }
 
 .center {
-	margin-top: 150px;
+	margin-top: 150px !important;
 }
 
 .trans {
@@ -24,6 +24,20 @@ body {
 	text-align: center;
 }
 
+.brand-row {
+	font-family: museo-slab,Georgia,"Times New Roman",Times,serif;
+    font-weight: 500;
+	font-size: 80px;
+	text-align: center;
+	/*text-shadow: 4px 3px 0 #fff, 9px 8px 0 rgba(0, 0, 0, 0.15);*/
+	text-shadow: 1px 1px 0px #FFF, 3px 3px 0px rgba(0, 0, 0, 0.15);
+	margin-top: -110px;
+}
+
+.brand-row > span > i {
+	color: #428bca;
+}
+
 .login-form {
 	padding: 20px;
 }
@@ -34,6 +48,40 @@ body {
 
 #resultWell > .well {
 	min-height: 200px;
+}
+
+.userWell {
+	background-color: white;
+	width: 210px;
+	height: 190px;
+	margin: 10px;
+	transition: background-color 0.4s ease 0s;
+}
+
+.queryWell {
+	background-color: white;
+	height: auto;
+	margin: 10px;
+	transition: background-color 0.4s ease 0s;
+}
+
+.mainQuery > .well {
+	padding: 5px;
+}
+
+.mainQuery:hover {
+	cursor: pointer;
+	background-color: #e7e7e7;
+}
+
+.subQuery:hover {
+	cursor: pointer;
+	background-color: #e7e7e7;
+}
+
+.userWell:hover {
+	cursor: pointer;
+	background-color: #e7e7e7;
 }
 
 
