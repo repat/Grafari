@@ -69,6 +69,12 @@ body {
 	padding: 5px;
 }
 
+.mainQuery {
+	border-bottom: solid 2px lightgrey;
+	padding: 5px;
+	margin-bottom: 10px;
+}
+
 .mainQuery:hover {
 	cursor: pointer;
 	background-color: #e7e7e7;
@@ -85,3 +91,15 @@ body {
 }
 
 
+.token {
+	font-weight: bold;
+	color: grey;
+}
+
+.history {
+	list-style-type: none;
+}
+
+#historySelector {
+	margin-bottom: 20px;
+}
