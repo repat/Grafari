@@ -10,7 +10,9 @@ requirejs.config({
 		bootstrap: 'bootstrap',
 		isotope: 'isotope',
 		jquery: 'jquery',
-		jqueryBridget: 'jquery.bridget'
+		jqueryBridget: 'jquery.bridget',
+                underscore: 'underscore-min',
+                searchAPI: 'search_api'
 	},
 	shim: {
 		isotope: {
