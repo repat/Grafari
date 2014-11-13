@@ -10,7 +10,8 @@ requirejs.config({
 		bootstrap: 'bootstrap',
 		isotope: 'isotope',
 		jquery: 'jquery',
-		jqueryBridget: 'jquery.bridget'
+		jqueryBridget: 'jquery.bridget',
+		parser: '../app/modules/parser'
 	},
 	shim: {
 		isotope: {

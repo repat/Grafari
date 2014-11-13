@@ -4,7 +4,7 @@
  */
 require(['../common'], function() {
 
-	require(['jquery', 'isotope'], function($, isotope) {
+	require(['jquery', 'isotope', 'parser'], function($, isotope, parser) {
 
       // make Isotope a jQuery plugin
       $.bridget( 'isotope', isotope );
@@ -42,6 +42,7 @@ require(['../common'], function() {
 			// Setup Button Handler
 			miSearch_reg_btn();
 
+			parser.parseString("Katsching!");
 
 			// Example text for the demo
 			$(".form-control").val("All people who live in Germany AND ( people who are self-employed OR NOT people who are homeless )");
