@@ -19,7 +19,7 @@ browser.visit('/login.php')
     loginFacebook();
 })
 .done(function() {
-    searchFriendsByCity(targetCity);
+    searchPeopleByCity(targetCity);
     //searchPersonByName(targetPerson);
 });
 
@@ -33,7 +33,7 @@ var loginFacebook = function() {
 
 
 // gibt manchmal eine Seite mit Titel 'Suche im Social Graph | Facebook' aus.
-var searchFriendsByCity = function(city) {
+var searchPeopleByCity = function(city) {
     graph.getIdFromLocation(city, function(cityId) {
 
         console.log('searching for friends from ' + city + ' (id: ' + cityId + ')');
