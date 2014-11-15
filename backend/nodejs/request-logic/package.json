@@ -1,0 +1,4 @@
+{
+  "name" : "request-logic",
+  "main" : "./parser-main.js"
+}
