@@ -57,16 +57,6 @@ Requests.translateTree(parseTree, function(err, requestList) {
 })
 
 
-//TODO test a few thing
 
-
-
-
-// people who (live in X OR are younger than 23) and (are younger than 23 or are older than 14)
-// S AND (A OR B) AND (C OR D)
-// -> S AND A AND C OR
-//    S AND A AND D OR
-//    S AND B AND C OR
-//    S AND B AND D
 
 
