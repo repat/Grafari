@@ -5,7 +5,7 @@ var Requests = require("./request-logic")
 /** Hier ein paar Beipielanfragen, die der Parser in Facebook-URLs übersetzen kann.
  * 
  *  Dazu ein paar Hinweise:
- *   - Der Tokenizer trennt nach Leerzeichen und Klammen. Kommata werden einfach geschluckt.
+ *   - Der Tokenizer trennt nach Leerzeichen und Klammern. Kommata werden einfach geschluckt.
  *   - Alle Tokens, die keine besondere Bedeutung haben, werden in Kleinbuchstaben umgewandelt.
  *   - Mit "-Zeichen können mehrere Wörter zu einem Token zusammengefasst werden (Der Tokenizer fasst den Text darin auch nicht an)
  *     Die Zeichen werden also nicht zu Kleinbuchstaben umgewandelt und es werden auch keine Kommata entfernt.
