@@ -15,9 +15,7 @@ var browser = Browser.create();
 
 // program execution
 browser.visit('/login.php')
-.then(function() {
-    loginFacebook();
-})
+.then(loginFacebook)
 .done(function() {
     searchPeopleByCity(targetCity);
     //searchPersonByName(targetPerson);
@@ -25,7 +23,7 @@ browser.visit('/login.php')
 
 
 
-var loginFacebook = function() {
+function loginFacebook() {
     browser.fill('email', 'haw-mi@wegwerfemail.de');
     browser.fill('pass', 'geheim123');
     return browser.pressButton('login');
@@ -33,8 +31,12 @@ var loginFacebook = function() {
 
 
 // gibt manchmal eine Seite mit Titel 'Suche im Social Graph | Facebook' aus.
-var searchPeopleByCity = function(city) {
-    graph.getIdFromLocation(city, function(cityId) {
+function searchPeopleByCity(city) {
+    graph.getIdFromLocation(city, function(err, cityId) {
+        if (err) {
+          console.log("getIdFromLocation returned with following error: \n" + JSON.stringify(err))
+          throw "Facebook-Search failed!"
+        }
 
         console.log('searching for friends from ' + city + ' (id: ' + cityId + ')');
         browser.visit('/search/' + cityId + '/residents/present')
@@ -53,7 +55,7 @@ var searchPeopleByCity = function(city) {
 };
 
 // page Titel ist 'Suche im Social Graph | Facebook' sollte aber 'People named "John Doe"' sein.
-var searchPersonByName = function(person) {
+function searchPersonByName(person) {
 
     console.log('searching for people with the name: ' + person);
     browser.visit('https://www.facebook.com/search/str/' + person + '/users-named')

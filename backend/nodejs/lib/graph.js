@@ -19,10 +19,14 @@ var getIdFromLocation = function(location, callback) {
     };
 
     graph.search(searchOptions, function(err, res) {
-        // FB gibt manchmal nichts zurück. Einfach nochmal probieren.
-        callback(res.data[0].id);
+      if (err) 
+        return callback(err)
+
+
+      // FB gibt manchmal nichts zurück. Einfach nochmal probieren.
+      callback(null, res.data[0].id);
     });
 
 };
 
-module.exports.getIdFromLocation = getIdFromLocation;
+exports.getIdFromLocation = getIdFromLocation;
