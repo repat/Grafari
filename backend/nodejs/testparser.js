@@ -1,4 +1,4 @@
-var Requests = require("./request-logic")
+var Requests = require("./lib/request-logic")
 
 
 
