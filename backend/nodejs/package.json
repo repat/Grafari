@@ -1,5 +1,5 @@
 {
-  "name": "graph-api",
+  "name": "graph-search",
   "private": true,
   "main": "index.js",
   "dependencies": {

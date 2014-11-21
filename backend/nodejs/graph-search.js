@@ -26,9 +26,9 @@ browser.visit('/login.php')
 .done(function() {
     async.series({
 
-        searchPeopleByCity: function() {
+        searchFriendsByCity: function() {
 
-            console.log("searchPeopleByCity");
+            console.log("searchFriendsByCity");
             graph.getIdFromLocation(city, function(err, cityId) {
                 if (err) {
                   console.log("getIdFromLocation returned with following error: \n" + JSON.stringify(err))
@@ -39,7 +39,7 @@ browser.visit('/login.php')
                 
                 browser.visit('/search/' + cityId + '/residents/present')
                 .done(function() {
-                    console.log(browser.text('title'));
+                    console.log("result: " + browser.text('title'));
 
                     //  console.log('html: ' + browser.html('#browse_result_area'));
                     //   fs.writeFile('test.html', browser.html(), function(err) {
@@ -57,8 +57,8 @@ browser.visit('/login.php')
 
             console.log('searching for people with the name: ' + person);
             browser.visit('https://www.facebook.com/search/str/' + person + '/users-named')
-            .then(function() {
-                console.log(browser.text('title'));
+            .done(function() {
+                console.log("result: " + browser.text('title'));
             })
         }
 
