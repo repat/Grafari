@@ -1,0 +1,10 @@
+{
+  "name": "graph-api",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "async": "^0.9.0",
+    "fbgraph": "^0.3.0",
+    "zombie": "^2.2.1"
+  }
+}
