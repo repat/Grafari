@@ -8,7 +8,7 @@
 * convert cityname to FB readable cityId (with graph api)
 * search for friends in a specific city
 * search for users by name
+* access all the stuff with with rest
 
 ## toDo
-* serve content as a webserver
-* Rest api with express
+* merge with other code

@@ -4,7 +4,6 @@ var graph = require('fbgraph');
 exports.getIdFromName     = getIdFromName
 exports.getIdFromLocation = getIdFromLocation
 
-// das ist der Usertoken/Apptoken von hier und läuft nach einer Stunde ab: https://developers.facebook.com/tools/accesstoken/
 graph.setAccessToken('736322176438280|N8bcT0U2C4-PHlvoJpqe8ytN1Y8'); //<- AppToken (sollte nicht auslaufen)
 
 

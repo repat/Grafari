@@ -1,116 +1,85 @@
 // Dependencies
-var async = require("async");
+var async = require('async');
 var Browser = require('zombie');
+//var fs = require('fs');
 var graph = require('./lib/graph.js');
-var fs = require('fs');
+var restify = require('restify');
 
-// static variables
-var city = 'Hamburg, Germany';
-var person = 'john%2Bdoe';
-//var ageFrom = 20;
-//var ageTo = 30;
 
 // bootstrap
 Browser.localhost('https://www.facebook.com');
 var browser = Browser.create();
 
+var server = restify.createServer({
+    name: 'Grafari'
+});
+server.get('/searchPeopleByCity/:city', searchPeopleByCity);
+server.head('/searchPeopleByCity/:city', searchPeopleByCity);
+server.get('/searchPersonByName/:name', searchPersonByName);
+server.head('/searchPersonByName/:name', searchPersonByName);
+
+
 // program execution
-browser.visit('/login.php')
-.then(function() {
+async.series({
+    facebookLogin: function(callback) {
 
-    console.log("loginFacebook");
-    browser.fill('email', 'haw-mi@wegwerfemail.de');
-    browser.fill('pass', 'geheim123');
-    return browser.pressButton('login');
-})
-.done(function() {
-    async.series({
+        console.log('---\nloginFacebook');
 
-        searchFriendsByCity: function() {
+        browser.visit('/login.php')
+        .done(function() {
 
-            console.log("searchFriendsByCity");
-            graph.getIdFromLocation(city, function(err, cityId) {
-                if (err) {
-                  console.log("getIdFromLocation returned with following error: \n" + JSON.stringify(err))
-                  throw "Facebook-Search failed!"
-                }
-
-                console.log('searching for friends from ' + city + ' (id: ' + cityId + ')');
-                
-                browser.visit('/search/' + cityId + '/residents/present')
-                .done(function() {
-                    console.log("result: " + browser.text('title'));
-
-                    //  console.log('html: ' + browser.html('#browse_result_area'));
-                    //   fs.writeFile('test.html', browser.html(), function(err) {
-                    //       if (err) 
-                    //           return console.log(err);
-                    //       console.log('Ergebnis in Datei gespeichert');
-                    //   });
-                });
-
-            });
-        },
-        searchPersonByName: function() {
-
-            console.log("searchPersonByName");
-
-            console.log('searching for people with the name: ' + person);
-            browser.visit('https://www.facebook.com/search/str/' + person + '/users-named')
-            .done(function() {
-                console.log("result: " + browser.text('title'));
-            })
-        }
-
-    });
+            browser.fill('email', 'haw-mi@wegwerfemail.de');
+            browser.fill('pass', 'geheim123');
+            browser.pressButton('login');
+            console.log('Facebook loged in!');
+            callback(null);
+        });
+    },
+    startWebserver: function(callback) {
+        server.listen(8080, function() {
+            console.log('%s listening at %s', server.name, server.url);
+            callback(null);
+        });
+    }
 });
 
+function searchPeopleByCity(req, res, next) {
 
+    console.log("---\nsearchPeopleByCity");
 
-// var loginFacebook = function() {
+    graph.getIdFromLocation(req.params.city, function(err, cityId) {
+        if (err) {
+          console.log('getIdFromLocation returned with following error: \n' + JSON.stringify(err))
+          throw 'Facebook-Search failed!'
+        }
 
-//     console.log("loginFacebook");
-//     browser.fill('email', 'haw-mi@wegwerfemail.de');
-//     browser.fill('pass', 'geheim123');
-//     return browser.pressButton('login');
-// };
+        console.log('query: ' + req.params.city + ' (id: ' + cityId + ')');
+        
+        browser.visit('/search/' + cityId + '/residents/present')
+        .done(function() {
+            console.log('result' + browser.text('title'));
+            res.send('result ' + browser.text('title'));
+            next();
 
+            //  console.log('html: ' + browser.html('#browse_result_area'));
+            //   fs.writeFile('test.html', browser.html(), function(err) {
+            //       if (err) 
+            //           return console.log(err);
+            //       console.log('Ergebnis in Datei gespeichert');
+            //   });
+        }); 
+    });
+};
 
-// // gibt manchmal eine Seite mit Titel 'Suche im Social Graph | Facebook' aus.
-// var searchPeopleByCity = function(city) {
+function searchPersonByName(req, res, next) {
 
-//     console.log("searchPeopleByCity");
-//     graph.getIdFromLocation(city, function(err, cityId) {
-//         if (err) {
-//           console.log("getIdFromLocation returned with following error: \n" + JSON.stringify(err))
-//           throw "Facebook-Search failed!"
-//         }
+    console.log('---\nsearchPersonByName');
+    console.log('query: ' + req.params.name);
 
-//         console.log('searching for friends from ' + city + ' (id: ' + cityId + ')');
-//         browser.visit('/search/' + cityId + '/residents/present')
-//         .done(function() {
-//             console.log(browser.text('title'));
-
-//           //  console.log('html: ' + browser.html('#browse_result_area'));
-//           //   fs.writeFile('test.html', browser.html(), function(err) {
-//           //       if (err) 
-//           //           return console.log(err);
-//           //       console.log('Ergebnis in Datei gespeichert');
-//           //   });
-//         });
-
-//     });
-// };
-
-// // page Titel ist 'Suche im Social Graph | Facebook' sollte aber 'People named "John Doe"' sein.
-// var searchPersonByName = function(person) {
-
-//     console.log("searchPersonByName");
-
-//     console.log('searching for people with the name: ' + person);
-//     browser.visit('https://www.facebook.com/search/str/' + person + '/users-named')
-//     .then(function() {
-//         console.log(browser.text('title'));
-//     })
-// };
-
+    browser.visit('https://www.facebook.com/search/str/' + req.params.name + '/users-named')
+    .done(function() {
+        console.log('result: ' + browser.text('title'));
+        res.send('result: ' + browser.text('title'));
+        next();
+    });
+};
