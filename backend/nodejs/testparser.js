@@ -24,22 +24,22 @@ var Requests = require("./lib/request-logic")
 
 /** Hier mal ein paar Beispielanfragen
  */
-var input = 'All people who are living in Germany'
+var input = 'All people who are living in Germany';
 //var input = 'All women who are under 20 years old'
-//var input = 'All women who are younger than 20 OR all men who are older than 20'
-//var input = 'All women who (live in Germany OR live in America)'
-//var input = 'Women who are between 20 and 30 years old AND like 4Chan'
-//var input = 'women who like "Justin Bieber" AND are under 20 years old AND live in "Hamburg, Germany"'
-//var input = 'All people who live in Germany AND (are under 23 years old OR are older than 17) AND (like "Who Am I" OR are named "Bob")'
-//var input = 'People who (like A OR like B OR (like C AND (like D OR like E)))' //Um nachzuvollziehen, wie Gruppen aufgelöst werden
+//var input = 'All women who are younger than 20 OR all men who are older than 20';
+//var input = 'All women who (live in Germany OR live in America)';
+//var input = 'Women who are between 20 and 30 years old AND like 4Chan';
+//var input = 'women who like "Justin Bieber" AND are under 20 years old AND live in "Hamburg, Germany"';
+//var input = 'All people who live in Germany AND (are under 23 years old OR are older than 17) AND (like "Who Am I" OR are named "Bob")';
+//var input = 'People who (like A OR like B OR (like C AND (like D OR like E)))'; //Um nachzuvollziehen, wie Gruppen aufgelöst werden
 
-console.log("Input:\n" + input + "\n")
+console.log("Input:\n" + input + "\n");
 
 /** parse(sentence) takes a whole sentence and converts the sentence into a parseTree
  *  Internally this function works like: tokenize(sentence) -> rawParse(tokenlist) -> resolveGroups(parseTree)
  */
-var parseTree = Requests.parse(input)
-console.log("Flattened Parse-Tree:\n" + parseTree.toString() + "\n")
+var parseTree = Requests.parse(input);
+console.log("Flattened Parse-Tree:\n" + parseTree.toString() + "\n");
 
 
 /** translateTree(parseTree, callback)
@@ -54,9 +54,4 @@ console.log("Flattened Parse-Tree:\n" + parseTree.toString() + "\n")
 Requests.translateTree(parseTree, function(err, requestList) {
   console.log("Resolved into following requests:")
   requestList.forEach(function (request) { console.log(request) })  
-})
-
-
-
-
-
+});

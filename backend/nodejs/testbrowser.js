@@ -1,23 +1,13 @@
-var Browser = require("./lib/browser")
+var Browser = require("./lib/browser");
 
-
-console.log("Launching system")
+console.log("Launching system");
 
 //First initialize browser-module
 Browser.init(function(err, d) {
-  if (err) {
-    console.log("Error: " + JSON.stringify(err))
-    throw "Browser init failed"
-  }
-  console.log("Browser initialized")
-
-  //Open URL
-  Browser.get("/search/males/20/users-older/intersect", function(e, content) {
-    if (e) {
-      console.log("Error: " + JSON.stringify(e))
-      throw "Page load failed"
+    if (err) {
+        console.log("Error: " + JSON.stringify(err));
+        throw "Browser init failed";
     }
-    console.log("Read title: " + content)
-    Browser.shutdown()
-  })
-})
+    console.log("Browser initialized");
+    Browser.startRest();
+});

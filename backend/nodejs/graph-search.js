@@ -1,9 +1,9 @@
 // Dependencies
 var async = require('async');
 var Browser = require('zombie');
-//var fs = require('fs');
-var graph = require('./lib/graph.js');
+var fs = require('fs');
 var restify = require('restify');
+var graph = require('./lib/graph.js');
 
 
 // bootstrap
@@ -59,17 +59,16 @@ function searchPeopleByCity(req, res, next) {
         .done(function() {
             console.log('result' + browser.text('title'));
             res.send('result ' + browser.text('title'));
-            next();
 
-            //  console.log('html: ' + browser.html('#browse_result_area'));
-            //   fs.writeFile('test.html', browser.html(), function(err) {
-            //       if (err) 
-            //           return console.log(err);
-            //       console.log('Ergebnis in Datei gespeichert');
-            //   });
+            // fs.writeFile('test.html', browser.html('#browse_result_area'), function(err) {
+            //     if (err) 
+            //         return console.log(err);
+            //     console.log('Ergebnis in Datei gespeichert');
+                next();
+            //});
         }); 
     });
-};
+}
 
 function searchPersonByName(req, res, next) {
 
@@ -82,4 +81,4 @@ function searchPersonByName(req, res, next) {
         res.send('result: ' + browser.text('title'));
         next();
     });
-};
+}
