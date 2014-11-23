@@ -4,44 +4,37 @@
  *  Then requests can be sent to this browser for visiting urls.
  */ 
 var async = require("async");
-var restify = require('restify');
 var Zombie = require("zombie");
-var graph = require('./graph.js');
-var Requests = require("./request-logic")
 
-var browser = undefined; //will be initialized in init()-function
+var WORKERS = 5
+
+//The browser instance
+var worker = []
+var workQueue = []
 
 //Exported module functions
 exports.init = initModule;
 exports.get = readPage;
 exports.shutdown = shutdownModule;
-exports.startRest = startRest;
-
 
 function initModule(callback) {
   //Initialization
   Zombie.localhost('https://www.facebook.com')
-  startBrowser(function(err, data) {
+
+  
+  //start five browsers
+  startBrowser(function(err, browser) {
     if (err)
-      return callback(err);
+      return callback(err)
+    
+    //populate worker-pool 
+    worker.push(browser)
+    for(var c = 1; c < WORKERS; ++c) 
+      worker.push(browser.fork()) //Create an independent browser copy (already logged in)
 
-    browser = data;
-    callback();
-  });
+    callback()
+  })
 }
-
-function startRest() {
-  var server = restify.createServer({
-    name: 'Grafari'
-  });
-  server.get('/search/:str', search);
-  server.head('/search/:str', search);
-
-  server.listen(8080, function() {
-    console.log('%s listening at %s', server.name, server.url);
-  });
-}
-
 
 function shutdownModule() {
   if (browser)
@@ -52,13 +45,16 @@ function shutdownModule() {
  *  returns the browser to the callback after the login has completed
  */
 function startBrowser(callback) {
+  //TODO save cookies after login to file
+  //TODO search for cookie-file and omit login if found (http://zombie.labnotes.org/API)
   var browser = Zombie.create();
   async.series([
     function(cb) {
       browser.visit('/login.php', cb);
     },
     function(cb) {
-      browser.fill('email', 'haw-mi@wegwerfemail.de');
+      //browser.fill('email', 'haw-mi@wegwerfemail.de');
+      browser.fill("email", "haw-mi-2@wegwerfemail.de")
       browser.fill('pass', 'geheim123');
       browser.pressButton('login', cb);  
     }], 
@@ -72,88 +68,42 @@ function startBrowser(callback) {
 }
 
 /** Open a Facebook url and then return the page's content by the callback.
+ * 
+ * internally this adds a job-entry to the workQueue and wakes a an idle worker if available.
  */
 function readPage(url, callback) {
-  //TODO mark browser as busy
-  //TODO use browser-pool
-  //TODO cache results
-  browser.visit(url, function(err, data) {
-    if (err)
-      return callback(err);
+  workQueue.push({url:url, callback:callback})
 
-    callback(null, browser.text('title'));
-  })
+  if (worker.length > 0) { //wake up an idle browser
+    var browser = worker.shift()
+    console.log("Waking up a worker, " + worker.length + " worker left")
+    work(browser)
+  }
 }
 
-/** searches for people by Cityname
+/** Internal function, which issues a browser to work until all jobs are completed
  */
-function search(req, res, next) {
-
-  var str = '';
-  var input = '';
-
-  /** Ich kann in der Rest URL keine Leerzeichen übergeben, deshalb habe ich die Strings von David einfach durchnummeriert.
-  */
-  switch(req.params.str) {
-    case '1':
-      input = 'All people who are living in Germany';
-      break;
-    case '2':
-      input = 'All women who are under 20 years old';
-      break;
-    case '3':
-      input = 'All women who are younger than 20 OR all men who are older than 20';
-      break;
-    case '4':
-      input = 'All women who (live in Germany OR live in America)';
-      break;
-    case '5':
-      input = 'Women who are between 20 and 30 years old AND like 4Chan';
-      break;
-    case '6':
-      input = 'women who like "Justin Bieber" AND are under 20 years old AND live in "Hamburg, Germany"';
-      break;
-    case '7':
-      input = 'All people who live in Germany AND (are under 23 years old OR are older than 17) AND (like "Who Am I" OR are named "Bob")';
-      break;  
-  };
-
-  console.log("---\nsearch");
-  console.log('query: ' + input);
-
-  var parseTree = Requests.parse(input);
-  console.log("Flattened Parse-Tree:\n" + parseTree.toString() + "\n");
-
-  async.series([
-    function(cb) {
-      Requests.translateTree(parseTree, function(err, requestList) {
-        console.log("Resolved into following requests:");
-        requestList.forEach(function (request) {
-          console.log(request);
-          str += request;
-        });
-        cb();
-      });
-    },
-    function(cb) {
-      browser.visit('https://www.facebook.com/search' + str)
-      .done(function() {
-        console.log('result: ' + browser.text('title'));
-        res.send('result: ' + browser.text('title'));
-        cb();
-
-        // fs.writeFile('test.html', browser.html('#browse_result_area'), function(err) {
-        //   if (err) 
-        //   return console.log(err);
-        //   console.log('Ergebnis in Datei gespeichert');
-        //   cb();
-        // });
-
-      });
-    },
-    function() {
-      console.log('done!');
-      next();
-    }
-  ]);
+function work(browser) {
+  console.log("Checking workQueue: " + JSON.stringify(workQueue))
+  if (workQueue.length > 0) {
+    var job = workQueue.shift()
+    browser.visit(job.url, function(err, data) {
+      if (err)
+        process.nextTick(function() { job.callback(err) })
+      else {
+        //The result must be bound here, referencing browser from inside the function is invalid
+        var data = browser.text("title") //TODO extract div html from browser and convert to JSON
+        process.nextTick(function() { 
+          console.log("Returning data: " + data)
+          job.callback(null, data) 
+        })
+      }
+        
+      
+      //Job done, check for remaining work
+      return work(browser)
+    })
+  } else {
+    worker.push(browser) //All jobs done, set browser to idle
+  }
 }
