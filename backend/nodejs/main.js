@@ -51,7 +51,7 @@ function search(req, res, done) {
       if (err)
         return handleError(err, res, done)
 
-      console.log("Sending response: " + JSON.stringify(jsonArray))
+      console.log("Sending response")
 
       //TODO jsonArray must be correctly merged together before sending
       res.send(jsonArray)

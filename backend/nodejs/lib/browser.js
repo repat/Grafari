@@ -3,8 +3,9 @@
  *  When requiring this module, a Browser ist automatically launched and logs in into Facebook.
  *  Then requests can be sent to this browser for visiting urls.
  */ 
-var async = require("async");
-var Zombie = require("zombie");
+var fs      = require("fs")
+var async   = require("async");
+var Zombie  = require("zombie");
 
 var WORKERS = 5
 
@@ -45,26 +46,40 @@ function shutdownModule() {
  *  returns the browser to the callback after the login has completed
  */
 function startBrowser(callback) {
-  //TODO save cookies after login to file
-  //TODO search for cookie-file and omit login if found (http://zombie.labnotes.org/API)
   var browser = Zombie.create();
-  async.series([
-    function(cb) {
-      browser.visit('/login.php', cb);
-    },
-    function(cb) {
-      //browser.fill('email', 'haw-mi@wegwerfemail.de');
-      browser.fill("email", "haw-mi-2@wegwerfemail.de")
-      browser.fill('pass', 'geheim123');
-      browser.pressButton('login', cb);  
-    }], 
+  
+  if (fs.existsSync("./cookies.tmp")) {
+    console.log("Loading cookies from file...") //And omitting login
+    fs.readFile("./cookies.tmp", function(err, cookies) {
+      browser.loadCookies(cookies.toString())
+      browser.visit("/", function(e) { //Browser must visit a page
+        return callback(e, browser)
+      })
+    })
+  } else { //Default login procedure
+    async.series([
+      function(cb) {
+        browser.visit('/login.php', cb);
+      },
+      function(cb) {
+        //browser.fill('email', 'haw-mi@wegwerfemail.de');
+        browser.fill("email", "haw-mi-2@wegwerfemail.de")
+        browser.fill('pass', 'geheim123');
+        browser.pressButton('login', cb);  
+      }], 
 
-    function(err, data) {
-      if (err)
-        return callback(err);
+      function(err, data) {
+        if (err)
+          return callback(err);
 
-      return callback(null, browser); //Return the browser, which is ready to make requests
-    });
+        //Save cookies and return new browser
+        var cookies = browser.saveCookies()
+        fs.writeFile("./cookies.tmp", cookies, function() {
+          return callback(null, browser); //Return the browser, which is ready to make requests
+        })
+      }
+    )
+  }
 }
 
 /** Open a Facebook url and then return the page's content by the callback.
@@ -92,13 +107,11 @@ function work(browser) {
         process.nextTick(function() { job.callback(err) })
       else {
         //The result must be bound here, referencing browser from inside the function is invalid
-        var data = browser.text("title") //TODO extract div html from browser and convert to JSON
+        var data = convertPageToJSON(browser)
         process.nextTick(function() { 
-          console.log("Returning data: " + data)
           job.callback(null, data) 
         })
       }
-        
       
       //Job done, check for remaining work
       return work(browser)
@@ -106,4 +119,11 @@ function work(browser) {
   } else {
     worker.push(browser) //All jobs done, set browser to idle
   }
+}
+
+
+function convertPageToJSON(browser) {
+  //TODO read out the html (eg. browser.html('#browse_result_area'))
+  //TODO build a JSON result structure.
+  return browser.text("title") //For now only return the title
 }
