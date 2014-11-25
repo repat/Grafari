@@ -53,7 +53,7 @@ body {
 .userWell {
 	background-color: white;
 	width: 210px;
-	height: 190px;
+	min-height: 190px;
 	margin: 10px;
 	transition: background-color 0.4s ease 0s;
 }
