@@ -6,6 +6,7 @@
 var fs      = require("fs")
 var async   = require("async");
 var Zombie  = require("zombie");
+var cheerio = require('cheerio');
 
 var WORKERS = 5
 
@@ -125,5 +126,19 @@ function work(browser) {
 function convertPageToJSON(browser) {
   //TODO read out the html (eg. browser.html('#browse_result_area'))
   //TODO build a JSON result structure.
-  return browser.text("title") //For now only return the title
+
+
+  // for now, only names
+  var $ = cheerio.load(browser.html());
+  var nodelist = $('#browse_result_area').find('div[data-bt*=title]>a');
+  var json = [];
+
+  $(nodelist).each(function (i, elem) {
+    json.push({});
+    json[i].name = $(this).text().trim();
+  });
+  
+  //console.log(json);
+   
+  return json
 }

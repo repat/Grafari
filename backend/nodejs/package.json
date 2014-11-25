@@ -4,7 +4,9 @@
   "main": "main.js",
   "dependencies": {
     "async": "^0.9.0",
+    "cheerio": "^0.18.0",
     "fbgraph": "^0.3.0",
+    "nodemon": "^1.2.1",
     "restify": "^2.8.3",
     "zombie": "^2.2.1"
   }
