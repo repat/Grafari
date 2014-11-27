@@ -5,6 +5,9 @@ var async = require("async")
 exports.translate = translate
 exports.translateTree = translate
 
+
+var resolver = new Resolver() //Create a single resolver instance
+
 /** This function takes a flattened tree and a resolver and returns an
  *  array of basic requests to make.
  *  The function takes a callback because resolving ID's might trigger IO
@@ -13,8 +16,6 @@ exports.translateTree = translate
  * @param callback the callback which receives the requests as array of strings (eg. ["/males/12/users-younger/intersect", ...])
  */
 function translate(flatTree, callback) {
-  var resolver = new Resolver()
-
   //iterator for async.map()
   function iterator(request, itCallback) {
     request.translate(resolver, itCallback)
