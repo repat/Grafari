@@ -15,7 +15,8 @@ require(['../common'], function() {
 
             var $container = $('#results');
 
-            $('.subQuery').click(function() {
+            $('.result').on('click', '.subQuery', function(){
+
                 var id = $(this).attr("data-id");
 
                 $container.isotope({
@@ -23,9 +24,10 @@ require(['../common'], function() {
                     layoutMode: 'fitRows',
                     filter: id
                 });
+
             });
 
-            $('.mainQuery').click(function() {
+            $('.result').on('click', '.mainQuery', function(){
                 $container.isotope({
                     itemSelector: '.result',
                     layoutMode: 'fitRows',
@@ -102,13 +104,13 @@ require(['../common'], function() {
         }
 
         function make_Current_Query(query) {
-            var queryDivs = '<div class="mainQuery">' + query + '</div><ul class="history">';
+            var queryDivs = '<div class="mainQuery queryText">' + query + '</div><ul class="history">';
             var tokens = search._tokenize(query).reverse();
             var querycounter = 1;
             while (!tokens.empty()) {
                 var cur = tokens.pop();
                 if (typeof cur === "string") {
-                    queryDivs += '<li class="subQuery" data-id=".' + querycounter++ + '">' + cur + '</li>';
+                    queryDivs += '<li class="subQuery queryText" data-id=".' + querycounter++ + '">' + cur + '</li>';
                 } else {
                     if (cur.name === "(") {
                         queryDivs += '<li><ul class="history">';
@@ -121,6 +123,10 @@ require(['../common'], function() {
             }
             queryDivs += '</ul>';
             return queryDivs;
+        }
+
+        function updateClickHandler() {
+
         }
 
         function make_Users() {
