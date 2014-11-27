@@ -6,7 +6,6 @@
 var fs      = require("fs")
 var async   = require("async");
 var Zombie  = require("zombie");
-var cheerio = require('cheerio');
 
 var WORKERS = 5
 
@@ -124,21 +123,52 @@ function work(browser) {
 
 
 function convertPageToJSON(browser) {
-  //TODO read out the html (eg. browser.html('#browse_result_area'))
-  //TODO build a JSON result structure.
+  //
+  // TODO: differentiate between works at, studies at, lives in, from, etc. (check wiki: Such Regex für Graph Search)
+  //
+
+  var people = new Array();
+
+  // constructor
+  function Person(name) {
+    this.name = name;
+  }
+  // getter
+  Person.prototype.setFrom = function(from) {
+    this.from = from;  
+  }
+  // getter
+  Person.prototype.setProfession = function(profession) {
+    this.profession = profession;  
+  }
+
+  // first result (handeled differently, because its in a different div)
+  var person = new Person(browser.text('#u_0_p > div > div > div > div._zs.fwb > a'));
+  person.setProfession(browser.text('#u_0_p > div > div > div > div._pac._dj_'));
+  person.setFrom(browser.text('#u_0_p > div > div > div > div._946 > div > div:nth-child(1) > div'));
+
+  people.push(person);
 
 
-  // for now, only names
-  var $ = cheerio.load(browser.html());
-  var nodelist = $('#browse_result_area').find('div[data-bt*=title]>a');
-  var json = [];
+  // other results
+  var rawHtml = browser.query('#u_0_o_browse_result_below_fold > div');
+  for(var i=0; i<rawHtml._childNodes.length; i++) {
+    var index = i+1;  // i+1 inside the browser.text string doesn't work
+    var person = new Person(browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=title] > a')); 
 
-  $(nodelist).each(function (i, elem) {
-    json.push({});
-    json[i].name = $(this).text().trim();
-  });
-  
-  //console.log(json);
-   
-  return json
+    person.setProfession(browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=sub_headers] > a'));
+
+    if(browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=snippets] ._52eh:nth-child(1)').substring(0,9) === 'Lives in ') {
+      person.setFrom(browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=snippets] ._ajw:nth-of-type(1) ._52eh > a:nth-of-type(1)'));
+     } //else {
+    //   console.log(i + ': has no city!');
+    // }
+
+    people.push(person);
+  }
+
+  // console.log('people:');
+  // console.log(people);
+
+  return people;
 }
