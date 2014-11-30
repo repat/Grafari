@@ -134,22 +134,23 @@ function convertPageToJSON(browser) {
 
   // name, pictureurl and id are set here
   person.name = browser.text('#u_0_p > div > div > div > div._zs.fwb > a');
-  //person.pictureurl = "";
-  //TODO: how do i only get the href value?
-  person.id = extractUserIdFromURLInASuperHackyWayWithRegex(browser.html('#u_0_p > div > div > div > div._zs.fwb > a'));
 
-  //trying to find the right tag for the src 
-  console.log(browser.text('#u_0_p > div > div > img'));
+  //TODO: fix person.id und person.pictureurl
+  // funktioniert nicht, a und img sind null?
+  //var a = browser.query('#u_0_p > div > div > div > div._zs.fwb > a');
+  //person.id = extractUserId(a.getAttribute("href"));
+
+  //var img = browser.query('#u_0_p > div > a > img')
+  //person.pictureurl = img.getAttribute("src")
 
   var allTheDivs = [];
 
   // subtitle
-  allTheDivs[allTheDivs.length] = browser.text('#u_0_p > div > div > div > div._pac._dj_');
+  allTheDivs.push(browser.text('#u_0_p > div > div > div > div._pac._dj_'));
   // could be in a loop
-  allTheDivs[allTheDivs.length] = browser.text('#u_0_p > div > div > div > div._946 > div > div:nth-child(1) > div');
-  allTheDivs[allTheDivs.length] = browser.text('#u_0_p > div > div > div > div._946 > div > div:nth-child(2) > div');
-  allTheDivs[allTheDivs.length] = browser.text('#u_0_p > div > div > div > div._946 > div > div:nth-child(3) > div');
-  allTheDivs[allTheDivs.length] = browser.text('#u_0_p > div > div > div > div._946 > div > div:nth-child(4) > div');
+  for (var i = 1; i < 5; i++) {
+    allTheDivs.push(browser.text('#u_0_p > div > div > div > div._946 > div > div:nth-child(' +  i + ') > div'));
+  }
 
   // debug
   // console.log(allTheDivs)
@@ -163,27 +164,33 @@ function convertPageToJSON(browser) {
   // not changed to new parsing ideas (#22) yet
   // other results
   var rawHtml = browser.query('#u_0_o_browse_result_below_fold > div');
-  for(var i=0; i<rawHtml._childNodes.length; i++) {
+  // warum war vor childNodes ein _ (_childNodes)?
+  for(var i = 0; i < rawHtml.childNodes.length; i++) {
     var index = i+1;  // i+1 inside the browser.text string doesn't work
 
     var person = {};
 
+    // index begins at i = 0 (not variable index)
+    var child = rawHtml.childNodes[i] 
+
     // name, pictureurl and id are set here
     person.name = browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=title] > a'); 
-    person.pictureurl = "";
-    person.id = "";
+    //TODO: find the right img tag
+    //console.log(browser.html('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=image] > img'));
+    //person.pictureurl = "";
+    //TODO: find the right a tag for the link to the profil, then give it to extractUserId()
+    //person.id = "";
 
     allTheDivsFromOtherPeople = [];
-
-    // loop possible here
-    allTheDivsFromOtherPeople[allTheDivsFromOtherPeople.length] = browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=sub_headers] > a');
-    allTheDivsFromOtherPeople[allTheDivsFromOtherPeople.length] = browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=snippets] ._ajw:nth-of-type(1) ._52eh');
-    allTheDivsFromOtherPeople[allTheDivsFromOtherPeople.length] = browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=snippets] ._ajw:nth-of-type(2) ._52eh');
-    allTheDivsFromOtherPeople[allTheDivsFromOtherPeople.length] = browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=snippets] ._ajw:nth-of-type(3) ._52eh');
-    allTheDivsFromOtherPeople[allTheDivsFromOtherPeople.length] = browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=snippets] ._ajw:nth-of-type(4) ._52eh');
+      
+    allTheDivsFromOtherPeople.push(child.querySelector('div[data-bt*=sub_headers] > a').innerText)
+    
+    for (var j = 1; j < 5; j++) {
+      allTheDivsFromOtherPeople.push(child.querySelector('div[data-bt*=snippets] ._ajw:nth-of-type(' + j + ') ._52eh').text)
+    }
 
     // debug
-    //console.log(allTheDivsFromOtherPeople)
+    // console.log(allTheDivsFromOtherPeople)
 
     // add all the other attributes (not sure about syntax here)
     //person = analyzeRegex(allTheOtherDivs);
@@ -212,19 +219,11 @@ function analyzeRegex(divs) {
 }
 
 function splitStrings(divLine) {
-  returnArray = [];
-  /*
-  if (divLine.indexOf("·") != -1) {
-    tmp = divLine.subString[0,divLine.indexOf("·")];
-  }*/
-
-  return returnArray;
+  // remove all white spaces and split by the middle point
+  return divLine.replace(/\s/g,"").split("·")
 }
 
-function extractUserIdFromURLInASuperHackyWayWithRegex(url) {
-  //please forgive me for my uselessness with regex
-  var pattern = /<a href="https:\/\/www.facebook.com\//
-  var pattern2 = /[?][\w|\W|\d|\D]*/
-  url2 = url.replace(pattern, "")
-  return url2.replace(pattern2, "")
+function extractUserId(url) {
+  var pattern = /https:\/\/www\.facebook\.com\/(.*)[?].*/i
+  return pattern.exec(url)[1];
 }
