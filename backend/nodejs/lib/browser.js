@@ -102,7 +102,7 @@ function work(browser) {
   console.log("Checking workQueue: " + JSON.stringify(workQueue))
   if (workQueue.length > 0) {
     var job = workQueue.shift()
-    browser.visit(job.url, function(err, data) {
+    browser.visit(job.url, {duration:"20s"}, function(err, data) {
       if (err)
         process.nextTick(function() { job.callback(err) })
       else {
@@ -114,7 +114,7 @@ function work(browser) {
       }
       
       //Job done, check for remaining work
-      return work(browser)
+      process.nextTick(function() { work(browser) })
     })
   } else {
     worker.push(browser) //All jobs done, set browser to idle
