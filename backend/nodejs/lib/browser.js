@@ -145,13 +145,21 @@ function convertPageToJSON(browser) {
     person.id = extractUserId(link.href)
     person.pictureurl = img.src
 
-    //TODO extract other attributes
-    //TODO put this in loop for the other css selectors ->DRY
-    if (child.querySelector("._pac._dj_") != null) {
-      returnArray = analyzeRegex(child.querySelector("._pac._dj_").textContent);
-      if (returnArray != null)
-        person[returnArray[0]] = returnArray[1];
-    }    
+    // subtitle and the 4 snippets
+    divClasses = ["._pac._dj_",
+    "div[data-bt*=snippets] ._ajw:nth-of-type(1) ._52eh",
+    "div[data-bt*=snippets] ._ajw:nth-of-type(2) ._52eh",
+    "div[data-bt*=snippets] ._ajw:nth-of-type(3) ._52eh",
+    "div[data-bt*=snippets] ._ajw:nth-of-type(4) ._52eh"]
+
+    // in case element exists, run it trough regex checks    
+    for (var i = 0; i < divClasses.length; i++) {
+      if (child.querySelector(divClasses[i]) != null) {
+        returnArray = analyzeRegex(child.querySelector(divClasses[i]).textContent);
+        if (returnArray != null)
+          person[returnArray[0]] = returnArray[1];
+      }    
+    }
 
     people.push(person)
   })
@@ -160,7 +168,7 @@ function convertPageToJSON(browser) {
   return people
 }
 
-function analyzeRegex(div) {
+function analyzeRegex(rawDivs) {
   // TODO: hier rumbasteln und person objekt bauen, dann in convertPageToJSON mit person Objekt mergen
   // regular expressions, s. wiki
 
@@ -176,23 +184,35 @@ function analyzeRegex(div) {
                 ['age', /(\d)years\sold/i],
                 ['employer',/Works\sat\s(.*)/i],
                 ['lives',/Lives\sin\s(.*)/i],
-                ['from',/From\s(.*)/i],
+                ['from',/.*From\s(.*)/i],
                 ['university',/Goes\sto\s(.*)/i],
                 ['university',/Studies\s.*\sat (.*)/i],
                 ['university',/Studies\sat (.*)/i],
-                ['relationship',/Single/i],
-                ['relationship',/In\sa\srelationship.*/i]
+                ['relationship',/(Single)/i],
+                ['relationship',/(In\sa\srelationship).*/i],
+                ['relationship',/(In\san\sopen\srelationship).*/i]
               ]
 
+  //  in case there is a ·, split strings first
+  // TODO: bug:returnArray gibt sowieso nur den ersten Wert zurück
+  divs = []
+  if (rawDivs.indexOf("·") != -1) {
+    divs = splitStrings(rawDivs)
+  } else {
+    divs.push(rawDivs)
+  }
+  
   // interate through all the regexes and give back an array
   // with the json attribute name and the value
   for(var i = 0; i < regexArray.length; i++) {
-    if (regexArray[i][1].test(div)) {
-      returnArray = []
-      returnArray.push(regexArray[i][0])
-      // exec returns an array->[1] is the desired value
-      returnArray.push(regexArray[i][1].exec(div)[1])
-      return returnArray;
+    for (var j = 0; j < divs.length; j++) {
+      if (regexArray[i][1].test(divs[j])) {
+        returnArray = []
+        returnArray.push(regexArray[i][0])
+        // exec returns an array->[1] is the desired value
+        returnArray.push(regexArray[i][1].exec(divs[j])[1])
+        return returnArray;
+      }
     }
   }
   return null
@@ -200,7 +220,8 @@ function analyzeRegex(div) {
 
 function splitStrings(divLine) {
   // remove all white spaces and split by the middle point
-  return divLine.replace(/\s/g,"").split("·")
+  //return divLine.replace(/\s/g,"").split("·")
+  return divLine.split("·")
 }
 
 function extractUserId(url) {
