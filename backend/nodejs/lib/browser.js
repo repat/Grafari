@@ -146,6 +146,12 @@ function convertPageToJSON(browser) {
     person.pictureurl = img.src
 
     //TODO extract other attributes
+    //TODO put this in loop for the other css selectors ->DRY
+    if (child.querySelector("._pac._dj_") != null) {
+      returnArray = analyzeRegex(child.querySelector("._pac._dj_").textContent);
+      if (returnArray != null)
+        person[returnArray[0]] = returnArray[1];
+    }    
 
     people.push(person)
   })
@@ -154,36 +160,42 @@ function convertPageToJSON(browser) {
   return people
 }
 
-function analyzeRegex(divs) {
+function analyzeRegex(div) {
   // TODO: hier rumbasteln und person objekt bauen, dann in convertPageToJSON mit person Objekt mergen
   // regular expressions, s. wiki
-  var age = /(\d)years\sold/i
+
+  // these are more complicated to implement because of the []
   var gender1 = /[^e]male[^s]/i
   var gender2 = /female[^s]/i
-  var profession1 = /(.*)\sat.*/
-  var employer1 = /Works\sat\s(.*)/i
+  // this is a problem since they contain
+  // 2 information bits (profession and employer) in one <div>
+  var profession1 = /(.*)\sat.*/i
   var employer2 = /.*\sat\s(.*)/i
-  var lives1 = /Lives\sin\s(.*)/i
-  var lives = /From\s(.*)/i
-  // only present
-  var university1 = /Goes\sto\s(.*)/i
-  var university2 = /Studies\sat (.*)/i
-  var university2 = /Studies\s.*\sat (.*)/i
-  // just testing relationships
-  var relationship1 = /Single/i
-  var relationship2 = /In\sa\srelationship.*/i
+  
+  regexArray = [
+                ['age', /(\d)years\sold/i],
+                ['employer',/Works\sat\s(.*)/i],
+                ['lives',/Lives\sin\s(.*)/i],
+                ['from',/From\s(.*)/i],
+                ['university',/Goes\sto\s(.*)/i],
+                ['university',/Studies\s.*\sat (.*)/i],
+                ['university',/Studies\sat (.*)/i],
+                ['relationship',/Single/i],
+                ['relationship',/In\sa\srelationship.*/i]
+              ]
 
-
-  // check for empty strings first
-  var person = {};
-    // forEach nach ecma5+?
- /*   for(var i = 0; i < divs.length; i++) {
-      subStrings = splitStrings(divs[i]);
-      // analye them in sub-for-loop
-        // person.attribute = subStrings[j];   
-      }
-   */   
-  return person;
+  // interate through all the regexes and give back an array
+  // with the json attribute name and the value
+  for(var i = 0; i < regexArray.length; i++) {
+    if (regexArray[i][1].test(div)) {
+      returnArray = []
+      returnArray.push(regexArray[i][0])
+      // exec returns an array->[1] is the desired value
+      returnArray.push(regexArray[i][1].exec(div)[1])
+      return returnArray;
+    }
+  }
+  return null
 }
 
 function splitStrings(divLine) {
