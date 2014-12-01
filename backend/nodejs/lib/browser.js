@@ -129,25 +129,23 @@ function convertPageToJSON(browser) {
 
   var people = new Array();
 
-  // first result (handeled differently, because its in a different div)
+  // first result (handeled differently because its in a different div)
   var person = {};
 
   // name, pictureurl and id are set here
   person.name = browser.text('#u_0_p > div > div > div > div._zs.fwb > a');
 
-  //TODO: fix person.id und person.pictureurl
-  // funktioniert nicht, a und img sind null?
-  //var a = browser.query('#u_0_p > div > div > div > div._zs.fwb > a');
-  //person.id = extractUserId(a.getAttribute("href"));
+  var a = browser.query('#u_0_p > div > div > div > div._zs.fwb > a');
+  person.id = extractUserId(a.getAttribute("href"));
 
-  //var img = browser.query('#u_0_p > div > a > img')
-  //person.pictureurl = img.getAttribute("src")
+  var img = browser.query('#u_0_p > div > a > img')
+  person.pictureurl = img.getAttribute("src")
 
   var allTheDivs = [];
 
-  // subtitle
+  // subtitle, and the rest of the attributes
   allTheDivs.push(browser.text('#u_0_p > div > div > div > div._pac._dj_'));
-  // could be in a loop
+  
   for (var i = 1; i < 5; i++) {
     allTheDivs.push(browser.text('#u_0_p > div > div > div > div._946 > div > div:nth-child(' +  i + ') > div'));
   }
@@ -160,8 +158,6 @@ function convertPageToJSON(browser) {
   // person will be created out of the results above and then pushed into final result
   people.push(person);
 
-
-  // not changed to new parsing ideas (#22) yet
   // other results
   var rawHtml = browser.query('#u_0_o_browse_result_below_fold > div');
   // warum war vor childNodes ein _ (_childNodes)?
@@ -171,22 +167,23 @@ function convertPageToJSON(browser) {
     var person = {};
 
     // index begins at i = 0 (not variable index)
+    // this still doesn't work
     var child = rawHtml.childNodes[i] 
 
     // name, pictureurl and id are set here
     person.name = browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=title] > a'); 
-    //TODO: find the right img tag
-    //console.log(browser.html('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=image] > img'));
-    //person.pictureurl = "";
-    //TODO: find the right a tag for the link to the profil, then give it to extractUserId()
-    //person.id = "";
+    var a = browser.query('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') a[data-bt*=image]');
+    person.id = extractUserId(a.getAttribute("href"));
+    var img = browser.query('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') a[data-bt*=image] > img');
+    person.pictureurl = img.getAttribute("src");
 
     allTheDivsFromOtherPeople = [];
       
+    // see line 171 -> doesn't work
     allTheDivsFromOtherPeople.push(child.querySelector('div[data-bt*=sub_headers] > a').innerText)
     
     for (var j = 1; j < 5; j++) {
-      allTheDivsFromOtherPeople.push(child.querySelector('div[data-bt*=snippets] ._ajw:nth-of-type(' + j + ') ._52eh').text)
+      allTheDivsFromOtherPeople.push(child.querySelector('div[data-bt*=snippets] ._ajw:nth-of-type(' + j + ') ._52eh').innerText)
     }
 
     // debug
@@ -206,6 +203,25 @@ function convertPageToJSON(browser) {
 }
 
 function analyzeRegex(divs) {
+  // TODO: hier rumbasteln und person objekt bauen, dann in convertPageToJSON mit person Objekt mergen
+  // regular expressions, s. wiki
+  var age = /(\d)years\sold/i
+  var gender1 = /[^e]male[^s]/i
+  var gender2 = /female[^s]/i
+  var profession1 = /(.*)\sat.*/
+  var employer1 = /Works\sat\s(.*)/i
+  var employer2 = /.*\sat\s(.*)/i
+  var lives1 = /Lives\sin\s(.*)/i
+  var lives = /From\s(.*)/i
+  // only present
+  var university1 = /Goes\sto\s(.*)/i
+  var university2 = /Studies\sat (.*)/i
+  var university2 = /Studies\s.*\sat (.*)/i
+  // just testing relationships
+  var relationship1 = /Single/i
+  var relationship2 = /In\sa\srelationship.*/i
+
+
   // check for empty strings first
   var person = {};
     // forEach nach ecma5+?

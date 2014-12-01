@@ -5,6 +5,8 @@ var restify = require('restify')
 var async   = require("async")
 var Browser = require("./lib/browser")
 var Requests = require("./lib/request-logic")
+var r   = require("redis")
+redis = r.createClient();
 
 
 /** Start-Up (launch browser-module and rest server)
@@ -41,6 +43,13 @@ function search(req, res, done) {
   Requests.translateTree(parseTree, function(err, requestList) {
     var lookupFunctions = requestList.map(function (fbpath) {
       return function(callback) {
+        /*redis.get(fbpath, function(err,reply) {
+          if (reply == null) {
+            // key doesn't exists
+          } else {
+            reply is json object
+          }
+        });*/
         console.log("Fetching: " + fbpath)
         Browser.get("/search" + fbpath, callback)
       }
