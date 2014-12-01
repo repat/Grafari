@@ -5,8 +5,8 @@ var restify = require('restify')
 var async   = require("async")
 var Browser = require("./lib/browser")
 var Requests = require("./lib/request-logic")
-var r   = require("redis")
-redis = r.createClient();
+//var r   = require("redis")
+//redis = r.createClient();
 
 
 /** Start-Up (launch browser-module and rest server)
