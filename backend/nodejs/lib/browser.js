@@ -127,79 +127,31 @@ function convertPageToJSON(browser) {
   // TODO: differentiate between works at, studies at, lives in, from, etc. (check wiki: Such Regex für Graph Search)
   //
 
-  var people = new Array();
-
-  // first result (handeled differently because its in a different div)
-  var person = {};
-
-  // name, pictureurl and id are set here
-  person.name = browser.text('#u_0_p > div > div > div > div._zs.fwb > a');
-
-  var a = browser.query('#u_0_p > div > div > div > div._zs.fwb > a');
-  person.id = extractUserId(a.getAttribute("href"));
-
-  var img = browser.query('#u_0_p > div > a > img')
-  person.pictureurl = img.getAttribute("src")
-
-  var allTheDivs = [];
-
-  // subtitle, and the rest of the attributes
-  allTheDivs.push(browser.text('#u_0_p > div > div > div > div._pac._dj_'));
+  var people = []
+  var peopleDivs = []
   
-  for (var i = 1; i < 5; i++) {
-    allTheDivs.push(browser.text('#u_0_p > div > div > div > div._946 > div > div:nth-child(' +  i + ') > div'));
-  }
-
-  // debug
-  // console.log(allTheDivs)
-
-  // add all the other attributes (not sure about syntax here)
-  // person = analyzeRegex(allTheDivs);
-  // person will be created out of the results above and then pushed into final result
-  people.push(person);
-
-  // other results
-  var rawHtml = browser.query('#u_0_o_browse_result_below_fold > div');
-  // warum war vor childNodes ein _ (_childNodes)?
-  for(var i = 0; i < rawHtml.childNodes.length; i++) {
-    var index = i+1;  // i+1 inside the browser.text string doesn't work
-
-    var person = {};
-
-    // index begins at i = 0 (not variable index)
-    // this still doesn't work
-    var child = rawHtml.childNodes[i] 
-
-    // name, pictureurl and id are set here
-    person.name = browser.text('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') div[data-bt*=title] > a'); 
-    var a = browser.query('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') a[data-bt*=image]');
-    person.id = extractUserId(a.getAttribute("href"));
-    var img = browser.query('#u_0_o_browse_result_below_fold ._4_yl:nth-of-type(' + index + ') a[data-bt*=image] > img');
-    person.pictureurl = img.getAttribute("src");
-
-    allTheDivsFromOtherPeople = [];
-      
-    // see line 171 -> doesn't work
-    allTheDivsFromOtherPeople.push(child.querySelector('div[data-bt*=sub_headers] > a').innerText)
-    
-    for (var j = 1; j < 5; j++) {
-      allTheDivsFromOtherPeople.push(child.querySelector('div[data-bt*=snippets] ._ajw:nth-of-type(' + j + ') ._52eh').innerText)
-    }
-
-    // debug
-    // console.log(allTheDivsFromOtherPeople)
-
-    // add all the other attributes (not sure about syntax here)
-    //person = analyzeRegex(allTheOtherDivs);
-
-    people.push(person);
-  }
-
-  // console.log('people:');
-  // console.log(people);
+  // People are returned in two seperate div containers. The first one is loaded statically
+  // and sometimes contains only one elment and the second one is loaded dynamically and contains the remaining people
+  array_copy(browser.query("#BrowseResultsContainer").childNodes, peopleDivs)
+  array_copy(browser.query("#u_0_o_browse_result_below_fold > div").childNodes, peopleDivs)
 
 
-  return people;
+  peopleDivs.forEach(function(child) {
+    var person = {}
+    var link = child.querySelector("._zs.fwb > a")
+    var img = child.querySelector("._7kf._8o._8s.lfloat._ohe > img")
+
+    person.name = link.textContent
+    person.id = extractUserId(link.href)
+    person.pictureurl = img.src
+
+    //TODO extract other attributes
+
+    people.push(person)
+  })
+
+  console.log("Parsed " + people.length + " people in total")
+  return people
 }
 
 function analyzeRegex(divs) {
@@ -242,4 +194,10 @@ function splitStrings(divLine) {
 function extractUserId(url) {
   var pattern = /https:\/\/www\.facebook\.com\/(.*)[?].*/i
   return pattern.exec(url)[1];
+}
+
+
+function array_copy(from, to) {
+  for(var c = 0; c < from.length; ++c)
+    to.push(from[c])
 }
