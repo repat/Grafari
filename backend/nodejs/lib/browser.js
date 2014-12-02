@@ -3,9 +3,12 @@
  *  When requiring this module, a Browser ist automatically launched and logs in into Facebook.
  *  Then requests can be sent to this browser for visiting urls.
  */ 
-var fs      = require("fs")
+var fs      = require("fs");
 var async   = require("async");
 var Zombie  = require("zombie");
+//var r   = require("redis");
+//redis = r.createClient();
+
 
 var WORKERS = 5
 
@@ -155,9 +158,15 @@ function convertPageToJSON(browser) {
     // in case element exists, run it trough regex checks    
     for (var i = 0; i < divClasses.length; i++) {
       if (child.querySelector(divClasses[i]) != null) {
-        returnArray = analyzeRegex(child.querySelector(divClasses[i]).textContent);
-        if (returnArray != null)
-          person[returnArray[0]] = returnArray[1];
+        returnArray = extractInformationFromDiv(child.querySelector(divClasses[i]).textContent);
+        if (returnArray != null){
+          for (var j = 0; j < returnArray; j++) {
+            // this is ugly as fuck. it means every second object because array is [key,value,key,value,...]
+            if (j % 2 == 0) {
+              person[returnArray[j]] = returnArray[j+1];
+            }
+          }
+        }
       }    
     }
 
@@ -168,13 +177,15 @@ function convertPageToJSON(browser) {
   return people
 }
 
-function analyzeRegex(rawDivs) {
+function extractInformationFromDiv(rawDivs) {
   // TODO: hier rumbasteln und person objekt bauen, dann in convertPageToJSON mit person Objekt mergen
   // regular expressions, s. wiki
 
+  // TODO: gender regex
   // these are more complicated to implement because of the []
   var gender1 = /[^e]male[^s]/i
   var gender2 = /female[^s]/i
+  // TODO: seperate profession, university and work and put it in the right order
   // this is a problem since they contain
   // 2 information bits (profession and employer) in one <div>
   var profession1 = /(.*)\sat.*/i
@@ -196,7 +207,7 @@ function analyzeRegex(rawDivs) {
   //  in case there is a ·, split strings first
   // TODO: bug:returnArray gibt sowieso nur den ersten Wert zurück
   divs = []
-  if (rawDivs.indexOf("·") != -1) {
+  if (rawDivs.indexOf("·") != -1) {ine.split("·")
     divs = splitStrings(rawDivs)
   } else {
     divs.push(rawDivs)
@@ -205,14 +216,14 @@ function analyzeRegex(rawDivs) {
   // interate through all the regexes and give back an array
   // with the json attribute name and the value
   for(var i = 0; i < regexArray.length; i++) {
+    returnArray = []
     for (var j = 0; j < divs.length; j++) {
       if (regexArray[i][1].test(divs[j])) {
-        returnArray = []
         returnArray.push(regexArray[i][0])
         // exec returns an array->[1] is the desired value
         returnArray.push(regexArray[i][1].exec(divs[j])[1])
-        return returnArray;
       }
+      return returnArray;
     }
   }
   return null
