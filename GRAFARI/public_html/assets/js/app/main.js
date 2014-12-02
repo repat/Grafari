@@ -72,6 +72,7 @@ require(['../common'], function () {
                 //console.log('Tokenized: ' + JSON.stringify(parser.parse(tokens)));
 
                 brandRow.removeClass('center');
+                resultSpinner.removeClass('hidden');
 
             });
 
