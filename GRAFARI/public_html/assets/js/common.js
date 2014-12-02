@@ -11,9 +11,10 @@ requirejs.config({
 		isotope: 'isotope',
 		jquery: 'jquery',
 		jqueryBridget: 'jquery.bridget',
-		parser: '../app/modules/parser',
-                underscore: 'underscore-min',
-                searchAPI: 'search_api'
+		moduleSkeleton: '../app/modules/moduleSkeleton',
+		queryToggle: '../app/modules/queryToggle',
+		underscore: 'underscore-min',
+		searchAPI: 'search_api'
 	},
 	shim: {
 		isotope: {

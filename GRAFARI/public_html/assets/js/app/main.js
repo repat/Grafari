@@ -4,7 +4,7 @@
  */
 require(['../common'], function () {
 
-    require(['jquery', 'isotope', 'underscore', 'searchAPI'], function ($, isotope) {
+    require(['jquery', 'isotope', 'queryToggle', 'underscore', 'searchAPI'], function ($, isotope, queryToggle) {
 
         // make Isotope a jQuery plugin
         $.bridget('isotope', isotope);
@@ -211,6 +211,7 @@ require(['../common'], function () {
                     layoutMode: 'fitRows'
                 });
 
+                queryToggle.toggle();
             });
         }
     });
