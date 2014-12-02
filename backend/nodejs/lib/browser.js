@@ -159,11 +159,14 @@ function convertPageToJSON(browser) {
     for (var i = 0; i < divClasses.length; i++) {
       if (child.querySelector(divClasses[i]) != null) {
         returnArray = extractInformationFromDiv(child.querySelector(divClasses[i]).textContent);
-        if (returnArray != null){
-          for (var j = 0; j < returnArray; j++) {
+        if (returnArray.length != 0) {
+
+          console.log(returnArray)
+          for (var j = 0; j < returnArray.length; j++) {
             // this is ugly as fuck. it means every second object because array is [key,value,key,value,...]
             if (j % 2 == 0) {
               person[returnArray[j]] = returnArray[j+1];
+              console.log(person)
             }
           }
         }
@@ -212,21 +215,23 @@ function extractInformationFromDiv(rawDivs) {
   } else {
     divs.push(rawDivs)
   }
+
+  //console.log(divs)
   
   // interate through all the regexes and give back an array
   // with the json attribute name and the value
+  returnArray = []
   for(var i = 0; i < regexArray.length; i++) {
-    returnArray = []
     for (var j = 0; j < divs.length; j++) {
+      //console.log("test: " + regexArray[i][1].test(divs[j]) + "regex: " + regexArray[i][1] + "div: " + divs[j])
       if (regexArray[i][1].test(divs[j])) {
         returnArray.push(regexArray[i][0])
         // exec returns an array->[1] is the desired value
         returnArray.push(regexArray[i][1].exec(divs[j])[1])
       }
-      return returnArray;
     }
   }
-  return null
+  return returnArray;
 }
 
 function splitStrings(divLine) {
