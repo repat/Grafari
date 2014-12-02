@@ -46,7 +46,8 @@ require(['../common'], function () {
 
 
             // Example text for the demo
-            $(".form-control").val("All people who live in Germany AND ( people who are self-employed OR NOT people who are homeless )");
+            // $(".form-control").val("All people who live in Germany AND ( people who are self-employed OR NOT people who are homeless )");
+            $(".form-control").val("All people who live in Hamburg");
         }
 
         /**
@@ -72,16 +73,6 @@ require(['../common'], function () {
 
                 brandRow.removeClass('center');
 
-         /*       setTimeout(function () {
-                    resultWell.removeClass('hidden');
-                    queryHistory.removeClass('hidden');
-                }, 400);
-
-                setTimeout(function () {
-                    resultSpinner.addClass('hidden');
-                    results.removeClass('hidden');
-                    init_isotope();
-                }, 1000);*/
             });
 
             $('#btn_clear').click(function () {
