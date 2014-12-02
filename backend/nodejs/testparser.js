@@ -24,7 +24,10 @@ var Requests = require("./lib/request-logic")
 
 /** Hier mal ein paar Beispielanfragen
  */
-var input = 'All people who are living in Germany';
+//var input = 'All people who are living in Germany';
+//var input = 'All people who lived in Germany AND who worked at "IBM" AND were born in 1990'
+//var input = 'All men who study at "HAW Hamburg"'
+var input = 'All women who (are in an open relationship OR are single)'
 //var input = 'All women who are under 20 years old'
 //var input = 'All women who are younger than 20 OR all men who are older than 20';
 //var input = 'All women who (live in Germany OR live in America)';

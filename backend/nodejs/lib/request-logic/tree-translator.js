@@ -92,6 +92,14 @@ C.CondLiveIn.prototype.translate = function(resolver, callback) {
   })
 }
 
+C.CondFrom.prototype.translate = function(resolver, callback) {
+  resolver.resolveLocation(this.location, function(err, locationID) {
+    if (err)
+      return callback(err)
+    return callback(null, "/" + locationID + "/home-residents")
+  })
+}
+
 C.CondLike.prototype.translate = function(resolver, callback) {
   resolver.resolve(this.what, function(err, itemID) {
     if (err)
@@ -113,6 +121,18 @@ C.CondWorkAt.prototype.translate = function(resolver, callback) {
   })
 }
 
+C.CondStudy.prototype.translate = function(resolver, callback) {
+  resolver.resolve(this.uni, function(err, id) {
+    if (err)
+      return callback(err)
+    return callback(null, "/" + id + "/students")
+  })
+}
+
 C.CondBorn.prototype.translate = function(resolver, callback) {
   return callback(null, "/" + this.year + "/date/users-born")
+}
+
+C.CondRelationship.prototype.translate = function(resolver, callback) {
+  return callback(null, "/" + this.type + "/users")
 }

@@ -8,9 +8,17 @@
 //CondOlder       = 'are' ('older' 'than' | 'over') Age 
 //CondAgeBetween  = 'are' 'between' Age 'and' Age
 //CondAgeEqual    = 'are' Age
-//CondLiveIn      = ('live')|('are' 'living') 'in' token
+//CondLiveIn      = ('live')|('are' 'living')|('lived') 'in' token
+//CondFrom        = 'are' 'from' token
 //CondLike        = 'like' token
 //CondName        = 'are' ('named'|'called') token
+//CondWorkAt      = ('work'|'worked'|'are' 'working') 'at' token 
+//CondBorn        = 'were' 'born' 'in' integer
+//CondStudy       = ('are' 'studying')|('study') 'at' token
+//CondRelationship= 'are' 'married' | 'are' 'engaged' | 'are' 'single' | 'are' 'widowed' |
+//                  'are' 'in' 'an' open' 'relationship' | 'are' 'seperated' | 
+//                  'are' 'divorced' | 'are' 'in' 'a' 'civil' 'union' |
+//                  'are' 'dating' | 'are' 'in' 'a' 'relationship' | 'whose' 'relationship' 'is' 'complicated' 
 //CondGroup       = '(' Disjunction ')'
 //Disjunction     = Conjunction {'OR' Conjunction}
 //Conjunction     = Condition {'AND' Condition }

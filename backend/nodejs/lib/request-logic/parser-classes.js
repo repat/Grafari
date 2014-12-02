@@ -7,10 +7,13 @@ exports.CondOlder       = CondOlder
 exports.CondAgeBetween  = CondAgeBetween
 exports.CondAgeEqual    = CondAgeEqual
 exports.CondLiveIn      = CondLiveIn
+exports.CondFrom        = CondFrom
 exports.CondLike        = CondLike
 exports.CondName        = CondName
 exports.CondWorkAt      = CondWorkAt
 exports.CondBorn        = CondBorn
+exports.CondStudy       = CondStudy
+exports.CondRelationship= CondRelationship
 exports.CondGroup       = CondGroup
 exports.Disjunction     = Disjunction
 exports.Conjunction     = Conjunction
@@ -96,6 +99,14 @@ CondLiveIn.prototype.toString = function() {
   return "CondLiveIn(" + this.location + "," + this.time + ")"
 }
 
+function CondFrom(location) {
+  this.location = location
+}
+
+CondFrom.prototype.toString = function() {
+  return "CondFrom(" + this.location + ")"
+}
+
 function CondLike(what) {
   this.what = what //Has to be resolved before sending request to facebook
 }
@@ -127,6 +138,22 @@ function CondBorn(year) {
 
 CondBorn.prototype.toString = function() {
   return "CondBorn(" + this.year + ")"
+}
+
+function CondStudy(uni) {
+  this.uni = uni
+}
+
+CondStudy.prototype.toString = function() {
+  return "CondStudy(" + this.uni + ")"
+}
+
+function CondRelationship(type) {
+  this.type = type
+}
+
+CondRelationship.prototype.toString = function() {
+  return "CondRelationship(" + this.type + ")"
 }
 
 // Represents conditions grouped by ()

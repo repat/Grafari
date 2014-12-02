@@ -87,10 +87,16 @@ Array.prototype.findFirst = function(predicate) {
 //CondAgeBetween  = 'are' 'between' Age 'and' Age
 //CondAgeEqual    = 'are' Age
 //CondLiveIn      = ('live')|('are' 'living')|('lived') 'in' token
+//CondFrom        = 'are' 'from' token
 //CondLike        = 'like' token
 //CondName        = 'are' ('named'|'called') token
 //CondWorkAt      = ('work'|'worked'|'are' 'working') 'at' token 
 //CondBorn        = 'were' 'born' 'in' integer
+//CondStudy       = ('are' 'studying')|('study') 'at' token
+//CondRelationship= 'are' 'married' | 'are' 'engaged' | 'are' 'single' | 'are' 'widowed' |
+//                  'are' 'in' 'an' open' 'relationship' | 'are' 'seperated' | 
+//                  'are' 'divorced' | 'are' 'in' 'a' 'civil' 'union' |
+//                  'are' 'dating' | 'are' 'in' 'a' 'relationship' | 'whose' 'relationship' 'is' 'complicated' 
 //CondGroup       = '(' Disjunction ')'
 //Disjunction     = Conjunction {'OR' Conjunction}
 //Conjunction     = Condition {'AND' Condition }
@@ -130,6 +136,11 @@ function Selector(tokens) {
 }
 
 //Condition = ['who'] (CondYounger|CondOlder|...|CondGroup)
+
+//CondRelationship= 'are' 'married' | 'are' 'engaged' | 'are' 'single' | 'are' 'widowed' |
+//                  'are' 'in' 'an' open' 'relationship' | 'are' 'seperated' | 
+//                  'are' 'divorced' | 'are' 'in' 'a' 'civil' 'union' |
+//                  'are' 'dating' | 'are' 'in' 'a' 'relationship' | 'whose' 'relationship' 'is' 'complicated' 
 function Condition(tokens) { 
   tokens.takeNext('who') //Skip 'who'
 
@@ -148,6 +159,15 @@ function Condition(tokens) {
     return CondName(tokens)
   if (tokens.is('are', 'working'))
     return CondWorkAt(tokens)
+  if (tokens.is('are', 'married') ||
+      tokens.is('are', 'engaged') ||
+      tokens.is('are', 'single')  ||
+      tokens.is('are', 'widowed') ||
+      tokens.is('are', 'in')      ||
+      tokens.is('are', 'sperated') ||
+      tokens.is('are', 'divorced') ||
+      tokens.is('are', 'dating'))
+    return CondRelationship(tokens)
   if (tokens.is('are'))
     return CondAgeEqual(tokens)
 
@@ -164,6 +184,10 @@ function Condition(tokens) {
   if (tokens.is('worked') ||
       tokens.is('work'))
     return CondWorkAt(tokens)
+  if (tokens.is('study'))
+    return CondStudy(tokens)
+  if (tokens.is('whose'))
+    return CondRelationship(tokens)
   
 
   throw parseError("Unexpected next token in token list when parsing a condition", tokens)
@@ -229,6 +253,16 @@ function CondLiveIn(tokens) {
   throw parseError("Expected 'live in' or 'are living in' or 'lived in'", tokens)
 }
 
+//CondFrom = 'are' 'from' token
+function CondFrom(tokens) {
+  if (tokens.take('are', 'from') && !tokens.empty()) {
+    var location = tokens.pop()
+    return new C.CondFrom(location)
+  }
+
+  throw parseError("Expected 'are from'", tokens)
+}
+
 //CondLike = 'like' token
 function CondLike(tokens) {
   if (tokens.takeNext('like') && !tokens.empty()) {
@@ -272,7 +306,51 @@ function CondBorn(tokens) {
     return new C.CondBorn(integer(tokens))
   }
  
-  throw parseError("Expected 'were born in ###'", tokens)
+  throw parseError("Expected 'were born in'", tokens)
+}
+
+//CondStudy = ('are' 'studying')|(study') 'at' token
+function CondStudy(tokens) {
+  if (tokens.take('study', 'at') ||
+      tokens.take('are', 'studying', 'at')) {
+    if (!tokens.empty()) {
+      var university = tokens.pop()
+      return new C.CondStudy(university)
+    }
+  }
+
+  throw parseError("Expected 'are studying at' or 'study at'")
+}
+
+//CondRelationship= 'are' 'married' | 'are' 'engaged' | 'are' 'single' | 'are' 'widowed' |
+//                  'are' 'in' 'an' open' 'relationship' | 'are' 'seperated' | 
+//                  'are' 'divorced' | 'are' 'in' 'a' 'civil' 'union' |
+//                  'are' 'dating' | 'are' 'in' 'a' 'relationship' | 'whose' 'relationship' 'is' 'complicated' 
+function CondRelationship(tokens) {
+  if (tokens.take('are', 'married'))
+    return new C.CondRelationship("married")
+  if (tokens.take('are', 'engaged'))
+    return new C.CondRelationship("engaged")
+  if (tokens.take('are', 'single'))
+    return new C.CondRelationship("single")
+  if (tokens.take('are', 'widowed'))
+    return new C.CondRelationship("widowed")
+  if (tokens.take('are', 'in', 'an', 'open', 'relationship'))
+    return new C.CondRelationship("in-open-relationship")
+  if (tokens.take('whose', 'relationship', 'is', 'complicated'))
+    return new C.CondRelationship("its-complicated")
+  if (tokens.take('are', 'seperated'))
+    return new C.CondRelationship("seperated")
+  if (tokens.take('are', 'divorced'))
+    return new C.CondRelationship("divorced")
+  if (tokens.take('are', 'in', 'a', 'civil', 'union'))
+    return new C.CondRelationship("in-civil-union")
+  if (tokens.take('are', 'dating'))
+    return new C.CondRelationship("dating")
+  if (tokens.take('are', 'in', 'a', 'relationship'))
+    return new C.CondRelationship("in-any-relationship")
+
+  throw parseError("Expected any kind of relationship description", tokens)
 }
 
 //CondGroup       = '(' Disjunction ')'
