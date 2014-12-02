@@ -138,57 +138,63 @@ require(['../common'], function() {
                     results.append('<div id="' + user.id + '" class="result'
                             + ' well userWell"></div>');
                     var userDiv = $('#' + user.id);
-                    while (!user.properties.query.empty()) {
-                        userDiv.addClass('' + user.properties.query.pop());
-                    }
-                    userDiv.append('<a class="media-left" href="#">'
+
+                        userDiv.append('<a class="media-left" href="#">'
                             //userDiv.append('<img src="' + user.pictureurl + '" alt="'
                             //        + user.name + '"></img></a>');
-                            + '<i class="fa fa-user fa-5x"></i></a>');
-                    var infotext = '<b>' + user.name;
-                    if (user.properties.hasOwnProperty("gender")) {
-                        if (user.properties["gender"] === "male") {
-                            infotext += ' &#9794';
-                        } else if (user.properties["gender"] === "female") {
-                            infotext += ' &#9792';
-                        }
-                    }
-                    infotext += '</b><br>';
-                    if (user.properties.hasOwnProperty("age")) {
-                        infotext += user.properties["age"];
-                    }
-                    if (user.properties.hasOwnProperty("relationship")) {
-                        infotext += ' &#183; ' + user.properties["relationship"];
-                    }
-                    if (user.properties.hasOwnProperty("employer")) {
-                        if (user.properties.hasOwnProperty("profession")) {
-                            if (user.properties["profession"] === "unemployed") {
-                                infotext += ' &#183; worked at ' + user.properties["employer"];
-                            } else if (user.properties["profession"] === "") {
-                                infotext += ' &#183; works at ' + user.properties["employer"];
-                            } else {
-                                infotext += ' &#183; ' + user.properties["profession"]+ ' at '
-                                        + user.properties["employer"];
+                        + '<i class="fa fa-user fa-5x"></i></a>');
+                        var infotext = '<b>' + user.name;
+
+                        if (user.hasOwnProperty("properties")) {
+                            while (!user.properties.query.empty()) {
+                                userDiv.addClass('' + user.properties.query.pop());
                             }
-                        } else {
-                            infotext += ' &#183; works at '
+                            if (user.properties.hasOwnProperty("gender")) {
+                                if (user.properties["gender"] === "male") {
+                                    infotext += ' &#9794';
+                                } else if (user.properties["gender"] === "female") {
+                                    infotext += ' &#9792';
+                                }
+                            }
+
+                            infotext += '</b><br>';
+                            if (user.properties.hasOwnProperty("age")) {
+                                infotext += user.properties["age"];
+                            }
+                            if (user.properties.hasOwnProperty("relationship")) {
+                                infotext += ' &#183; ' + user.properties["relationship"];
+                            }
+                            if (user.properties.hasOwnProperty("employer")) {
+                                if (user.properties.hasOwnProperty("profession")) {
+                                    if (user.properties["profession"] === "unemployed") {
+                                        infotext += ' &#183; worked at ' + user.properties["employer"];
+                                    } else if (user.properties["profession"] === "") {
+                                        infotext += ' &#183; works at ' + user.properties["employer"];
+                                    } else {
+                                        infotext += ' &#183; ' + user.properties["profession"] + ' at '
+                                        + user.properties["employer"];
+                                    }
+                                } else {
+                                    infotext += ' &#183; works at '
                                     + user.properties["employer"];
+                                }
+                            }
+                            if (user.properties.hasOwnProperty("studies")) {
+                                infotext += ' &#183; studies ' + user.properties["studies"];
+                                if (user.properties.hasOwnProperty("university")) {
+                                    infotext += ' at ' + user.properties["university"];
+                                }
+                            }
+                            if (user.properties.hasOwnProperty("lives")) {
+                                infotext += ' &#183; lives in ' + user.properties["lives"];
+                            }
+                            if (user.properties.hasOwnProperty("from") && user.properties["from"] !== user.properties["lives"]) {
+                                infotext += ' &#183; used to live in ' + user.properties["from"];
+                            }
                         }
-                    }
-                    if (user.properties.hasOwnProperty("studies")) {
-                        infotext += ' &#183; studies ' + user.properties["studies"];
-                        if (user.properties.hasOwnProperty("university")) {
-                            infotext += ' at ' + user.properties["university"];
-                        }
-                    }
-                    if (user.properties.hasOwnProperty("lives")) {
-                        infotext += ' &#183; lives in ' + user.properties["lives"];
-                    }
-                    if (user.properties.hasOwnProperty("from") && user.properties["from"] !== user.properties["lives"]) {
-                        infotext += ' &#183; used to live in ' + user.properties["from"];
-                    }
-                    userDiv.append('<div class="media-body">' + infotext
-                            + '</div>');
+                        userDiv.append('<div class="media-body">' + infotext
+                        + '</div>');
+
                 }
             });
         }
@@ -197,11 +203,31 @@ require(['../common'], function() {
 
 var testdata = {
     get: function(callback) {
-        var results = new Object;
+        console.log('----------->BAHM');
+
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/search/all%20people%20who%20live%20in%20germany",
+            contentType: "application/json; charset=utf-8",
+            //data: contact.toJsonString(),
+            dataType: "json",
+            success: function (data, status, jqXHR) {
+                console.log('-->success', data, status, jqXHR);
+                //console.log('responseText', jqXHR.responseText)
+                console.log('json string', $.parseJSON(jqXHR.responseText))
+                callback.call(this, $.parseJSON(jqXHR.responseText)[0]);
+            },
+            error: function (jqXHR, status) {
+                console.log('-->error', jqXHR, status)
+            }
+        });
+
+
+        /*var results = new Object;
         $.getJSON("assets/js/lib/testdata.json", function(data) {
             console.log(data);
             results = data;
             callback.call(this, results);
-        });
+        });*/
     }
 };
