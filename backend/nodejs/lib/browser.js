@@ -207,7 +207,7 @@ function extractInformationFromDiv(rawDivs) {
   //  in case there is a ·, split strings first
   // TODO: bug:returnArray gibt sowieso nur den ersten Wert zurück
   divs = []
-  if (rawDivs.indexOf("·") != -1) {ine.split("·")
+  if (rawDivs.indexOf("·") != -1) {
     divs = splitStrings(rawDivs)
   } else {
     divs.push(rawDivs)
