@@ -2,20 +2,20 @@
  * MiSearch main.js
  * PA 27-10-2014
  */
-require(['../common'], function() {
+require(['../common'], function () {
 
-    require(['jquery', 'isotope', 'underscore', 'searchAPI'], function($, isotope) {
+    require(['jquery', 'isotope', 'underscore', 'searchAPI'], function ($, isotope) {
 
         // make Isotope a jQuery plugin
         $.bridget('isotope', isotope);
 
-        $(function() {
+        $(function () {
             console.log('Setting up ...');
             miSearch_init();
 
             var $container = $('#results');
 
-            $('.result').on('click', '.subQuery', function(){
+            $('.result').on('click', '.subQuery', function () {
 
                 var id = $(this).attr("data-id");
 
@@ -27,7 +27,7 @@ require(['../common'], function() {
 
             });
 
-            $('.result').on('click', '.mainQuery', function(){
+            $('.result').on('click', '.mainQuery', function () {
                 $container.isotope({
                     itemSelector: '.result',
                     layoutMode: 'fitRows',
@@ -38,7 +38,7 @@ require(['../common'], function() {
         });
 
         /**
-         * Initial Page Setup 
+         * Initial Page Setup
          */
         function miSearch_init() {
             // Setup Button Handler
@@ -61,7 +61,7 @@ require(['../common'], function() {
             var formInput = $('#queryinput');
             var currentQuery = $('#current-query');
 
-            $('#btn_search').click(function() {
+            $('#btn_search').click(function () {
                 make_Users();
 
                 var tokens = search._tokenize(formInput.val());
@@ -72,19 +72,19 @@ require(['../common'], function() {
 
                 brandRow.removeClass('center');
 
-                setTimeout(function() {
+                setTimeout(function () {
                     resultWell.removeClass('hidden');
                     queryHistory.removeClass('hidden');
                 }, 400);
 
-                setTimeout(function() {
+                setTimeout(function () {
                     resultSpinner.addClass('hidden');
                     results.removeClass('hidden');
                     init_isotope();
                 }, 1000);
             });
 
-            $('#btn_clear').click(function() {
+            $('#btn_clear').click(function () {
                 resultWell.addClass('hidden');
                 brandRow.addClass('center');
                 resultSpinner.removeClass('hidden');
@@ -130,70 +130,70 @@ require(['../common'], function() {
         }
 
         function make_Users() {
-            testdata.get(function(users) {
+            testdata.get(function (users) {
                 var results = $('#results');
                 results.empty();
                 while (!users.empty()) {
                     var user = users.pop();
-                    results.append('<div id="' + user.id + '" class="result'
-                            + ' well userWell"></div>');
-                    var userDiv = $('#' + user.id);
+                    var userId = user.id.replace(/\./g, "-")
+                    results.append('<div id="' + userId + '" class="result'
+                    + ' well userWell"></div>');
+                    var userDiv = $('#' + userId);
 
-                        userDiv.append('<a class="media-left" href="#">'
-                            //userDiv.append('<img src="' + user.pictureurl + '" alt="'
-                            //        + user.name + '"></img></a>');
-                        + '<i class="fa fa-user fa-5x"></i></a>');
-                        var infotext = '<b>' + user.name;
+                    userDiv.append('<a class="media-left" href="#">');
+                    userDiv.append('<img src="' + user.pictureurl + '" alt="' + user.name + '"></img></a>');
+                    console.log(user.pictureurl);
+                    var infotext = '<b>' + user.name;
 
-                        if (user.hasOwnProperty("properties")) {
-                            while (!user.properties.query.empty()) {
-                                userDiv.addClass('' + user.properties.query.pop());
-                            }
-                            if (user.properties.hasOwnProperty("gender")) {
-                                if (user.properties["gender"] === "male") {
-                                    infotext += ' &#9794';
-                                } else if (user.properties["gender"] === "female") {
-                                    infotext += ' &#9792';
-                                }
-                            }
-
-                            infotext += '</b><br>';
-                            if (user.properties.hasOwnProperty("age")) {
-                                infotext += user.properties["age"];
-                            }
-                            if (user.properties.hasOwnProperty("relationship")) {
-                                infotext += ' &#183; ' + user.properties["relationship"];
-                            }
-                            if (user.properties.hasOwnProperty("employer")) {
-                                if (user.properties.hasOwnProperty("profession")) {
-                                    if (user.properties["profession"] === "unemployed") {
-                                        infotext += ' &#183; worked at ' + user.properties["employer"];
-                                    } else if (user.properties["profession"] === "") {
-                                        infotext += ' &#183; works at ' + user.properties["employer"];
-                                    } else {
-                                        infotext += ' &#183; ' + user.properties["profession"] + ' at '
-                                        + user.properties["employer"];
-                                    }
-                                } else {
-                                    infotext += ' &#183; works at '
-                                    + user.properties["employer"];
-                                }
-                            }
-                            if (user.properties.hasOwnProperty("studies")) {
-                                infotext += ' &#183; studies ' + user.properties["studies"];
-                                if (user.properties.hasOwnProperty("university")) {
-                                    infotext += ' at ' + user.properties["university"];
-                                }
-                            }
-                            if (user.properties.hasOwnProperty("lives")) {
-                                infotext += ' &#183; lives in ' + user.properties["lives"];
-                            }
-                            if (user.properties.hasOwnProperty("from") && user.properties["from"] !== user.properties["lives"]) {
-                                infotext += ' &#183; used to live in ' + user.properties["from"];
+                    if (user.hasOwnProperty("properties")) {
+                        while (!user.properties.query.empty()) {
+                            userDiv.addClass('' + user.properties.query.pop());
+                        }
+                        if (user.properties.hasOwnProperty("gender")) {
+                            if (user.properties["gender"] === "male") {
+                                infotext += ' &#9794';
+                            } else if (user.properties["gender"] === "female") {
+                                infotext += ' &#9792';
                             }
                         }
-                        userDiv.append('<div class="media-body">' + infotext
-                        + '</div>');
+
+                        infotext += '</b><br>';
+                        if (user.properties.hasOwnProperty("age")) {
+                            infotext += user.properties["age"];
+                        }
+                        if (user.properties.hasOwnProperty("relationship")) {
+                            infotext += ' &#183; ' + user.properties["relationship"];
+                        }
+                        if (user.properties.hasOwnProperty("employer")) {
+                            if (user.properties.hasOwnProperty("profession")) {
+                                if (user.properties["profession"] === "unemployed") {
+                                    infotext += ' &#183; worked at ' + user.properties["employer"];
+                                } else if (user.properties["profession"] === "") {
+                                    infotext += ' &#183; works at ' + user.properties["employer"];
+                                } else {
+                                    infotext += ' &#183; ' + user.properties["profession"] + ' at '
+                                    + user.properties["employer"];
+                                }
+                            } else {
+                                infotext += ' &#183; works at '
+                                + user.properties["employer"];
+                            }
+                        }
+                        if (user.properties.hasOwnProperty("studies")) {
+                            infotext += ' &#183; studies ' + user.properties["studies"];
+                            if (user.properties.hasOwnProperty("university")) {
+                                infotext += ' at ' + user.properties["university"];
+                            }
+                        }
+                        if (user.properties.hasOwnProperty("lives")) {
+                            infotext += ' &#183; lives in ' + user.properties["lives"];
+                        }
+                        if (user.properties.hasOwnProperty("from") && user.properties["from"] !== user.properties["lives"]) {
+                            infotext += ' &#183; used to live in ' + user.properties["from"];
+                        }
+                    }
+                    userDiv.append('<div class="media-body">' + infotext
+                    + '</div>');
 
                 }
             });
@@ -202,8 +202,7 @@ require(['../common'], function() {
 });
 
 var testdata = {
-    get: function(callback) {
-        console.log('----------->BAHM');
+    get: function (callback) {
 
         $.ajax({
             type: "GET",
@@ -213,7 +212,6 @@ var testdata = {
             dataType: "json",
             success: function (data, status, jqXHR) {
                 console.log('-->success', data, status, jqXHR);
-                //console.log('responseText', jqXHR.responseText)
                 console.log('json string', $.parseJSON(jqXHR.responseText))
                 callback.call(this, $.parseJSON(jqXHR.responseText)[0]);
             },
@@ -224,10 +222,10 @@ var testdata = {
 
 
         /*var results = new Object;
-        $.getJSON("assets/js/lib/testdata.json", function(data) {
-            console.log(data);
-            results = data;
-            callback.call(this, results);
-        });*/
+         $.getJSON("assets/js/lib/testdata.json", function(data) {
+         console.log(data);
+         results = data;
+         callback.call(this, results);
+         });*/
     }
 };
