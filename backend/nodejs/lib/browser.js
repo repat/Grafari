@@ -6,8 +6,8 @@
 var fs      = require("fs");
 var async   = require("async");
 var Zombie  = require("zombie");
-//var r   = require("redis");
-//redis = r.createClient();
+var r   = require("redis");
+var redis = r.createClient();
 
 
 var WORKERS = 5
@@ -18,7 +18,7 @@ var workQueue = []
 
 //Exported module functions
 exports.init = initModule;
-exports.get = readPage;
+exports.get = cachedReadPage;
 exports.shutdown = shutdownModule;
 
 function initModule(callback) {
@@ -83,6 +83,26 @@ function startBrowser(callback) {
       }
     )
   }
+}
+
+function cachedReadPage(url, callback) {
+
+  redis.get(url,function(err,reply) {
+    if (err) 
+      return callback(err)
+    
+    if (reply)
+      return callback(null, JSON.parse(reply))
+
+    readPage(url, function(err, result) {
+      //Don't enter value if an error occurred
+      if(err)
+        return callback(err) 
+      //Enter 'url' -> 'result' into Redis
+      redis.set(url, JSON.stringify(result))
+      return callback(null, result)
+    })
+  })
 }
 
 /** Open a Facebook url and then return the page's content by the callback.
@@ -160,13 +180,10 @@ function convertPageToJSON(browser) {
       if (child.querySelector(divClasses[i]) != null) {
         returnArray = extractInformationFromDiv(child.querySelector(divClasses[i]).textContent);
         if (returnArray.length != 0) {
-
-          console.log(returnArray)
           for (var j = 0; j < returnArray.length; j++) {
             // this is ugly as fuck. it means every second object because array is [key,value,key,value,...]
             if (j % 2 == 0) {
               person[returnArray[j]] = returnArray[j+1];
-              console.log(person)
             }
           }
         }
