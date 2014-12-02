@@ -2,11 +2,12 @@
  *  and locations to facebook IDs
  */
 var fs = require("fs")
+var r = require("redis");
+var redis = r.createClient();
 
 var CACHE_FILE = "id-cache.tmp"
 
-module.exports = CachingGraphResolver
-
+module.exports = RedisResolver
 
 /** This resolver uses the GraphResolver to resolve ids and caches the results.
  *  Additionally the results are stored in a file to preserve the cache between restarts.
@@ -130,5 +131,49 @@ DummyResolver.prototype.resolve = function(what, callback) {
   callback(null, "ID(" + what + ")")
 }
 
+function RedisResolver() {
+  this.resolver = new GraphResolver()
+} 
+
+RedisResolver.prototype.resolve = function(name, callback) {
+var resolver = this
+
+redis.hget("names", name, function(err,reply) {
+    if (err) 
+      return callback(err)
+    
+    if (reply)
+      return callback(null, JSON.parse(reply))
+
+    resolver.resolver.resolve(name, function(err, reply) {
+      if (err) 
+        return callback(err)
+
+      redis.hset("names", name, JSON.stringify(reply))
+      return callback(null, reply)
+    })
+  })
+}
+
+RedisResolver.prototype.resolveLocation = function(location, callback) {
+  var resolver = this
+
+redis.hget("locations", location, function(err,reply) {
+    if (err) 
+      return callback(err)
+    
+    if (reply)
+      return callback(null, JSON.parse(reply))
+
+    resolver.resolver.resolve(location, function(err, reply) {
+      if (err) 
+        return callback(err)
+
+      redis.hset("locations", location, JSON.stringify(reply))
+      return callback(null, reply)
+    })
+  })
+
+}
 
 //TODO implement a concrete resolver
