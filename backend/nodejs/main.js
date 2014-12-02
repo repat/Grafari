@@ -63,6 +63,7 @@ function search(req, res, done) {
       console.log("Sending response")
 
       //TODO jsonArray must be correctly merged together before sending
+      res.header("Access-Control-Allow-Origin", "*");
       res.charSet('utf-8');
       res.send(jsonArray)
       return next()      
