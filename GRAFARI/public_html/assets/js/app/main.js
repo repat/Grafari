@@ -72,7 +72,7 @@ require(['../common'], function () {
 
                 brandRow.removeClass('center');
 
-                setTimeout(function () {
+         /*       setTimeout(function () {
                     resultWell.removeClass('hidden');
                     queryHistory.removeClass('hidden');
                 }, 400);
@@ -81,7 +81,7 @@ require(['../common'], function () {
                     resultSpinner.addClass('hidden');
                     results.removeClass('hidden');
                     init_isotope();
-                }, 1000);
+                }, 1000);*/
             });
 
             $('#btn_clear').click(function () {
@@ -141,7 +141,7 @@ require(['../common'], function () {
                     var userDiv = $('#' + userId);
 
                     userDiv.append('<a class="media-left" href="#">');
-                    userDiv.append('<img src="' + user.pictureurl + '" alt="' + user.name + '"></img></a>');
+                    userDiv.append('<img class="user-img" src="' + user.pictureurl + '" alt="' + user.name + '"></img></a>');
                     console.log(user.pictureurl);
                     var infotext = '<b>' + user.name;
 
@@ -203,10 +203,12 @@ require(['../common'], function () {
 
 var testdata = {
     get: function (callback) {
-
+        var searchString = $('#queryinput').val()
+        var searchEncoded = searchString.replace(/ /g, "%20")
+        console.log(searchEncoded)
         $.ajax({
             type: "GET",
-            url: "http://localhost:8080/search/all%20people%20who%20live%20in%20germany",
+            url: "http://localhost:8080/search/" + searchEncoded,
             contentType: "application/json; charset=utf-8",
             //data: contact.toJsonString(),
             dataType: "json",
@@ -214,6 +216,29 @@ var testdata = {
                 console.log('-->success', data, status, jqXHR);
                 console.log('json string', $.parseJSON(jqXHR.responseText))
                 callback.call(this, $.parseJSON(jqXHR.responseText)[0]);
+
+                var brandRow = $('#brandRow');
+                var resultWell = $('#resultWell');
+                var queryHistory = $('#queryHistory');
+                var resultSpinner = $('#resultSpinner');
+                var results = $('#results');
+                
+
+                resultWell.removeClass('hidden');
+                queryHistory.removeClass('hidden');
+
+                resultSpinner.addClass('hidden');
+                results.removeClass('hidden');
+
+                var $container = $('#results');
+                // init
+                $container.isotope({
+                    // options
+                    itemSelector: '.result',
+                    layoutMode: 'fitRows'
+                });
+
+
             },
             error: function (jqXHR, status) {
                 console.log('-->error', jqXHR, status)

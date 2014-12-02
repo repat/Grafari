@@ -46,6 +46,11 @@ body {
 	padding: 10px 15px;
 }
 
+.user-img  {
+	width: 170px;
+	height: 170px;
+}
+
 #resultWell > .well {
 	min-height: 200px;
 }
