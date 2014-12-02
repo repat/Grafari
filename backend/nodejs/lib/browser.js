@@ -11,6 +11,8 @@ var redis = r.createClient();
 
 
 var WORKERS = 5
+// in miliseconds, google: one week in seconds
+var EXPIRETIME = 604800 * 1000
 
 //The browser instance
 var worker = []
@@ -100,6 +102,7 @@ function cachedReadPage(url, callback) {
         return callback(err) 
       //Enter 'url' -> 'result' into Redis
       redis.set(url, JSON.stringify(result))
+      redis.expire(url,EXPIRETIME)
       return callback(null, result)
     })
   })
@@ -200,6 +203,7 @@ function convertPageToJSON(browser) {
 function extractInformationFromDiv(rawDivs) {
   // TODO: hier rumbasteln und person objekt bauen, dann in convertPageToJSON mit person Objekt mergen
   // regular expressions, s. wiki
+  // regex101.com ftw
 
   // TODO: gender regex
   // these are more complicated to implement because of the []
@@ -213,12 +217,17 @@ function extractInformationFromDiv(rawDivs) {
   
   regexArray = [
                 ['age', /(\d)years\sold/i],
+                // for now this works
                 ['employer',/Works\sat\s(.*)/i],
                 ['lives',/Lives\sin\s(.*)/i],
                 ['from',/.*From\s(.*)/i],
-                ['university',/Goes\sto\s(.*)/i],
-                ['university',/Studies\s.*\sat (.*)/i],
-                ['university',/Studies\sat (.*)/i],
+                // i will work on this later tonight
+                // university is everything that is not with "works" (negative lookahead)
+                // ['university',/(?!.*Works)\sat(.*)/gmi], // doesnt work in nodejs but on regex101.com
+                // I don't know why this works. wanted different result, but who gives a fuck.
+                // ['employer',/(?!.*Works)|(?!.*Studies)\sat(.*)$/gmi],  // doesnt work in nodejs but on regex101.com
+                // https://imgur.com/gallery/x0ml8
+                ['studies',/(?=Studies\s)Studies\s(.*)\sat.*/],
                 ['relationship',/(Single)/i],
                 ['relationship',/(In\sa\srelationship).*/i],
                 ['relationship',/(In\san\sopen\srelationship).*/i]
@@ -233,14 +242,11 @@ function extractInformationFromDiv(rawDivs) {
     divs.push(rawDivs)
   }
 
-  //console.log(divs)
-  
   // interate through all the regexes and give back an array
   // with the json attribute name and the value
   returnArray = []
   for(var i = 0; i < regexArray.length; i++) {
     for (var j = 0; j < divs.length; j++) {
-      //console.log("test: " + regexArray[i][1].test(divs[j]) + "regex: " + regexArray[i][1] + "div: " + divs[j])
       if (regexArray[i][1].test(divs[j])) {
         returnArray.push(regexArray[i][0])
         // exec returns an array->[1] is the desired value
