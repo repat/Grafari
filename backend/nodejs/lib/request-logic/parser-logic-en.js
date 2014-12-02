@@ -6,22 +6,6 @@ var C = require("./parser-classes")
 
 //Export functions
 exports.RootNode        = CombinedRequest
-exports.CombinedRequest = CombinedRequest
-exports.BasicRequest    = BasicRequest
-exports.Selector        = Selector
-exports.Condition       = Condition
-exports.CondYounger     = CondYounger
-exports.CondOlder       = CondOlder
-exports.CondAgeBetween  = CondAgeBetween
-exports.CondAgeEqual    = CondAgeEqual
-exports.CondLiveIn      = CondLiveIn
-exports.CondLike        = CondLike
-exports.CondName        = CondName
-exports.CondGroup       = CondGroup
-exports.Disjunction     = Disjunction
-exports.Conjunction     = Conjunction
-exports.Age             = Age
-
 exports.tokenize        = tokenize
 
 
@@ -63,9 +47,11 @@ Array.prototype.findFirst = function(predicate) {
 //CondOlder       = 'are' ('older' 'than' | 'over') Age 
 //CondAgeBetween  = 'are' 'between' Age 'and' Age
 //CondAgeEqual    = 'are' Age
-//CondLiveIn      = ('live')|('are' 'living') 'in' token
+//CondLiveIn      = ('live')|('are' 'living')|('lived') 'in' token
 //CondLike        = 'like' token
 //CondName        = 'are' ('named'|'called') token
+//CondWorkAt      = ('work'|'worked'|'are' 'working') 'at' token 
+//CondBorn        = 'were' 'born' 'in' integer
 //CondGroup       = '(' Disjunction ')'
 //Disjunction     = Conjunction {'OR' Conjunction}
 //Conjunction     = Condition {'AND' Condition }
@@ -131,10 +117,12 @@ function Condition(tokens) {
   } else {
     if (tokens.isNext('('))
       return CondGroup(tokens)
-    else if (tokens.isNext('live'))
+    else if (tokens.isNext('live') || tokens.isNext('lived'))
       return CondLiveIn(tokens)
     else if (tokens.isNext('like'))
       return CondLike(tokens)
+    else if (tokens.isNext('were'))
+      return CondBorn(tokens)
     
 
     throw parseError("Unexpected next token in token list when parsing a condition", tokens)
@@ -189,18 +177,24 @@ function CondAgeEqual(tokens) {
   throw parseError("Expected 'are' in 'are X years old'", tokens)
 }
 
-//CondLiveIn = ('live')|('are' 'living') 'in' token
+//CondLiveIn = ('live')|('are' 'living')|('lived') 'in' token
 function CondLiveIn(tokens) {
   if (tokens.takeNext('live') || (
       tokens.takeNext('are') &&
       tokens.takeNext('living'))) {
     if (tokens.takeNext('in') && !tokens.empty()) {
       var location = tokens.pop()
-      return new C.CondLiveIn(location)
+      return new C.CondLiveIn(location, "present")
     }
+  } else if (tokens.takeNext('lived') &&
+                tokens.takeNext('in') &&
+                !tokens.empty()) {
+    var location = tokens.pop()
+    return new C.CondLiveIn(location, "past")
   }
 
-  throw parseError("Expected 'live in' or 'are living in'", tokens)
+
+  throw parseError("Expected 'live in' or 'are living in' or 'lived in'", tokens)
 }
 
 //CondLike = 'like' token
@@ -223,6 +217,36 @@ function CondName(tokens) {
   }
 
   throw parseError("Expected 'are named X' or 'are called X'", tokens)
+}
+
+//CondWorkAt = ('work'|'worked'|'are' 'working') 'at' token 
+function CondWorkAt(tokens) {
+  if ((tokens.takeNext('are') &&
+      tokens.takeNext('working')) ||
+      tokens.takeNext('work')) {
+    if (tokens.takeNext('at')) {
+      var employer = tokens.pop()
+      return new C.CondWorkAt(employer, "present")
+    }
+  } else if (tokens.takeNext('worked') &&
+             tokens.takeNext('at')) {
+    var employer = tokens.pop()
+    return new C.CondWorkAt(employer, "past")
+  }
+
+  throw parseError("Expected 'are working at', 'work at' or 'worked at'", tokens)
+}
+
+//CondBorn = 'were' 'born' 'in' integer
+function CondBorn(tokens) {
+  if (tokens.takeNext('were') &&
+      tokens.takeNext('born') &&
+      tokens.takeNext('in') &&
+      !tokens.empty()) {
+    return C.CondBorn(integer(tokens))
+  }
+ 
+  throw parseError("Expected 'were born in ###'", tokens)
 }
 
 //CondGroup       = '(' Disjunction ')'
@@ -259,11 +283,17 @@ function Conjunction(tokens) {
   return conjunction
 }
 
-//Age = integer ['years'] ['old']
-function Age(tokens) {
+//takes a token, checks whether it is convertible to a number and then returns it
+function integer(tokens) {
   var number = tokens.pop()
   if (Number(number).toString() != number) //Check for valid number
-    throw parseError("Expected a number when parsing an age, but got '" + number + "'", tokens)
+    throw parseError("Expected a number, but got '" + number + "'", tokens)
+  return number
+}
+
+//Age = integer ['years'] ['old']
+function Age(tokens) {
+  var number = integer(tokens)
 
   if (tokens.takeNext('years'))
     tokens.takeNext('old')

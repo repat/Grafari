@@ -87,7 +87,7 @@ C.CondLiveIn.prototype.translate = function(resolver, callback) {
   resolver.resolveLocation(this.location, function(err, locationID) {
     if (err)
       return callback(err)
-    return callback(null, "/" + locationID + "/residents/present")
+    return callback(null, "/" + locationID + "/residents/" + this.time)
   })
 }
 
@@ -103,3 +103,14 @@ C.CondName.prototype.translate = function(resolver, callback) {
   return callback(null, "/str/" + this.name + "/users-named")
 }
 
+C.CondWorkAt.prototype.translate = function(resolver, callback) {
+  resolver.resolve(this.employer, function(err, id) {
+    if (err)
+      return callback(err)
+    return callback(null, "/" + id + "/employees/" + this.time)
+  })
+}
+
+C.CondBorn.prototype.translate = function(resolver, callback) {
+  return callback(null, "/" + this.year + "/date/users-born")
+}

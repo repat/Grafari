@@ -9,6 +9,8 @@ exports.CondAgeEqual    = CondAgeEqual
 exports.CondLiveIn      = CondLiveIn
 exports.CondLike        = CondLike
 exports.CondName        = CondName
+exports.CondWorkAt      = CondWorkAt
+exports.CondBorn        = CondBorn
 exports.CondGroup       = CondGroup
 exports.Disjunction     = Disjunction
 exports.Conjunction     = Conjunction
@@ -85,12 +87,13 @@ CondAgeEqual.prototype.toString = function() {
   return "CondAgeEqual(" + this.age + ")"
 }
 
-function CondLiveIn(location) {
+function CondLiveIn(location, time) {
+  this.time = time //"present" or "past"
   this.location = location //Has to be resolved before sending request to facebook
 }
 
 CondLiveIn.prototype.toString = function() {
-  return "CondLiveIn(" + this.location + ")"
+  return "CondLiveIn(" + this.location + "," + this.time + ")"
 }
 
 function CondLike(what) {
@@ -107,6 +110,23 @@ function CondName(name) {
 
 CondName.prototype.toString = function() {
   return "CondName(" + this.name + ")"
+}
+
+function CondWorkAt(employer, time) {
+  this.time = time
+  this.employer = employer
+}
+
+CondWorkAt.prototype.toString = function() {
+  return "CondWorkAt(" + this.employer + "," + this.time + ")"
+}
+
+function CondBorn(year) {
+  this.year = year
+}
+
+CondBorn.prototype.toString = function() {
+  return "CondBorn(" + this.year + ")"
 }
 
 // Represents conditions grouped by ()
