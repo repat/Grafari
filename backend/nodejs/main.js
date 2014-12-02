@@ -10,7 +10,7 @@ var Requests = require("./lib/request-logic")
 //Use 8080 for testing
 var port = 8080
 if (process.argv.length > 2) 
-  port = parseInt(process.argv[3])
+  port = parseInt(process.argv[2])
 
 /** Start-Up (launch browser-module and rest server)
  */
