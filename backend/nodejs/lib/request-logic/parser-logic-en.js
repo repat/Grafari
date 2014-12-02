@@ -18,8 +18,47 @@ Array.prototype.empty = function () {
   return this.length == 0
 }
 
+Array.prototype.is = function(t1,t2,t3,t4,t5) {
+  var tokens = []
+  if (t1) tokens.push(t1)
+  if (t2) tokens.push(t2)
+  if (t3) tokens.push(t3)
+  if (t4) tokens.push(t4)
+  if (t5) tokens.push(t5)
+
+  //Check for whether tokens match
+  for(var c = 0; c < tokens.length; ++c) {
+    var index = this.length-c-1
+    if (index < 0 || this[index] != tokens[c])
+      return false
+  }
+  return true
+}
+
 Array.prototype.isNext = function(token) {
   return !this.empty() && this.peek() == token
+}
+
+Array.prototype.take = function(t1,t2,t3,t4,t5) {
+  //Check whether tokens exist
+  var match = this.is(t1,t2,t3,t4,t5)
+  var ary = this
+
+  if (!match)
+    return false
+
+  var tokens = []
+  if (t1) tokens.push(t1)
+  if (t2) tokens.push(t2)
+  if (t3) tokens.push(t3)
+  if (t4) tokens.push(t4)
+  if (t5) tokens.push(t5)
+
+
+  //Now remove the tokens
+  tokens.forEach(function() { ary.pop() })
+
+  return true
 }
 
 Array.prototype.takeNext = function(token) {
@@ -94,48 +133,48 @@ function Selector(tokens) {
 function Condition(tokens) { 
   tokens.takeNext('who') //Skip 'who'
 
-  if (tokens.takeNext('are')) { //Choose between conditions
-    if (tokens.isNext('younger') || tokens.isNext('under')) {
-      tokens.push('are') //Put back 'are'
-      return CondYounger(tokens)
-    } else if (tokens.isNext('older') || tokens.isNext('over')) {
-      tokens.push('are')
-      return CondOlder(tokens)
-    } else if (tokens.isNext('between')) {
-      tokens.push('are')
-      return CondAgeBetween(tokens)
-    } else if (tokens.isNext('living')) {
-      tokens.push('are')
-      return CondLiveIn(tokens)
-    } else if (tokens.isNext('named') || tokens.isNext('called')) {
-      tokens.push('are')
-      return CondName(tokens)
-    } else { //Only remaining possibility
-      tokens.push('are')
-      return CondAgeEqual(tokens)
-    }
-  } else {
-    if (tokens.isNext('('))
-      return CondGroup(tokens)
-    else if (tokens.isNext('live') || tokens.isNext('lived'))
-      return CondLiveIn(tokens)
-    else if (tokens.isNext('like'))
-      return CondLike(tokens)
-    else if (tokens.isNext('were'))
-      return CondBorn(tokens)
-    
+  if (tokens.is('are', 'younger') || 
+      tokens.is('are', 'under'))
+    return CondYounger(tokens)
+  if (tokens.is('are', 'older') || 
+      tokens.is('are', 'over'))
+    return CondOlder(tokens)
+  if (tokens.is('are', 'between'))
+    return CondAgeBetween(tokens)
+  if (tokens.is('are', 'living'))
+    return CondLiveIn(tokens)
+  if (tokens.is('are', 'named') || 
+      tokens.is('are', 'called'))
+    return CondName(tokens)
+  if (tokens.is('are', 'working'))
+    return CondWorkAt(tokens)
+  if (tokens.is('are'))
+    return CondAgeEqual(tokens)
 
-    throw parseError("Unexpected next token in token list when parsing a condition", tokens)
-  }
+ 
+  if (tokens.is('('))
+    return CondGroup(tokens)
+  if (tokens.is('live') || 
+      tokens.is('lived'))
+    return CondLiveIn(tokens)
+  if (tokens.is('like'))
+    return CondLike(tokens)
+  if (tokens.is('were'))
+    return CondBorn(tokens)
+  if (tokens.is('worked') ||
+      tokens.is('work'))
+    return CondWorkAt(tokens)
+  
+
+  throw parseError("Unexpected next token in token list when parsing a condition", tokens)
 }
 
 //CondYounger = 'are' ('younger' 'than' | 'under') Age
 function CondYounger(tokens) {
-  if (tokens.takeNext('are')) {
-    if ((tokens.takeNext('younger') && tokens.takeNext('than')) || (tokens.takeNext('under'))) {
-      var age = Age(tokens)
-      return new C.CondYounger(age)
-    }
+  if (tokens.take('are', 'younger', 'than') ||
+      tokens.take('are', 'under')) {
+    var age = Age(tokens)
+    return new C.CondYounger(age)
   } 
 
   throw parseError("Expected 'are younger than X years' or 'are under X years old'", tokens)
@@ -143,11 +182,10 @@ function CondYounger(tokens) {
 
 //CondOlder = 'are' ('older' 'than' | 'over') Age 
 function CondOlder(tokens) {
-  if (tokens.takeNext('are')) {
-    if ((tokens.takeNext('older') && tokens.takeNext('than')) || tokens.takeNext('over')) {   
-      var age = Age(tokens)
-      return new C.CondOlder(age)
-    }
+  if (tokens.take('are', 'older', 'than') ||
+      tokens.take('are', 'over')) {
+    var age = Age(tokens)
+    return new C.CondOlder(age)
   }
 
   throw parseError("Expected 'are older than X years' oder 'are over X years old", tokens)
@@ -155,14 +193,12 @@ function CondOlder(tokens) {
 
 //CondAgeBetween = 'are' 'between' Age 'and' Age
 function CondAgeBetween(tokens) {
-  if (tokens.takeNext('are') &&
-      tokens.takeNext('between')) {
+  if (tokens.take('are', 'between')) {
     var x = Age(tokens)
-    if (tokens.takeNext('and')) {
+    if (tokens.take('and')) {
       var y = Age(tokens)
       return new C.CondAgeBetween(x,y)
     }
-    throw parseError("Expected 'and' in 'are between X and Y years old'", tokens)
   }
   throw parseError("Expected 'are between X and Y years old'", tokens)
 }
@@ -179,20 +215,16 @@ function CondAgeEqual(tokens) {
 
 //CondLiveIn = ('live')|('are' 'living')|('lived') 'in' token
 function CondLiveIn(tokens) {
-  if (tokens.takeNext('live') || (
-      tokens.takeNext('are') &&
-      tokens.takeNext('living'))) {
-    if (tokens.takeNext('in') && !tokens.empty()) {
+  if (tokens.take('live', 'in') ||
+      tokens.take('are', 'living', 'in')) {
+    if (!tokens.empty()) {
       var location = tokens.pop()
       return new C.CondLiveIn(location, "present")
     }
-  } else if (tokens.takeNext('lived') &&
-                tokens.takeNext('in') &&
-                !tokens.empty()) {
+  } else if (tokens.take('lived', 'in') && !tokens.empty()) {
     var location = tokens.pop()
     return new C.CondLiveIn(location, "past")
   }
-
 
   throw parseError("Expected 'live in' or 'are living in' or 'lived in'", tokens)
 }
@@ -209,11 +241,10 @@ function CondLike(tokens) {
 
 //CondName  = 'are' ('named'|'called') token
 function CondName(tokens) {
-  if (tokens.takeNext('are')) {
-    if ((tokens.takeNext('named') || tokens.takeNext('called')) && !tokens.empty()) {
-      var name = tokens.pop()
-      return new C.CondName(name)
-    }
+  if (tokens.take('are', 'named') ||
+      tokens.take('are', 'called')) {
+    var name = tokens.pop()
+    return new C.CondName(name)
   }
 
   throw parseError("Expected 'are named X' or 'are called X'", tokens)
@@ -221,15 +252,13 @@ function CondName(tokens) {
 
 //CondWorkAt = ('work'|'worked'|'are' 'working') 'at' token 
 function CondWorkAt(tokens) {
-  if ((tokens.takeNext('are') &&
-      tokens.takeNext('working')) ||
-      tokens.takeNext('work')) {
-    if (tokens.takeNext('at')) {
+  if (tokens.take('work', 'at') ||
+      tokens.take('are', 'working', 'at')) {
+    if (!tokens.empty()) {
       var employer = tokens.pop()
       return new C.CondWorkAt(employer, "present")
     }
-  } else if (tokens.takeNext('worked') &&
-             tokens.takeNext('at')) {
+  } else if (tokens.take('worked', 'at') && !tokens.empty()) {
     var employer = tokens.pop()
     return new C.CondWorkAt(employer, "past")
   }
@@ -239,11 +268,8 @@ function CondWorkAt(tokens) {
 
 //CondBorn = 'were' 'born' 'in' integer
 function CondBorn(tokens) {
-  if (tokens.takeNext('were') &&
-      tokens.takeNext('born') &&
-      tokens.takeNext('in') &&
-      !tokens.empty()) {
-    return C.CondBorn(integer(tokens))
+  if (tokens.take('were', 'born', 'in') && !tokens.empty()) {
+    return new C.CondBorn(integer(tokens))
   }
  
   throw parseError("Expected 'were born in ###'", tokens)

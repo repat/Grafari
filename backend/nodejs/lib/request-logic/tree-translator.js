@@ -84,10 +84,11 @@ C.CondAgeEqual.prototype.translate = function(resolver, callback) {
 }
 
 C.CondLiveIn.prototype.translate = function(resolver, callback) {
+  var time = this.time
   resolver.resolveLocation(this.location, function(err, locationID) {
     if (err)
       return callback(err)
-    return callback(null, "/" + locationID + "/residents/" + this.time)
+    return callback(null, "/" + locationID + "/residents/" + time)
   })
 }
 
@@ -104,10 +105,11 @@ C.CondName.prototype.translate = function(resolver, callback) {
 }
 
 C.CondWorkAt.prototype.translate = function(resolver, callback) {
+  var time = this.time
   resolver.resolve(this.employer, function(err, id) {
     if (err)
       return callback(err)
-    return callback(null, "/" + id + "/employees/" + this.time)
+    return callback(null, "/" + id + "/employees/" + time)
   })
 }
 
