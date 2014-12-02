@@ -62,7 +62,7 @@ function search(req, res, done) {
       res.header("Access-Control-Allow-Origin", "*");
       res.charSet('utf-8');
       res.send(jsonArray)
-      return next()      
+      return done()      
     })
   })
 }
