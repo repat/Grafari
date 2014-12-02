@@ -132,6 +132,7 @@ require(['../common'], function () {
         function make_Users() {
             testdata.get(function (users) {
                 var results = $('#results');
+                results.isotope('destroy');
                 results.empty();
                 while (!users.empty()) {
                     var user = users.pop();
@@ -196,6 +197,29 @@ require(['../common'], function () {
                     + '</div>');
 
                 }
+
+
+                var brandRow = $('#brandRow');
+                var resultWell = $('#resultWell');
+                var queryHistory = $('#queryHistory');
+                var resultSpinner = $('#resultSpinner');
+                var results = $('#results');
+
+
+                resultWell.removeClass('hidden');
+                queryHistory.removeClass('hidden');
+
+                resultSpinner.addClass('hidden');
+                results.removeClass('hidden');
+
+                var $container = $('#results');
+                // init
+                $container.isotope({
+                    // options
+                    itemSelector: '.result',
+                    layoutMode: 'fitRows'
+                });
+
             });
         }
     });
@@ -216,28 +240,6 @@ var testdata = {
                 console.log('-->success', data, status, jqXHR);
                 console.log('json string', $.parseJSON(jqXHR.responseText))
                 callback.call(this, $.parseJSON(jqXHR.responseText)[0]);
-
-                var brandRow = $('#brandRow');
-                var resultWell = $('#resultWell');
-                var queryHistory = $('#queryHistory');
-                var resultSpinner = $('#resultSpinner');
-                var results = $('#results');
-                
-
-                resultWell.removeClass('hidden');
-                queryHistory.removeClass('hidden');
-
-                resultSpinner.addClass('hidden');
-                results.removeClass('hidden');
-
-                var $container = $('#results');
-                // init
-                $container.isotope({
-                    // options
-                    itemSelector: '.result',
-                    layoutMode: 'fitRows'
-                });
-
 
             },
             error: function (jqXHR, status) {
