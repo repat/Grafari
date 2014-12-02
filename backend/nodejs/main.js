@@ -1,13 +1,16 @@
 /** Main entry point for our backend application.
+ *  Usage: node main.js [port]
  */
 
 var restify = require('restify')
 var async   = require("async")
 var Browser = require("./lib/browser")
 var Requests = require("./lib/request-logic")
-//var r   = require("redis")
-//redis = r.createClient();
 
+//Use 8080 for testing
+var port = 8080
+if (process.argv.length > 2) 
+  port = parseInt(process.argv[3])
 
 /** Start-Up (launch browser-module and rest server)
  */
@@ -24,7 +27,7 @@ Browser.init(function(err) {
   server.get('/search/:str', search);
   server.head('/search/:str', search);
 
-  server.listen(8080, function() {
+  server.listen(port, function() {
     console.log('%s listening at %s', server.name, server.url);
   });
 })
@@ -43,13 +46,6 @@ function search(req, res, done) {
   Requests.translateTree(parseTree, function(err, requestList) {
     var lookupFunctions = requestList.map(function (fbpath) {
       return function(callback) {
-        /*redis.get(fbpath, function(err,reply) {
-          if (reply == null) {
-            // key doesn't exists
-          } else {
-            reply is json object
-          }
-        });*/
         console.log("Fetching: " + fbpath)
         Browser.get("/search" + fbpath, callback)
       }
