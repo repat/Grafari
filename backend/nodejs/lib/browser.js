@@ -182,12 +182,10 @@ function convertPageToJSON(browser) {
     for (var i = 0; i < divClasses.length; i++) {
       if (child.querySelector(divClasses[i]) != null) {
         returnArray = extractInformationFromDiv(child.querySelector(divClasses[i]).textContent);
-        if (returnArray.length != 0) {
+        if (returnArray != null && returnArray.length != 0) {
           for (var j = 0; j < returnArray.length; j++) {
-            // this is ugly as fuck. it means every second object because array is [key,value,key,value,...]
-            if (j % 2 == 0) {
-              person[returnArray[j]] = returnArray[j+1];
-            }
+              // trim() removes white spaces at beginning and end
+              person[returnArray[j][0]] = returnArray[j][1].trim();
           }
         }
       }    
@@ -201,40 +199,23 @@ function convertPageToJSON(browser) {
 }
 
 function extractInformationFromDiv(rawDivs) {
-  // TODO: hier rumbasteln und person objekt bauen, dann in convertPageToJSON mit person Objekt mergen
-  // regular expressions, s. wiki
-  // regex101.com ftw
+// regex101.com ftw
+regexArray = [
+              ['gender',/(female)(?!s)/gmi],
+              ['gender',/\s(male)(?!s)/gmi],
+              ['age', /(\d)years\sold/i],
+              ['lives',/Lives\sin\s(.*)/i],
+              ['from',/.*From\s(.*)/i],
+              ['university',/(?=Studie[s|d]).*at\s(.*)/gmi],
+              ['employer',/^(?!Studie[s|d]).*\sat(.*)/gmi],
+              ['studies',/(?=Studie[s|d]\s)Studie[s|d]\s(.*)\sat.*/gmi],
+              ['relationship',/(Single)/i],
+              ['relationship',/(In\sa\srelationship).*/i],
+              ['relationship',/(In\san\sopen\srelationship).*/i]
+            ]
 
-  // TODO: gender regex
-  // these are more complicated to implement because of the []
-  var gender1 = /[^e]male[^s]/i
-  var gender2 = /female[^s]/i
-  // TODO: seperate profession, university and work and put it in the right order
-  // this is a problem since they contain
-  // 2 information bits (profession and employer) in one <div>
-  var profession1 = /(.*)\sat.*/i
-  var employer2 = /.*\sat\s(.*)/i
-  
-  regexArray = [
-                ['age', /(\d)years\sold/i],
-                // for now this works
-                ['employer',/Works\sat\s(.*)/i],
-                ['lives',/Lives\sin\s(.*)/i],
-                ['from',/.*From\s(.*)/i],
-                // i will work on this later tonight
-                // university is everything that is not with "works" (negative lookahead)
-                // ['university',/(?!.*Works)\sat(.*)/gmi], // doesnt work in nodejs but on regex101.com
-                // I don't know why this works. wanted different result, but who gives a fuck.
-                // ['employer',/(?!.*Works)|(?!.*Studies)\sat(.*)$/gmi],  // doesnt work in nodejs but on regex101.com
-                // https://imgur.com/gallery/x0ml8
-                ['studies',/(?=Studies\s)Studies\s(.*)\sat.*/],
-                ['relationship',/(Single)/i],
-                ['relationship',/(In\sa\srelationship).*/i],
-                ['relationship',/(In\san\sopen\srelationship).*/i]
-              ]
 
   //  in case there is a ·, split strings first
-  // TODO: bug:returnArray gibt sowieso nur den ersten Wert zurück
   divs = []
   if (rawDivs.indexOf("·") != -1) {
     divs = splitStrings(rawDivs)
@@ -246,11 +227,21 @@ function extractInformationFromDiv(rawDivs) {
   // with the json attribute name and the value
   returnArray = []
   for(var i = 0; i < regexArray.length; i++) {
+
     for (var j = 0; j < divs.length; j++) {
+      //regexArrax[i][1] ist the regex to test
       if (regexArray[i][1].test(divs[j])) {
-        returnArray.push(regexArray[i][0])
+
+        // prepare for return this to convertPageToJSON
+        tmpArray = []
+        tmpArray.push(regexArray[i][0])
+        // I have no idea why, but unless this is executed
+        // I get "Cannot read property '1' of null"
+        regexArray[i][1].exec(divs[j])
         // exec returns an array->[1] is the desired value
-        returnArray.push(regexArray[i][1].exec(divs[j])[1])
+        tmpArray.push(regexArray[i][1].exec(divs[j])[1])
+
+        returnArray.push(tmpArray)
       }
     }
   }
@@ -259,15 +250,14 @@ function extractInformationFromDiv(rawDivs) {
 
 function splitStrings(divLine) {
   // remove all white spaces and split by the middle point
-  //return divLine.replace(/\s/g,"").split("·")
   return divLine.split("·")
 }
 
 function extractUserId(url) {
+  // extracts the facebook user id from URL
   var pattern = /https:\/\/www\.facebook\.com\/(.*)[?].*/i
   return pattern.exec(url)[1];
 }
-
 
 function array_copy(from, to) {
   for(var c = 0; c < from.length; ++c)
