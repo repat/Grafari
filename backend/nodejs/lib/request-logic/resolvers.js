@@ -9,6 +9,7 @@ var CACHE_FILE = "id-cache.tmp"
 
 module.exports = RedisResolver
 
+/// ################### CachingGraphResolver ###########################
 /** This resolver uses the GraphResolver to resolve ids and caches the results.
  *  Additionally the results are stored in a file to preserve the cache between restarts.
  */
@@ -17,7 +18,8 @@ function CachingGraphResolver() {
 
   this.lookupCache = {
     locations : {},
-    ids : {}
+    ids : {},
+    langs : {}
   }
 
   if (fs.existsSync(CACHE_FILE)) {
@@ -55,7 +57,6 @@ CachingGraphResolver.prototype.resolveLocation = function(location, callback) {
   })
 }
 
-
 /** Used to generally resolve Names to ID's  (eg. for 'who like X')
  * 
  * @param what the item to search for
@@ -79,8 +80,32 @@ CachingGraphResolver.prototype.resolve = function(name, callback) {
   })
 }
 
+/**Used only for 'who speak X'
+ * The ID returned must be of type language for Facebook to accept it
+ *
+ * @param lang the language to search for
+ * @param callback the callback which gets the result (since resolve might need a network lookup)
+ */
+CachingGraphResolver.prototype.resolveLanguage = function(lang, callback) {
+  var cache = this.lookupCache
+  if (cache.langs[lang]) {
+    var id = cache.langs[lang]
+    return process.nextTick(function() { callback(null, id) })
+  }
+
+  //Ask resolver to resolve the id and store it in the cache
+  this.resolver.resolveLanguage(lang, function(err, id) {
+    if (err) 
+      return callback(err)
+
+    cache.langs[lang] = id
+    fs.writeFile(CACHE_FILE, JSON.stringify(cache))
+    return callback(null, id)
+  })
+}
 
 
+/// ################### GraphResolver ###########################
 /** Resolver class using the lib/graph.js implementation to look up IDs
  */
 function GraphResolver() {
@@ -106,6 +131,15 @@ GraphResolver.prototype.resolve = function(what, callback) {
   this.graph.getIdFromName(what, callback)
 }
 
+/**Used only for 'who speak X'
+ * The ID returned must be of type language for Facebook to accept it
+ *
+ * @param lang the language to search for
+ * @param callback the callback which gets the result (since resolve might need a network lookup)
+ */
+ GraphResolver.prototype.resolveLanguage = function(lang, callback) {
+   this.graph.getIdFromLanguage(lang, callback)
+ }
 
 
 /// ################### DummyResolver ###########################
@@ -131,21 +165,34 @@ DummyResolver.prototype.resolve = function(what, callback) {
   callback(null, "ID(" + what + ")")
 }
 
+/**Used only for 'who speak X'
+ * The ID returned must be of type language for Facebook to accept it
+ *
+ * @param lang the language to search for
+ * @param callback the callback which gets the result (since resolve might need a network lookup)
+ */
+DummyResolver.prototype.resolveLanguage = function(lang, callback) {
+  callback(null, "ID(" + lang + ")")
+}
+
+/// ################### RedisResolver ###########################
+// This resolver internally uses the GraphResolver to resolve IDs 
+// and caches the results in a redis database
 function RedisResolver() {
   this.resolver = new GraphResolver()
 } 
 
 RedisResolver.prototype.resolve = function(name, callback) {
-var resolver = this
+  var resolver = this.resolver
 
-redis.hget("names", name, function(err,reply) {
+  redis.hget("names", name, function(err,reply) {
     if (err) 
       return callback(err)
     
     if (reply)
       return callback(null, JSON.parse(reply))
 
-    resolver.resolver.resolve(name, function(err, reply) {
+    resolver.resolve(name, function(err, reply) {
       if (err) 
         return callback(err)
 
@@ -156,16 +203,16 @@ redis.hget("names", name, function(err,reply) {
 }
 
 RedisResolver.prototype.resolveLocation = function(location, callback) {
-  var resolver = this
+  var resolver = this.resolver
 
-redis.hget("locations", location, function(err,reply) {
+  redis.hget("locations", location, function(err,reply) {
     if (err) 
       return callback(err)
     
     if (reply)
       return callback(null, JSON.parse(reply))
 
-    resolver.resolver.resolve(location, function(err, reply) {
+    resolver.resolveLocation(location, function(err, reply) {
       if (err) 
         return callback(err)
 
@@ -176,4 +223,29 @@ redis.hget("locations", location, function(err,reply) {
 
 }
 
-//TODO implement a concrete resolver
+/**Used only for 'who speak X'
+ * The ID returned must be of type language for Facebook to accept it
+ *
+ * @param lang the language to search for
+ * @param callback the callback which gets the result (since resolve might need a network lookup)
+ */
+RedisResolver.prototype.resolveLanguage = function(lang, callback) {
+  var resolver = this.resolver
+
+  redis.hget("languages", location, function(err,reply) {
+    if (err) 
+      return callback(err)
+    
+    if (reply)
+      return callback(null, JSON.parse(reply))
+
+    resolver.resolveLanguage(location, function(err, reply) {
+      if (err) 
+        return callback(err)
+
+      redis.hset("languages", location, JSON.stringify(reply))
+      return callback(null, reply)
+    })
+  })
+
+}

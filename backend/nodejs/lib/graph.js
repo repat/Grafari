@@ -3,6 +3,7 @@ var graph = require('fbgraph');
 // Exported functions
 exports.getIdFromName     = getIdFromName
 exports.getIdFromLocation = getIdFromLocation
+exports.getIdFromLanguage = getIdFromLanguage
 
 graph.setAccessToken('736322176438280|N8bcT0U2C4-PHlvoJpqe8ytN1Y8'); //<- AppToken (sollte nicht auslaufen)
 
@@ -75,6 +76,22 @@ function getIdFromLocation(location, callback) {
     if (!locationObject)
       return callback("Couldn't map location: '" + location + "' to an ID corresponding to a city, a country, a state or a landmark")
     callback(null, locationObject.id)
+  })
+}
+
+
+/** This resolves the given langauge into an ID
+ */
+function getIdFromLanguage(lang, callback) {
+  lookupData(lang, function(err, res) {
+    if (err)
+      return callback(err)
+
+    var language = array_findFirst(res.data, function(element) { return element.category == "Language" })
+
+    if (!language)
+      return callback("Couldn't map language name: '" + lang + "' to an ID corresponding to a language")
+    callback(null, language.id)
   })
 }
 
