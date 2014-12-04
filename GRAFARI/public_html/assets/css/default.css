@@ -57,10 +57,16 @@ body {
 
 .userWell {
 	background-color: white;
-	width: 210px;
+	width: 480px;
 	min-height: 190px;
 	margin: 10px;
 	transition: background-color 0.4s ease 0s;
+}
+
+.userInfo {
+	position: absolute;
+	left: 200px;
+	top: 20px;
 }
 
 .queryWell {
@@ -94,7 +100,6 @@ body {
 	cursor: pointer;
 	background-color: #e7e7e7;
 }
-
 
 .token {
 	font-weight: bold;

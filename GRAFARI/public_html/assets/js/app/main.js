@@ -140,8 +140,7 @@ require(['../common'], function () {
 
                     userDiv.append('<a class="media-left" href="#">');
                     userDiv.append('<img class="user-img" src="' + user.pictureurl + '" alt="' + user.name + '"></img></a>');
-                    console.log(user.pictureurl);
-                    var infotext = '<b>' + user.name;
+                    var infotext = '<b class="userInfo">' + user.name;
 
                     if (user.hasOwnProperty("properties")) {
                         while (!user.properties.query.empty()) {
@@ -214,7 +213,7 @@ require(['../common'], function () {
                 $container.isotope({
                     // options
                     itemSelector: '.result',
-                    layoutMode: 'fitRows'
+                    layoutMode: 'vertical'
                 });
 
                 queryToggle.toggle();
@@ -227,7 +226,6 @@ var testdata = {
     get: function (callback) {
         var searchString = $('#queryinput').val()
         var searchEncoded = searchString.replace(/ /g, "%20")
-        console.log(searchEncoded)
         $.ajax({
             type: "GET",
             url: "http://localhost:8080/search/" + searchEncoded,
