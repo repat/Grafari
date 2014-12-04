@@ -149,20 +149,16 @@ function work(browser) {
 
 
 function convertPageToJSON(browser) {
-  //
-  // TODO: differentiate between works at, studies at, lives in, from, etc. (check wiki: Such Regex für Graph Search)
-  //
-
   var people = []
   var peopleDivs = []
-  
+
   // People are returned in two seperate div containers. The first one is loaded statically
   // and sometimes contains only one elment and the second one is loaded dynamically and contains the remaining people
   array_copy(browser.query("#BrowseResultsContainer").childNodes, peopleDivs)
-  array_copy(browser.query("#u_0_o_browse_result_below_fold > div").childNodes, peopleDivs)
-
+  array_copy(browser.query("#u_0_o_browse_result_below_fold").childNodes, peopleDivs)
 
   peopleDivs.forEach(function(child) {
+
     var person = {}
     var link = child.querySelector("._zs.fwb > a")
     var img = child.querySelector("._7kf._8o._8s.lfloat._ohe > img")
@@ -211,9 +207,9 @@ regexArray = [
               ['studies',/(?=Studie[s|d]\s)Studie[s|d]\s(.*)\sat.*/gmi],
               ['relationship',/(Single)/i],
               ['relationship',/(In\sa\srelationship).*/i],
-              ['relationship',/(In\san\sopen\srelationship).*/i]
+              ['relationship',/(In\san\sopen\srelationship).*/i],
+              ['relationship',/(Engaged).*/i]
             ]
-
 
   //  in case there is a ·, split strings first
   divs = []
