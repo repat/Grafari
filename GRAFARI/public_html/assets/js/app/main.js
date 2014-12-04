@@ -73,7 +73,12 @@ require(['../common'], function () {
 
                 brandRow.removeClass('center');
                 resultSpinner.removeClass('hidden');
+            });
 
+            $("#queryinput").keyup(function(event){
+                if(event.keyCode == 13){
+                    $("#btn_search").click();
+                }
             });
 
             $('#btn_clear').click(function () {
