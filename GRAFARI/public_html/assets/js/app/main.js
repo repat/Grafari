@@ -75,8 +75,8 @@ require(['../common'], function () {
                 resultSpinner.removeClass('hidden');
             });
 
-            $("#queryinput").keyup(function(event){
-                if(event.keyCode == 13){
+            $("#queryinput").keyup(function (event) {
+                if (event.keyCode == 13) {
                     $("#btn_search").click();
                 }
             });
@@ -122,8 +122,8 @@ require(['../common'], function () {
             return queryDivs;
         }
 
-        function updateClickHandler() {
-
+        var createInfoElement = function (spanText) {
+            return '</br>&#183;' + spanText;
         }
 
         function make_Users() {
@@ -133,65 +133,62 @@ require(['../common'], function () {
                 results.empty();
                 while (!users.empty()) {
                     var user = users.pop();
-                    var userId = user.id.replace(/\./g, "-")
+                    var userUrl = 'https://www.facebook.com/' + user.id;
+                    var userId = user.id.replace(/\./g, "-");
                     results.append('<div id="' + userId + '" class="result'
                     + ' well userWell"></div>');
                     var userDiv = $('#' + userId);
 
-                    userDiv.append('<a class="media-left" href="#">');
-                    userDiv.append('<img class="user-img" src="' + user.pictureurl + '" alt="' + user.name + '"></img></a>');
-                    var infotext = '<b class="userInfo">' + user.name;
+                    //userDiv.append('<a class="media-left" href="#">');
+                    userDiv.append('<a href="' + userUrl +'" target="_blank"><img class="user-img" src="' + user.pictureurl + '" alt="' + user.name + '"></img></a>');
+                    var infotext = '<b class="userInfo">' + '<a href="' + userUrl +'" target="_blank">' + user.name + '</a>';
 
-                    if (user.hasOwnProperty("properties")) {
-                        while (!user.properties.query.empty()) {
-                            userDiv.addClass('' + user.properties.query.pop());
-                        }
-                        if (user.properties.hasOwnProperty("gender")) {
-                            if (user.properties["gender"] === "male") {
-                                infotext += ' &#9794';
-                            } else if (user.properties["gender"] === "female") {
-                                infotext += ' &#9792';
-                            }
-                        }
-
-                        infotext += '</b><br>';
-                        if (user.properties.hasOwnProperty("age")) {
-                            infotext += user.properties["age"];
-                        }
-                        if (user.properties.hasOwnProperty("relationship")) {
-                            infotext += ' &#183; ' + user.properties["relationship"];
-                        }
-                        if (user.properties.hasOwnProperty("employer")) {
-                            if (user.properties.hasOwnProperty("profession")) {
-                                if (user.properties["profession"] === "unemployed") {
-                                    infotext += ' &#183; worked at ' + user.properties["employer"];
-                                } else if (user.properties["profession"] === "") {
-                                    infotext += ' &#183; works at ' + user.properties["employer"];
-                                } else {
-                                    infotext += ' &#183; ' + user.properties["profession"] + ' at '
-                                    + user.properties["employer"];
-                                }
-                            } else {
-                                infotext += ' &#183; works at '
-                                + user.properties["employer"];
-                            }
-                        }
-                        if (user.properties.hasOwnProperty("studies")) {
-                            infotext += ' &#183; studies ' + user.properties["studies"];
-                            if (user.properties.hasOwnProperty("university")) {
-                                infotext += ' at ' + user.properties["university"];
-                            }
-                        }
-                        if (user.properties.hasOwnProperty("lives")) {
-                            infotext += ' &#183; lives in ' + user.properties["lives"];
-                        }
-                        if (user.properties.hasOwnProperty("from") && user.properties["from"] !== user.properties["lives"]) {
-                            infotext += ' &#183; used to live in ' + user.properties["from"];
+                    /*while (!user.query.empty()) {
+                     userDiv.addClass('' + user.query.pop());
+                     }*/
+                    if (user.hasOwnProperty("gender")) {
+                        if (user.gender === "male") {
+                            infotext += ' &#9794';
+                        } else if (user.gender === "female") {
+                            infotext += ' &#9792';
                         }
                     }
-                    userDiv.append('<div class="media-body">' + infotext
-                    + '</div>');
 
+
+                    if (user.hasOwnProperty("age")) {
+                        infotext += user.age;
+                    }
+                    if (user.hasOwnProperty("relationship")) {
+                        infotext += '</br>' + user.relationship;
+                    }
+                    if (user.hasOwnProperty("employer")) {
+                        if (user.hasOwnProperty("profession")) {
+                            if (user.profession === "unemployed") {
+                                infotext += createInfoElement('worked at ' + user.employer);
+                            } else if (user.profession === "") {
+                                infotext += createInfoElement('works at ' + user.employer);
+                            } else {
+                                infotext += createInfoElement(user.profession + ' at ' + user.employer);
+                            }
+                        } else {
+                            infotext += createInfoElement('works at ' + user.employer);
+                        }
+                    }
+                    if (user.hasOwnProperty("studies")) {
+                        var studieText = 'studies ' + user.studies;
+                        if (user.hasOwnProperty("university")) {
+                            studieText += ' at ' + user.university;
+                        }
+                        infotext += createInfoElement(studieText);
+                    }
+                    if (user.hasOwnProperty("lives")) {
+                        infotext += createInfoElement('lives in ' + user.lives);
+                    }
+                    if (user.hasOwnProperty("from") && user.from !== user.lives) {
+                        infotext += createInfoElement('used to live in ' + user.from);
+                    }
+                    infotext += '</b><br>';
+                    userDiv.append(infotext);
                 }
 
 
