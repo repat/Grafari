@@ -97,6 +97,7 @@ Array.prototype.findFirst = function(predicate) {
 //                  'are' 'in' 'an' open' 'relationship' | 'are' 'seperated' | 
 //                  'are' 'divorced' | 'are' 'in' 'a' 'civil' 'union' |
 //                  'are' 'dating' | 'are' 'in' 'a' 'relationship' | 'whose' 'relationship' 'is' 'complicated' 
+//CondLang        = 'speak' token
 //CondGroup       = '(' Disjunction ')'
 //Disjunction     = Conjunction {'OR' Conjunction}
 //Conjunction     = Condition {'AND' Condition }
@@ -188,6 +189,8 @@ function Condition(tokens) {
     return CondStudy(tokens)
   if (tokens.is('whose'))
     return CondRelationship(tokens)
+  if (tokens.is('speak'))
+    return CondLang(tokens)
   
 
   throw parseError("Unexpected next token in token list when parsing a condition", tokens)
@@ -351,6 +354,16 @@ function CondRelationship(tokens) {
     return new C.CondRelationship("in-any-relationship")
 
   throw parseError("Expected any kind of relationship description", tokens)
+}
+
+//CondLang = 'speak' token
+function CondLang(tokens) {
+  if (tokens.take('speak') && !tokens.empty()) {
+    var lang = tokens.pop()
+    return new C.CondLang(lang)
+  }
+
+  throw parseError("Expected 'speak'", tokens)
 }
 
 //CondGroup       = '(' Disjunction ')'

@@ -232,18 +232,18 @@ RedisResolver.prototype.resolveLocation = function(location, callback) {
 RedisResolver.prototype.resolveLanguage = function(lang, callback) {
   var resolver = this.resolver
 
-  redis.hget("languages", location, function(err,reply) {
+  redis.hget("languages", lang, function(err,reply) {
     if (err) 
       return callback(err)
     
     if (reply)
       return callback(null, JSON.parse(reply))
 
-    resolver.resolveLanguage(location, function(err, reply) {
+    resolver.resolveLanguage(lang, function(err, reply) {
       if (err) 
         return callback(err)
 
-      redis.hset("languages", location, JSON.stringify(reply))
+      redis.hset("languages", lang, JSON.stringify(reply))
       return callback(null, reply)
     })
   })

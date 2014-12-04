@@ -136,3 +136,11 @@ C.CondBorn.prototype.translate = function(resolver, callback) {
 C.CondRelationship.prototype.translate = function(resolver, callback) {
   return callback(null, "/" + this.type + "/users")
 }
+
+C.CondLang.prototype.translate = function(resolver, callback) {
+  resolver.resolveLanguage(this.lang, function(err, id) {
+    if (err)
+      return callback(err)
+    return callback(null, "/" + id + "/speakers")
+  })
+}

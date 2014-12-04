@@ -14,6 +14,7 @@ exports.CondWorkAt      = CondWorkAt
 exports.CondBorn        = CondBorn
 exports.CondStudy       = CondStudy
 exports.CondRelationship= CondRelationship
+exports.CondLang        = CondLang
 exports.CondGroup       = CondGroup
 exports.Disjunction     = Disjunction
 exports.Conjunction     = Conjunction
@@ -45,7 +46,7 @@ BasicRequest.prototype.push = function(condition) {
 BasicRequest.prototype.toString = function() {
   var str = "BasicRequest(" + this.selector
   this.conditions.forEach(function (con) { str += "," + con; })
-  return str
+  return str + ")"
 }
 
 // Selector. Will contain either 'people', 'men' or 'women'
@@ -154,6 +155,14 @@ function CondRelationship(type) {
 
 CondRelationship.prototype.toString = function() {
   return "CondRelationship(" + this.type + ")"
+}
+
+function CondLang(lang) {
+  this.lang = lang
+}
+
+CondLang.prototype.toString = function() {
+  return "CondLang(" + this.lang + ")"
 }
 
 // Represents conditions grouped by ()

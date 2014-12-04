@@ -25,6 +25,7 @@ var Requests = require("./lib/request-logic")
 /** Hier mal ein paar Beispielanfragen
  */
 var input = 'All people who are living in Germany';
+//var input = 'All people who speak German'
 //var input = 'All people who lived in Germany AND who worked at "IBM" AND were born in 1990'
 //var input = 'All men who study at "HAW Hamburg"'
 //var input = 'All women who (are in an open relationship OR are single)'
@@ -57,4 +58,5 @@ console.log("Flattened Parse-Tree:\n" + parseTree.toString() + "\n");
 Requests.translateTree(parseTree, function(err, requestList) {
   console.log("Resolved into following requests:")
   requestList.forEach(function (request) { console.log(request) })  
+  process.nextTick(function() { process.exit() })
 });
