@@ -6,11 +6,19 @@ var restify = require('restify')
 var async   = require("async")
 var Browser = require("./lib/browser")
 var Requests = require("./lib/request-logic")
+var fs = require('fs');
 
 //Use 8080 for testing
 var port = 8080
+var securePort = 8443
 if (process.argv.length > 2) 
   port = parseInt(process.argv[2])
+
+var httpsOptions = {
+  name: "Secure Grafari",
+  key: fs.readFileSync('./keys/grafari.key'),
+  certificate: fs.readFileSync('./keys/grafari.crt')
+};
 
 /** Start-Up (launch browser-module and rest server)
  */
@@ -29,6 +37,14 @@ Browser.init(function(err) {
 
   server.listen(port, function() {
     console.log('%s listening at %s', server.name, server.url);
+  });
+
+  var httpsServer = restify.createServer(httpsOptions);
+  httpsServer.get('/search/:str', search);
+  httpsServer.head('/search/:str', search);
+
+  httpsServer.listen(securePort, function() {
+    console.log('%s listening at %s', httpsServer.name, httpsServer.url);
   });
 })
 

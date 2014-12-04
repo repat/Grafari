@@ -4,6 +4,7 @@ var graph = require('fbgraph');
 exports.getIdFromName     = getIdFromName
 exports.getIdFromLocation = getIdFromLocation
 exports.getIdFromLanguage = getIdFromLanguage
+exports.getPictureFromID = getPictureFromID
 
 graph.setAccessToken('736322176438280|N8bcT0U2C4-PHlvoJpqe8ytN1Y8'); //<- AppToken (sollte nicht auslaufen)
 
@@ -95,10 +96,14 @@ function getIdFromLanguage(lang, callback) {
   })
 }
 
-
-
-
-
+function getPictureFromID(fbID, callback) {
+  graph.get("/" + fbID + "/picture", function(err, res) {
+    if (err)
+      return callback(err)
+    // sic
+    callback(null,res.location)
+  });
+}
 
 /** Function to extend the duration of the access token.
  *  At the moment this is not needed

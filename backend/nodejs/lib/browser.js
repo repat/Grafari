@@ -102,7 +102,7 @@ function cachedReadPage(url, callback) {
         return callback(err) 
       //Enter 'url' -> 'result' into Redis
       redis.set(url, JSON.stringify(result))
-      redis.expire(url,EXPIRETIME)
+      redis.expire(url, EXPIRETIME)
       return callback(null, result)
     })
   })
@@ -207,8 +207,15 @@ regexArray = [
               ['studies',/(?=Studie[s|d]\s)Studie[s|d]\s(.*)\sat.*/gmi],
               ['relationship',/(Single)/i],
               ['relationship',/(In\sa\srelationship).*/i],
-              ['relationship',/(In\san\sopen\srelationship).*/i],
-              ['relationship',/(Engaged).*/i]
+              ['relationship',/(Open\srelationship).*/i],
+              ['relationship',/(Engaged).*/i],
+              ['relationship',/(Widowed).*/i],
+              ['relationship',/(Civil Union).*/i],
+              ['relationship',/(Complicated).*/i],
+              ['relationship',/(Divorced).*/i],
+              ['relationship',/(Dating).*/i],
+              ['relationship',/(Seperated).*/i],
+              ['language',/Speaks\s(.*)/i]
             ]
 
   //  in case there is a ·, split strings first
@@ -258,4 +265,14 @@ function extractUserId(url) {
 function array_copy(from, to) {
   for(var c = 0; c < from.length; ++c)
     to.push(from[c])
+}
+
+// copied from https://github.com/sergerehem/fb-uid-scraper/blob/master/scripts/script.js
+function decodeEncodedNonAsciiCharacters(x) {
+    var r = /\\u([\d\w]{4})/gi;
+    x = x.replace(r, function (match, grp) {
+        return String.fromCharCode(parseInt(grp, 16));
+    });
+    x = unescape(x);
+    return x;
 }
