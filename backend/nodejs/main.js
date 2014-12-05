@@ -60,10 +60,18 @@ function search(req, res, done) {
   //Parse request
   var parseTree = Requests.parse(request)
   Requests.translateTree(parseTree, function(err, requestList) {
-    var lookupFunctions = requestList.map(function (fbpath) {
+    var lookupFunctions = requestList.map(function (request) {
       return function(callback) {
-        console.log("Fetching: " + fbpath)
-        Browser.get("/search" + fbpath, callback)
+        console.log("Fetching: " + request.url)
+        Browser.get("/search" + request.url, function(err,ary) {
+          if (err)
+            return callback(err)
+          return callback(null, {
+            "url":request.url,
+            "query":request.query,
+            "results":ary
+          })
+        })
       }
     })
 

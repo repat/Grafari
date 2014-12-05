@@ -1,4 +1,5 @@
 var C = require("./parser-classes")
+var H = require("./human-readable")
 var Resolver = require("./resolvers")
 var async = require("async")
 
@@ -18,7 +19,12 @@ var resolver = new Resolver() //Create a single resolver instance
 function translate(flatTree, callback) {
   //iterator for async.map()
   function iterator(request, itCallback) {
-    request.translate(resolver, itCallback)
+    var sentence = request.print()
+    request.translate(resolver, function(err, url) {
+      if (err)
+        return itCallback(err)
+      return itCallback(null, { "url":url, "query":sentence })
+    })
   }
 
   async.map(flatTree.requests, iterator, function(err, requestList) {
