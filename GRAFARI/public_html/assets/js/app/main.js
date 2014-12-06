@@ -122,6 +122,27 @@ require(['../common'], function () {
             return queryDivs;
         }
 
+        var createUniLink = function (university, universityCount) {
+            $.ajax({
+                type: "GET",
+                url: "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=" + university.replace(/ /g, "+"),
+                dataType: "jsonp",
+                async: false,
+                success: function (data, status, jqXHR) {
+                    var spanId = "#uni" + universityCount;
+                    var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
+                    if (unescapedUrl) {
+                        $(spanId).html('<a href="' + unescapedUrl + '">' + university + '</a>')
+                    } else {
+                        $(spanId).html(university)
+                    }
+                },
+                error: function (jqXHR, status) {
+                    console.log('-->2error', jqXHR, status)
+                }
+            });
+        }
+
         var createInfoElement = function (spanText) {
             return '</br>&#183;' + spanText;
         }
@@ -131,6 +152,8 @@ require(['../common'], function () {
                 var results = $('#results');
                 results.isotope('destroy');
                 results.empty();
+
+                var universitySpanCount = 1;
                 while (!users.empty()) {
                     var user = users.pop();
                     var userUrl = 'https://www.facebook.com/' + user.id;
@@ -140,8 +163,8 @@ require(['../common'], function () {
                     var userDiv = $('#' + userId);
 
                     //userDiv.append('<a class="media-left" href="#">');
-                    userDiv.append('<a href="' + userUrl +'" target="_blank"><img class="user-img" src="' + user.pictureurl + '" alt="' + user.name + '"></img></a>');
-                    var infotext = '<b class="userInfo">' + '<a href="' + userUrl +'" target="_blank">' + user.name + '</a>';
+                    userDiv.append('<a href="' + userUrl + '" target="_blank"><img class="user-img" src="' + user.pictureurl + '" alt="' + user.name + '"></img></a>');
+                    var infotext = '<b class="userInfo">' + '<a href="' + userUrl + '" target="_blank">' + user.name + '</a>';
 
                     /*while (!user.query.empty()) {
                      userDiv.addClass('' + user.query.pop());
@@ -177,7 +200,8 @@ require(['../common'], function () {
                     if (user.hasOwnProperty("studies")) {
                         var studieText = 'studies ' + user.studies;
                         if (user.hasOwnProperty("university")) {
-                            studieText += ' at ' + user.university;
+                            studieText += ' at ' + '<span id="uni' + universitySpanCount + '">' + createUniLink(user.university, universitySpanCount) + '</span>';
+                            universitySpanCount++;
                         }
                         infotext += createInfoElement(studieText);
                     }
