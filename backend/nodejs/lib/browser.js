@@ -6,6 +6,7 @@
 var fs      = require("fs");
 var async   = require("async");
 var Zombie  = require("zombie");
+var feelinglucky = require("./feelinglucky")
 var r   = require("redis");
 var redis = r.createClient();
 
@@ -101,8 +102,14 @@ function cachedReadPage(url, callback) {
       if(err)
         return callback(err) 
       //Enter 'url' -> 'result' into Redis
-      redis.set(url, JSON.stringify(result))
-      redis.expire(url, EXPIRETIME)
+      redis.set(url, JSON.stringify(result), function(err,reply) {
+        if (err)
+          return callback(err)
+        redis.expire(url, EXPIRETIME, function(err,reply){
+          if (err)
+            return callback(err)
+        })  
+      })
       return callback(null, result)
     })
   })
@@ -174,25 +181,37 @@ function convertPageToJSON(browser) {
     "div[data-bt*=snippets] ._ajw:nth-of-type(3) ._52eh",
     "div[data-bt*=snippets] ._ajw:nth-of-type(4) ._52eh"]
 
-    // in case element exists, run it trough regex checks    
+    // for every element: in case element exists
     for (var i = 0; i < divClasses.length; i++) {
       if (child.querySelector(divClasses[i]) != null) {
+        // extract information through regex
         returnArray = extractInformationFromDiv(child.querySelector(divClasses[i]).textContent);
         if (returnArray != null && returnArray.length != 0) {
           for (var j = 0; j < returnArray.length; j++) {
               // trim() removes white spaces at beginning and end
-              person[returnArray[j][0]] = returnArray[j][1].trim();
-          }
-        }
-      }    
+              person[returnArray[j][0]] = returnArray[j][1].trim();            
+            }
+          } 
+       }
     }
 
-    people.push(person)
+    if (person.hasOwnProperty('university')) {
+      getUniversityURL(person.university + " homepage", function(err, res) {
+        if (err)
+          callback(err)
+        person.universityurl = res
+        // should be here
+        // people.push(person)
+      })
+      people.push(person)
+    } else {
+      people.push(person)
+    }
   })
-
-  console.log("Parsed " + people.length + " people in total")
-  return people
+ 
+return people
 }
+
 
 function extractInformationFromDiv(rawDivs) {
 // regex101.com ftw
@@ -265,6 +284,14 @@ function extractUserId(url) {
 function array_copy(from, to) {
   for(var c = 0; c < from.length; ++c)
     to.push(from[c])
+}
+
+function getUniversityURL(university, callback) {
+  feelinglucky.getFeelingLuckyResult(university, function (err, res) {
+      if (err)
+          return callback(err)
+    return callback(null, res)
+  });
 }
 
 // copied from https://github.com/sergerehem/fb-uid-scraper/blob/master/scripts/script.js
