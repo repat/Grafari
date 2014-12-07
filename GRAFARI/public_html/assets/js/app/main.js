@@ -122,19 +122,18 @@ require(['../common'], function () {
             return queryDivs;
         }
 
-        var createUniLink = function (university, universityCount) {
+        var addUniLink = function (university, universityCount) {
             $.ajax({
                 type: "GET",
                 url: "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=" + university.replace(/ /g, "+"),
                 dataType: "jsonp",
-                async: false,
-                success: function (data, status, jqXHR) {
+                success: function (data) {
                     var spanId = "#uni" + universityCount;
                     var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
                     if (unescapedUrl) {
-                        $(spanId).html('<a href="' + unescapedUrl + '">' + university + '</a>')
+                        $(spanId).html('<a href="' + unescapedUrl + '">' + university + '</a>');
                     } else {
-                        $(spanId).html(university)
+                        $(spanId).html(university);
                     }
                 },
                 error: function (jqXHR, status) {
@@ -148,7 +147,7 @@ require(['../common'], function () {
         }
 
         function make_Users() {
-            testdata.get(function (users) {
+            userData.get(function (users) {
                 var results = $('#results');
                 results.isotope('destroy');
                 results.empty();
@@ -200,7 +199,8 @@ require(['../common'], function () {
                     if (user.hasOwnProperty("studies")) {
                         var studieText = 'studies ' + user.studies;
                         if (user.hasOwnProperty("university")) {
-                            studieText += ' at ' + '<span id="uni' + universitySpanCount + '">' + createUniLink(user.university, universitySpanCount) + '</span>';
+                            studieText += ' at ' + '<span id="uni' + universitySpanCount + '"></span>';
+                            addUniLink(user.university, universitySpanCount);
                             universitySpanCount++;
                         }
                         infotext += createInfoElement(studieText);
@@ -243,7 +243,7 @@ require(['../common'], function () {
     });
 });
 
-var testdata = {
+var userData = {
     get: function (callback) {
         var searchString = $('#queryinput').val()
         var searchEncoded = searchString.replace(/ /g, "%20")
@@ -251,7 +251,6 @@ var testdata = {
             type: "GET",
             url: "http://localhost:8080/search/" + searchEncoded,
             contentType: "application/json; charset=utf-8",
-            //data: contact.toJsonString(),
             dataType: "json",
             success: function (data, status, jqXHR) {
                 console.log('-->success', data, status, jqXHR);
