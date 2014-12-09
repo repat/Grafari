@@ -82,10 +82,9 @@ function search(req, res, done) {
 
       console.log("Sending response")
 
-      //TODO jsonArray must be correctly merged together before sending
       res.header("Access-Control-Allow-Origin", "*");
       res.charSet('utf-8');
-      res.send(jsonArray)
+      res.send(mergeResults(jsonArray))
       return done()      
     })
   })
@@ -95,4 +94,44 @@ function handleError(err, res, done) {
   console.log("An error ocurred: \n" + JSON.stringify(err))
   res.send({"Internal error" : err})
   return done()
+}
+
+
+function mergeResults(jsonData) {
+  var results = [{ type:"subqueries" }]
+  var queries = []   //List of all subqueries
+
+  var personMap = {} //Map ID -> person
+  var people = []    //List of all people ids
+
+  //For every query
+  jsonData.forEach(function(queryData) {
+    var qid = queries.length
+    queries.push(queryData.query)
+
+    //For every person in that query
+    queryData.results.forEach(function(person) {
+      if (personMap[person.id]) { //Person already known from other query
+        //TODO merge properties (If query a returned other attributes for that person than query b)
+        personMap[person.id].subqueries.push(qid)
+      } else {
+        person.subqueries = [ qid ]
+        personMap[person.id] = person
+        people.push(person.id)
+      }
+    })
+  })
+
+  //Copy queries into first result object
+  for(var c = 0; c < queries.length; ++c)
+    results[0][c] = queries[c]
+
+  results[0].length = queries.length
+
+  //Now append all people
+  people.forEach(function(pid) {
+    results.push(personMap[pid])
+  })
+
+  return results
 }
