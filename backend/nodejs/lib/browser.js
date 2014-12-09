@@ -6,7 +6,6 @@
 var fs      = require("fs");
 var async   = require("async");
 var Zombie  = require("zombie");
-var feelinglucky = require("./feelinglucky")
 var r   = require("redis");
 var redis = r.createClient();
 
@@ -194,19 +193,7 @@ function convertPageToJSON(browser) {
           } 
        }
     }
-
-    if (person.hasOwnProperty('university')) {
-      getUniversityURL(person.university + " homepage", function(err, res) {
-        if (err)
-          callback(err)
-        person.universityurl = res
-        // should be here
-        // people.push(person)
-      })
-      people.push(person)
-    } else {
-      people.push(person)
-    }
+    people.push(person)
   })
  
 return people
@@ -284,14 +271,6 @@ function extractUserId(url) {
 function array_copy(from, to) {
   for(var c = 0; c < from.length; ++c)
     to.push(from[c])
-}
-
-function getUniversityURL(university, callback) {
-  feelinglucky.getFeelingLuckyResult(university, function (err, res) {
-      if (err)
-          return callback(err)
-    return callback(null, res)
-  });
 }
 
 // copied from https://github.com/sergerehem/fb-uid-scraper/blob/master/scripts/script.js
