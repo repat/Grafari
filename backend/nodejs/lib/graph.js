@@ -5,20 +5,22 @@ exports.getIdFromName     = getIdFromName
 exports.getIdFromLocation = getIdFromLocation
 exports.getIdFromLanguage = getIdFromLanguage
 exports.getPictureFromID = getPictureFromID
+exports.getProfilePicturesFromIds = getProfilePicturesFromIds
+exports.getProfilePictureFromId = getProfilePictureFromId
 
 graph.setAccessToken('736322176438280|N8bcT0U2C4-PHlvoJpqe8ytN1Y8'); //<- AppToken (sollte nicht auslaufen)
 
 
 /** A generic method to query the facebook graph for a certain ID
  */
-function lookupData(name, callback) { 
+function lookupData(name, callback) {
   var searchOptions = {
       q:    name,
       type: 'page'
   };
 
   graph.search(searchOptions, function(err, res) {
-    if (err) 
+    if (err)
       return callback(err)
 
     if (res.data.length > 0)
@@ -36,8 +38,8 @@ function getIdFromName(name, callback) {
       return callback(err)
 
     //if everything went well, return first ID
-    return callback(null, res.data[0].id) 
-  })  
+    return callback(null, res.data[0].id)
+  })
 };
 
 
@@ -56,7 +58,7 @@ function array_contains(ary, predicate) {
 
 /** This resolves the given location name into an ID
  *  It only accepts IDs of the category City, Country, State, Landmark
- * 
+ *
  */
 function getIdFromLocation(location, callback) {
   lookupData(location, function(err, res) {
@@ -66,7 +68,7 @@ function getIdFromLocation(location, callback) {
     var locationObject = array_findFirst(res.data, function(element) {
       if (element.category_list != undefined)
         return array_contains(element.category_list, function(entry) {
-          return entry.name == "City" || 
+          return entry.name == "City" ||
                  entry.name == "Country" ||
                  entry.name == "State" ||  //eg. Florida
                  entry.name == "Landmark"  //eg. Africa
@@ -103,6 +105,28 @@ function getPictureFromID(fbID, callback) {
     // sic
     callback(null,res.location)
   });
+}
+
+
+function getProfilePictureFromId(id, callback) {
+  getProfilePicturesFromIds([id], callback)
+}
+
+function getProfilePicturesFromIds(ids, callback) {
+  return graph.batch(ids.map(function(id) {
+    return {
+      method: "GET",
+      relative_url: id + "/picture?width=2000&redirect=false"
+    }
+  }), function(e, r) {
+    r = r.map(function(elem, index) {
+      return {
+        "url": JSON.parse(elem.body).data.url,
+        "id": ids[index]
+      }
+    })
+    return callback(e,r)
+  })
 }
 
 /** Function to extend the duration of the access token.

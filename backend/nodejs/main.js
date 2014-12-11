@@ -5,13 +5,15 @@
 var restify = require('restify')
 var async   = require("async")
 var Browser = require("./lib/browser")
+var graph = require("./lib/graph")
+var imgrec = require("./lib/imagerecognition")
 var Requests = require("./lib/request-logic")
 var fs = require('fs');
 
 //Use 8080 for testing
 var port = 8080
 var securePort = 8443
-if (process.argv.length > 2) 
+if (process.argv.length > 2)
   port = parseInt(process.argv[2])
 
 var httpsOptions = {
@@ -32,16 +34,28 @@ Browser.init(function(err) {
   var server = restify.createServer({
     name: 'Grafari'
   });
+  server.use(restify.bodyParser());
+  server.use(restify.jsonp());
+
   server.get('/search/:str', search);
   server.head('/search/:str', search);
+  server.get('/tags/id/:str', tags);
+  server.head('/tags/id/:str', tags);
+  server.post('/tags/id', tags);
 
   server.listen(port, function() {
     console.log('%s listening at %s', server.name, server.url);
   });
 
   var httpsServer = restify.createServer(httpsOptions);
+  httpsServer.use(restify.bodyParser());
+  httpsServer.use(restify.jsonp())
+
   httpsServer.get('/search/:str', search);
   httpsServer.head('/search/:str', search);
+  httpsServer.get('/tags/id/:str', tags);
+  httpsServer.head('/tags/id/:str', tags);
+  httpsServer.post('/tags/id', tags);
 
   httpsServer.listen(securePort, function() {
     console.log('%s listening at %s', httpsServer.name, httpsServer.url);
@@ -85,9 +99,44 @@ function search(req, res, done) {
       res.header("Access-Control-Allow-Origin", "*");
       res.charSet('utf-8');
       res.send(mergeResults(jsonArray))
-      return done()      
+      return done()
     })
   })
+}
+
+function tags(req, res, done) {
+  if (req.method == 'POST') {
+    var request = JSON.parse(req.body)
+    var ids = request.ids
+    graph.getProfilePicturesFromIds(request.ids,
+      function(err, result) {
+        if (err) {
+          return handleError(err, res, done)
+        }
+
+        url_list = result.map(function(e) {return e.url})
+
+        async.map(url_list, imgrec.imageToTags, function(e, r) {
+          if (e) {
+            return handleError(e, res, done)
+          }
+
+          a = {}
+          r.forEach(function(e, index) {
+            a[result[index].id] = e.tags
+          })
+          res.send(a)
+          return done()
+        })
+      }
+    )
+  } else {
+    var request = req.params.str
+    graph.getProfilePictureFromId(request, function(err, r) {
+      res.send(r)
+      return done()
+    })
+  }
 }
 
 function handleError(err, res, done) {
