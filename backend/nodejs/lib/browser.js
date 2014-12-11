@@ -158,6 +158,9 @@ function convertPageToJSON(browser) {
   var people = []
   var peopleDivs = []
 
+  if (!browser.query("#BrowseResultsContainer")) //No results were found
+    return []
+
   // People are returned in two seperate div containers. The first one is loaded statically
   // and sometimes contains only one elment and the second one is loaded dynamically and contains the remaining people
   array_copy(browser.query("#BrowseResultsContainer").childNodes, peopleDivs)
