@@ -161,10 +161,13 @@ function convertPageToJSON(browser) {
   if (!browser.query("#BrowseResultsContainer")) //No results were found
     return []
 
+
+  var foldBelow = browser.query("#u_0_o_browse_result_below_fold") || browser.query("#u_jsonp_2_2_browse_result_below_fold")
+
   // People are returned in two seperate div containers. The first one is loaded statically
   // and sometimes contains only one elment and the second one is loaded dynamically and contains the remaining people
   array_copy(browser.query("#BrowseResultsContainer").childNodes, peopleDivs)
-  array_copy(browser.query("#u_0_o_browse_result_below_fold").childNodes, peopleDivs)
+  array_copy(foldBelow.childNodes, peopleDivs)
 
   peopleDivs.forEach(function(child) {
 
