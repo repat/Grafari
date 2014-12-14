@@ -154,7 +154,7 @@ function handleError(err, res, done) {
 
 
 function mergeResults(jsonData) {
-  var results = [{ type:"subqueries" }]
+  var results = {"users":[]}
   var queries = []   //List of all subqueries
 
   var personMap = {} //Map ID -> person
@@ -178,15 +178,11 @@ function mergeResults(jsonData) {
     })
   })
 
-  //Copy queries into first result object
-  for(var c = 0; c < queries.length; ++c)
-    results[0][c] = queries[c]
-
-  results[0].length = queries.length
+  results.queries = queries
 
   //Now append all people
   people.forEach(function(pid) {
-    results.push(personMap[pid])
+    results.users.push(personMap[pid])
   })
 
   return results
