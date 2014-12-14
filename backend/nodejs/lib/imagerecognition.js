@@ -6,6 +6,7 @@ var rc = redis.createClient()
 exports.imageToTags = imageToTagsCache
 
 function imageToTags(url, callback) {
+  if (!url) return callback("url not defined", null)
   var url = "http://api.imagga.com/draft/tags?api_key=acc_0cc34ea494b2b58&url=" + encodeURIComponent(url)
 
   request({
@@ -40,13 +41,11 @@ function imageToTagsCache(url, callback) {
   return
   rc.hget("url", url, function(err,reply) {
     if (err || !reply) {
-      console.log(err.message)
       return imageToTags(url, function(e, r) {
         rc.hset("url", url, r)
         return callback(e, r)
       })
     }
-    console.log(reply)
     return callback(null, reply)
   })
 }

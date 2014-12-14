@@ -114,7 +114,7 @@ function tags(req, res, done) {
     var request = req.params.str
     ids = [request]
   }
-  
+
   res.header("Access-Control-Allow-Origin", "*")
   res.charSet('utf-8')
 
@@ -124,7 +124,11 @@ function tags(req, res, done) {
         return handleError(err, res, done)
       }
 
-      url_list = result.map(function(e) {return e.url})
+      url_list = result.map(function(e) {
+          if (!e.hasOwnProperty('url')) return e
+          return e.url
+        }
+      )
 
       async.map(url_list, imgrec.imageToTags, function(e, r) {
         if (e) {

@@ -120,12 +120,20 @@ function getProfilePicturesFromIds(ids, callback) {
     }
   }), function(e, r) {
     r = r.map(function(elem, index) {
+      if (JSON.parse(elem.body).error) {
+        e = JSON.parse(elem.body).error
+      }
+
+      var url = (JSON.parse(elem.body).data) ?
+        JSON.parse(elem.body).data.url : null
+      console.log(elem.body)
       return {
-        "url": JSON.parse(elem.body).data.url,
+        "url": url,
         "id": ids[index]
       }
     })
-    return callback(e,r)
+    if (e) return callback(e, null)
+    return callback(null, r)
   })
 }
 
