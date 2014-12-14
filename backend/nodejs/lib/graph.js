@@ -126,7 +126,6 @@ function getProfilePicturesFromIds(ids, callback) {
 
       var url = (JSON.parse(elem.body).data) ?
         JSON.parse(elem.body).data.url : null
-      console.log(elem.body)
       return {
         "url": url,
         "id": ids[index]
