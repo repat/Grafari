@@ -105,38 +105,41 @@ function search(req, res, done) {
 }
 
 function tags(req, res, done) {
+  var ids = []
+
   if (req.method == 'POST') {
     var request = JSON.parse(req.body)
-    var ids = request.ids
-    graph.getProfilePicturesFromIds(request.ids,
-      function(err, result) {
-        if (err) {
-          return handleError(err, res, done)
-        }
-
-        url_list = result.map(function(e) {return e.url})
-
-        async.map(url_list, imgrec.imageToTags, function(e, r) {
-          if (e) {
-            return handleError(e, res, done)
-          }
-
-          a = {}
-          r.forEach(function(e, index) {
-            a[result[index].id] = e.tags
-          })
-          res.send(a)
-          return done()
-        })
-      }
-    )
+    ids = request.ids
   } else {
     var request = req.params.str
-    graph.getProfilePictureFromId(request, function(err, r) {
-      res.send(r)
-      return done()
-    })
+    ids = [request]
   }
+  
+  res.header("Access-Control-Allow-Origin", "*")
+  res.charSet('utf-8')
+
+  graph.getProfilePicturesFromIds(ids,
+    function(err, result) {
+      if (err) {
+        return handleError(err, res, done)
+      }
+
+      url_list = result.map(function(e) {return e.url})
+
+      async.map(url_list, imgrec.imageToTags, function(e, r) {
+        if (e) {
+          return handleError(e, res, done)
+        }
+
+        a = {}
+        r.forEach(function(e, index) {
+          a[result[index].id] = e.tags
+        })
+        res.send(a)
+        return done()
+      })
+    }
+  )
 }
 
 function handleError(err, res, done) {
