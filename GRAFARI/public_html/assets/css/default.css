@@ -1,0 +1,115 @@
+body {
+  padding-top: 50px;
+}
+
+.hidden {
+	display: none !important;
+}
+
+.center {
+	margin-top: 150px !important;
+}
+
+.trans {
+	transition: all 0.4s ease 0s;
+}
+
+.search-form-row {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+.result-row {
+	padding: 0px 15px;
+	text-align: center;
+}
+
+.brand-row {
+	font-family: museo-slab,Georgia,"Times New Roman",Times,serif;
+    font-weight: 500;
+	font-size: 80px;
+	text-align: center;
+	/*text-shadow: 4px 3px 0 #fff, 9px 8px 0 rgba(0, 0, 0, 0.15);*/
+	text-shadow: 1px 1px 0px #FFF, 3px 3px 0px rgba(0, 0, 0, 0.15);
+	margin-top: -110px;
+}
+
+.brand-row > span > i {
+	color: #428bca;
+}
+
+.login-form {
+	padding: 20px;
+}
+
+.login-input {
+	padding: 10px 15px;
+}
+
+.user-img  {
+	width: 170px;
+	height: 170px;
+}
+
+#resultWell > .well {
+	min-height: 200px;
+}
+
+.userWell {
+	background-color: white;
+	width: 480px;
+	min-height: 190px;
+	margin: 10px;
+	transition: background-color 0.4s ease 0s;
+}
+
+.userInfo {
+	position: absolute;
+	left: 200px;
+	top: 20px;
+}
+
+.queryWell {
+	background-color: white;
+	height: auto;
+	margin: 10px;
+	transition: background-color 0.4s ease 0s;
+}
+
+.mainQuery > .well {
+	padding: 5px;
+}
+
+.mainQuery {
+	border-bottom: solid 2px lightgrey;
+	padding: 5px;
+	margin-bottom: 10px;
+}
+
+.mainQuery:hover {
+	cursor: pointer;
+	background-color: #e7e7e7;
+}
+
+.subQuery:hover {
+	cursor: pointer;
+	background-color: #e7e7e7;
+}
+
+.userWell:hover {
+	cursor: pointer;
+	background-color: #e7e7e7;
+}
+
+.token {
+	font-weight: bold;
+	color: grey;
+}
+
+.history {
+	list-style-type: none;
+}
+
+#historySelector {
+	margin-bottom: 20px;
+}
