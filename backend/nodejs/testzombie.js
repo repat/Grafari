@@ -1,4 +1,5 @@
 var Zombie = require("zombie")
+var fs = require("fs")
 
 Zombie.localhost('https://www.facebook.com')
 var browser = Zombie.create();
@@ -17,5 +18,5 @@ if (fs.existsSync("./cookies.tmp")) {
     })
   })
 } else { //Default login procedure
-  console.log("Missing cookie file")
+    console.log("Missing cookie file")
 }
