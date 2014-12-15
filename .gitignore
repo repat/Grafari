@@ -6,4 +6,4 @@ node_modules/
 .idea/*
 GRAFARI/.idea/*
 .DS_Store
-nbproject/*
+nbproject
