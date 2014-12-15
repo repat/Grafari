@@ -3,15 +3,15 @@ var Requests = require("./lib/request-logic")
 
 
 /** Hier ein paar Beipielanfragen, die der Parser in Facebook-URLs übersetzen kann.
- * 
+ *
  *  Dazu ein paar Hinweise:
  *   - Der Tokenizer trennt nach Leerzeichen und Klammern. Kommata werden einfach geschluckt.
  *   - Alle Tokens, die keine besondere Bedeutung haben, werden in Kleinbuchstaben umgewandelt.
  *   - Mit "-Zeichen können mehrere Wörter zu einem Token zusammengefasst werden (Der Tokenizer fasst den Text darin auch nicht an)
  *     Die Zeichen werden also nicht zu Kleinbuchstaben umgewandelt und es werden auch keine Kommata entfernt.
- *   - Wörter zu einem Token zusammenzufassen ist notwendig, wenn man 'who like X', 'who live in X' oder 'who are named X' als Anfrage 
+ *   - Wörter zu einem Token zusammenzufassen ist notwendig, wenn man 'who like X', 'who live in X' oder 'who are named X' als Anfrage
  *     verwendet und X Leerzeichen enthalten soll, oder auf Groß- & Kleinschreibung geachtet werden muss.
- *   - Alle Anfragen starten mit einem Selektor: '[All] people', '[All] women' oder '[All] men' anschließend können Bedingungen 
+ *   - Alle Anfragen starten mit einem Selektor: '[All] people', '[All] women' oder '[All] men' anschließend können Bedingungen
  *     mit who oder mit AND and die Anfrage geknüpft werden.
  *   - Da Facebook kein 'OR' unterstützt, müssen für jedes 'OR' mehrere Einzelanfragen gesendet werden.
  *   - 'AND', bzw 'who' bindet immer stärker als 'OR'. Ohne Klammern muss auf ein OR deshalb auch immer erstmal ein Selektor folgen.
@@ -48,16 +48,20 @@ console.log("Flattened Parse-Tree:\n" + parseTree.toString() + "\n");
 
 
 /** translateTree(parseTree, callback)
- * 
+ *
  * This function uses a callback, because it uses a resolver which has to communicate with Facebook to
- * resolve names to ID, so to prevent blocking this function needs a callback. 
+ * resolve names to ID, so to prevent blocking this function needs a callback.
  * (At the moment it only has a dummy resolver)
- * 
- * @param parseTree the parsed tree 
+ *
+ * @param parseTree the parsed tree
  * @param callback a callback to be executed, after the requestList has been translated
  */
-Requests.translateTree(parseTree, function(err, requestList) {
-  console.log("Resolved into following requests:")
-  requestList.forEach(function (request) { console.log(request) })  
-  process.nextTick(function() { process.exit() })
+Requests.translateTree(parseTree, function (err, requestList) {
+    console.log("Resolved into following requests:")
+    requestList.forEach(function (request) {
+        console.log(request)
+    })
+    process.nextTick(function () {
+        process.exit()
+    })
 });

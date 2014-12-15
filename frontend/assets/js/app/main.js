@@ -162,7 +162,7 @@ require(['../common'], function () {
                     var userUrl = 'https://www.facebook.com/' + user.id;
                     var userId = user.id.replace(/\./g, "-");
                     results.append('<div id="' + userId + '" class="result'
-                    + ' well userWell"></div>');
+                            + ' well userWell"></div>');
                     var userDiv = $('#' + userId);
 
                     //userDiv.append('<a class="media-left" href="#">');

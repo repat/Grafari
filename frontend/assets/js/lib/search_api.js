@@ -3,7 +3,7 @@
  * one or more Facebook requests and will then return the results as list of objects.
  * Keywords are: NOT, AND, OR   (listed in precedence order)
  * The keywords don't have to be seperated by spaces. (e.g. ORNOT <=> OR NOT)
- * 
+ *
  * Parentheses can be used to group a part of the sentence. (e.g. 'NOT ( xy AND yz)' - The NOT will apply to the whole expression 'xy AND yz')
  *
  * requires underscore.js to work (<script src="//underscorejs.org/underscore-min.js"></script>)
@@ -14,10 +14,10 @@ if (typeof (_) === "undefined") {
 }
 
 //Some helper functions to deal with arrays
-Array.prototype.top = function() {
+Array.prototype.top = function () {
     return this[this.length - 1];
 };
-Array.prototype.empty = function() {
+Array.prototype.empty = function () {
     return this.length === 0;
 };
 
@@ -28,7 +28,7 @@ var search = {
      *
      * @return a list of objects which where found by executing the search query
      */
-    search: function(query) {
+    search: function (query) {
         var tokenlist = this._tokenize(query);
         var tree = parser.parse(tokenlist);
         //TODO implement remaining functions
@@ -43,7 +43,7 @@ var search = {
      *
      * @return an array of tokens and strings
      */
-    _tokenize: function(sentence) {
+    _tokenize: function (sentence) {
         var tokenlist = [];
 
         while (sentence.length > 0) {
@@ -53,7 +53,7 @@ var search = {
                 sentence = "";
             } else {
                 //Find the matching token
-                var token = _.find(this.tokens(), function(t) {
+                var token = _.find(this.tokens(), function (t) {
                     return sentence.substr(pos).indexOf(t.name) === 0;
                 });
 
@@ -64,7 +64,7 @@ var search = {
         }
 
 
-        return _.filter(tokenlist, function(item) {
+        return _.filter(tokenlist, function (item) {
             return item !== "";
         }); //Filter empty strings and return result
     },
@@ -75,7 +75,7 @@ var search = {
         leftp: {name: "("},
         rightp: {name: ")"}
     },
-    tokens: function() {
+    tokens: function () {
         return [this.token.and, this.token.or, this.token.not, this.token.leftp, this.token.rightp];
     }
 };
@@ -83,7 +83,7 @@ var search = {
 
 
 /** the parser object will parse tokenized requests and build a syntax tree according to the following rules:
- * 
+ *
  * atom = sentence | NOT atom | ( expression )
  * conjunction = atom AND conjunction | atom
  * disjunction = conjunction OR disjunction | conjunction
@@ -92,14 +92,14 @@ var search = {
  */
 var parser = {
     /** This method parses the tokenized string and returns a syntax tree consisting of:
-     *  operators(AND, OR, NOT) and queries(the sub sentences) 
+     *  operators(AND, OR, NOT) and queries(the sub sentences)
      *  If there are any errors, then the parser will throw them
-     *  
+     *
      * @param tokenized_sentence the sentence, after passing it to the _tokenize() method
      *
      * @return the parsed syntax tree
      */
-    parse: function(tokenized_sentence) {
+    parse: function (tokenized_sentence) {
         var token_stack = tokenized_sentence.reverse();
 
         if (token_stack.empty())
@@ -115,18 +115,18 @@ var parser = {
     /** The root node is an expression
      * expression = disjunction
      */
-    _expression: function(tokens) {
+    _expression: function (tokens) {
         return this._disjunction(tokens);
     },
     /** A disjunction of conjunctions or just a conjunction
      *
      * disjunction = conjunction OR disjunction | conjunction
-     * 
+     *
      * @param tokens the tokenstack
      *
      * @return the node representing the disjunction
      */
-    _disjunction: function(tokens) {
+    _disjunction: function (tokens) {
         var conjunction = this._conjunction(tokens);
         if (tokens.top() === search.token.or) { // conjunction OR disjunction
             tokens.pop();
@@ -137,14 +137,14 @@ var parser = {
         }
     },
     /** A conjunction of atoms or just an atom.
-     * 
+     *
      * conjunction = atom AND conjunction | atom
      *
      * @param tokens the tokenstack
      *
      * @return the node representing the conjunction
      */
-    _conjunction: function(tokens) {
+    _conjunction: function (tokens) {
         var atom = this._atom(tokens);
         if (tokens.top() === search.token.and) { // atom AND conjunction
             tokens.pop();
@@ -156,14 +156,14 @@ var parser = {
     },
     /** A logical atom. For simplicity (expression) and NOT atom are also atoms.
      *  Essentially everything what can be negated is an atom
-     *  
+     *
      *  atom = sentence | NOT atom | ( expression )
-     *  
+     *
      * @param tokens the tokenstack
      *
      * @return a node representing the current atom
      */
-    _atom: function(tokens) {
+    _atom: function (tokens) {
         if (tokens.empty()) {
             throw "Parse error: expecting a token while parsing an atom, but none found!"
         }
@@ -185,7 +185,7 @@ var parser = {
             this._unknownToken("atom", current, tokens); //Something went wrong
         }
     },
-    _unknownToken: function(parserState, token, tokens) {
+    _unknownToken: function (parserState, token, tokens) {
         throw "Parse error: Unexpected token '" + JSON.stringify(token) + "' in when parsing " + parserState + ". Remaining sentence: " + JSON.stringify(tokens.reverse())
     }
 };
@@ -200,12 +200,12 @@ function Query(sentence) {
     this.query = sentence;
 }
 
-Query.prototype.evaluate = function() {
+Query.prototype.evaluate = function () {
     //TODO send this sentence to the facebook graph search and return results
     throw "Evaluation of Query is not implemented!"
 };
 
-Query.prototype.toString = function() {
+Query.prototype.toString = function () {
     return "Query(" + this.query + ")";
 };
 
@@ -217,13 +217,13 @@ function Or(left, right) {
     this.right = right;
 }
 
-Or.prototype.evaluate = function() {
+Or.prototype.evaluate = function () {
     //TODO evaluate left and right queries and combine result arrays into one array
     // Could be implemented in terms of set union
     throw "OR isn't implemented!"
 };
 
-Or.prototype.toString = function() {
+Or.prototype.toString = function () {
     return "OR(" + this.left.toString() + "," + this.right.toString() + ")";
 };
 
@@ -234,13 +234,13 @@ function And(left, right) {
     this.right = right;
 }
 
-And.prototype.evaluate = function() {
+And.prototype.evaluate = function () {
     //TODO evaluate both left and right and then somehow only return the elements from left which are also in right
     // Could be implemented in terms of set intersection
     throw "AND isn't implemented!"
 };
 
-And.prototype.toString = function() {
+And.prototype.toString = function () {
     return "AND(" + this.left.toString() + "," + this.right.toString() + ")";
 };
 
@@ -252,15 +252,15 @@ function Not(expression) {
     this.expression = expression;
 }
 
-Not.prototype.evaluate = function() {
+Not.prototype.evaluate = function () {
     var results = this.expression.evaluate();
-    //TODO somehow negate/invert the results... this could pose a problem as this is defined now. The better solution would be probably to define NOT as setminus (i.e 'A AND NOT B' <=> Take all elements from A and remove all occurrences of B from A). But this again leaves the problem that queries like 'NOT People who are in Africa' would be impossible. (Well one could implicitly convert the previous query into: 'All people AND NOT People who are in Africa') 
+    //TODO somehow negate/invert the results... this could pose a problem as this is defined now. The better solution would be probably to define NOT as setminus (i.e 'A AND NOT B' <=> Take all elements from A and remove all occurrences of B from A). But this again leaves the problem that queries like 'NOT People who are in Africa' would be impossible. (Well one could implicitly convert the previous query into: 'All people AND NOT People who are in Africa')
     //But then again defining NOT as setminus raises the problem with result ordering. We need read in the whole result array and then do the operation on the complete arrays to ensure that we don't miss any elements. Keeping in mind that queries like 'All people living in Africa' can yield millions of people as result, we don't have the capacity to make such a computation(Not to mention that requesting such an array from Facebook would take like forever). :/
     //If the resulsts are ensured to be in alphabetical order or ordered by ids then we can efficiently compute such a set without pulling megabytes of data from Facebook.
     throw "NOT isn't implemented!"
 };
 
-Not.prototype.toString = function() {
+Not.prototype.toString = function () {
     return "NOT(" + this.expression.toString() + ")";
 };
 
@@ -270,10 +270,10 @@ Not.prototype.toString = function() {
 function Empty() {
 }
 
-Empty.prototype.evaluate = function() {
+Empty.prototype.evaluate = function () {
     return [];
 };
 
-Empty.prototype.toString = function() {
+Empty.prototype.toString = function () {
     return "Empty()";
 };

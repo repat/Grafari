@@ -4,21 +4,21 @@
 //except for 'app' ones, which are in a sibling
 //directory.
 requirejs.config({
-	baseUrl: 'assets/js/lib',
-	paths: {
-		app: '../app',
-		bootstrap: 'bootstrap',
-		isotope: 'isotope',
-		jquery: 'jquery',
-		jqueryBridget: 'jquery.bridget',
-		moduleSkeleton: '../app/modules/moduleSkeleton',
-		queryToggle: '../app/modules/queryToggle',
-		underscore: 'underscore-min',
-		searchAPI: 'search_api'
-	},
-	shim: {
-		isotope: {
-			deps: ['jquery', 'jqueryBridget']
-		}
-	}
+    baseUrl: 'assets/js/lib',
+    paths: {
+        app: '../app',
+        bootstrap: 'bootstrap',
+        isotope: 'isotope',
+        jquery: 'jquery',
+        jqueryBridget: 'jquery.bridget',
+        moduleSkeleton: '../app/modules/moduleSkeleton',
+        queryToggle: '../app/modules/queryToggle',
+        underscore: 'underscore-min',
+        searchAPI: 'search_api'
+    },
+    shim: {
+        isotope: {
+            deps: ['jquery', 'jqueryBridget']
+        }
+    }
 });

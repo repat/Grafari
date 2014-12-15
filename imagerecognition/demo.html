@@ -1,32 +1,32 @@
 <html>
-<head>
-<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
-<script src="imagerecognition.js"></script>
-<script src="translation.js"></script>
-<script type="text/javascript">
+    <head>
+        <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <script src="imagerecognition.js"></script>
+        <script src="translation.js"></script>
+        <script type="text/javascript">
 
-var recognize = function() {
-  var url = document.getElementById("url").value;
-  var confidence = document.getElementById("confidence").value;
-  var tags = imageToTags(url);
-  var arr = tagsToList(tags, confidence);
-  var translation = translate(arr)
-  
-  document.getElementById("recognition_raw").value = JSON.stringify(tags);
-  document.getElementById("recognition_filtered").value = arr;
-  document.getElementById("translation").value = translation;
-};
+            var recognize = function () {
+                var url = document.getElementById("url").value;
+                var confidence = document.getElementById("confidence").value;
+                var tags = imageToTags(url);
+                var arr = tagsToList(tags, confidence);
+                var translation = translate(arr)
 
-</script>
-</head>
-<body>
-URL: <input id="url" type="text" value="https://scontent-a-fra.xx.fbcdn.net/hphotos-prn2/v/t1.0-9/s720x720/993465_10151841444561220_832151180_n.jpg?oh=ddc42bf9fb4da7640533da1230fba3ed&oe=54B652F1"><br>
-Min. confidence: <input id="confidence" type="text" value="10">
-<br>
+                document.getElementById("recognition_raw").value = JSON.stringify(tags);
+                document.getElementById("recognition_filtered").value = arr;
+                document.getElementById("translation").value = translation;
+            };
 
-<input type="submit" value="Recognize" onclick="recognize();"><br>
-<textarea id="recognition_raw" cols="50" rows="10"></textarea><br>
-<textarea id="recognition_filtered" cols="50" rows="10"></textarea><br>
-<textarea id="translation" cols="50" rows="10"></textarea>
-</body>
+        </script>
+    </head>
+    <body>
+        URL: <input id="url" type="text" value="https://scontent-a-fra.xx.fbcdn.net/hphotos-prn2/v/t1.0-9/s720x720/993465_10151841444561220_832151180_n.jpg?oh=ddc42bf9fb4da7640533da1230fba3ed&oe=54B652F1"><br>
+        Min. confidence: <input id="confidence" type="text" value="10">
+        <br>
+
+        <input type="submit" value="Recognize" onclick="recognize();"><br>
+        <textarea id="recognition_raw" cols="50" rows="10"></textarea><br>
+        <textarea id="recognition_filtered" cols="50" rows="10"></textarea><br>
+        <textarea id="translation" cols="50" rows="10"></textarea>
+    </body>
 </html>

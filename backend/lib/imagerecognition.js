@@ -6,54 +6,57 @@ var rc = redis.createClient()
 exports.imageToTags = imageToTagsCache
 
 function imageToTags(url, callback) {
-  if (!url) return callback("url not defined", null)
-  var url = "http://api.imagga.com/draft/tags?api_key=acc_0cc34ea494b2b58&url=" + encodeURIComponent(url)
+    if (!url)
+        return callback("url not defined", null)
+    var url = "http://api.imagga.com/draft/tags?api_key=acc_0cc34ea494b2b58&url=" + encodeURIComponent(url)
 
-  request({
-    url: url,
-    json: true
-  }, function (error, response, body) {
+    request({
+        url: url,
+        json: true
+    }, function (error, response, body) {
 
-    if (!error && response.statusCode === 200) {
-      ret = {
-        "url": url,
-        "tags": tagsToList(body.tags, 10)
-      }
-      callback(null, ret)
+        if (!error && response.statusCode === 200) {
+            ret = {
+                "url": url,
+                "tags": tagsToList(body.tags, 10)
+            }
+            callback(null, ret)
 
-    } else {
-      callback(error, null)
-    }
-  })
+        } else {
+            callback(error, null)
+        }
+    })
 }
 
 function imageToTagsCache(url, callback) {
-  rc.hget("url", url, function(err,reply) {
-    if (!reply) {
-      return imageToTags(url, function(e, r) {
-        rc.hset("url", url, JSON.stringify(r))
-        return callback(e, r)
-      })
-    } else {
-      return callback(null, JSON.parse(reply))
-    }
-  })
-  return
-  rc.hget("url", url, function(err,reply) {
-    if (err || !reply) {
-      return imageToTags(url, function(e, r) {
-        rc.hset("url", url, r)
-        return callback(e, r)
-      })
-    }
-    return callback(null, reply)
-  })
+    rc.hget("url", url, function (err, reply) {
+        if (!reply) {
+            return imageToTags(url, function (e, r) {
+                rc.hset("url", url, JSON.stringify(r))
+                return callback(e, r)
+            })
+        } else {
+            return callback(null, JSON.parse(reply))
+        }
+    })
+    return
+    rc.hget("url", url, function (err, reply) {
+        if (err || !reply) {
+            return imageToTags(url, function (e, r) {
+                rc.hset("url", url, r)
+                return callback(e, r)
+            })
+        }
+        return callback(null, reply)
+    })
 }
 
-tagsToList = function(tags, confidence) {
-    var tags = tags.filter(function(tag) {
-      return tag.confidence >= confidence;
+tagsToList = function (tags, confidence) {
+    var tags = tags.filter(function (tag) {
+        return tag.confidence >= confidence;
     });
 
-    return tags.map(function(elem) { return elem.tag; });
-  };
+    return tags.map(function (elem) {
+        return elem.tag;
+    });
+};
