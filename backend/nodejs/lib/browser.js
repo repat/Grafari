@@ -70,7 +70,6 @@ function startBrowser(callback) {
     fs.readFile("./cookies.tmp", function(err, cookies) {
 
       browser.loadCookies(cookies.toString())
-callback
       browser.visit("/", function(e) { //Browser must visit a page
         return callback(e, browser)
       })
