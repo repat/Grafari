@@ -8,7 +8,10 @@ var async   = require("async");
 var Zombie  = require("zombie");
 var r   = require("redis");
 var redis = r.createClient();
-
+var request = require('request');
+var FileCookieStore = require('tough-cookie-filestore');
+var cookieJar = request.jar(new FileCookieStore('cookies.json'));
+request = request.defaults({ jar : cookieJar })
 
 var WORKERS = 5
 // in miliseconds, google: one week in seconds
@@ -17,6 +20,9 @@ var EXPIRETIME = 604800 * 1000
 //The browser instance
 var worker = []
 var workQueue = []
+
+// for more results
+var headernextencoded;
 
 //Exported module functions
 exports.init = initModule;
@@ -47,6 +53,12 @@ function shutdownModule() {
     browser.close();
 }
 
+// function cookieCallback(err,res) {
+//   if (err)
+//     console.log(err)
+
+// }
+
 /** This function creates a browser, logs it in into facebook and then 
  *  returns the browser to the callback after the login has completed
  */
@@ -56,7 +68,9 @@ function startBrowser(callback) {
   if (fs.existsSync("./cookies.tmp")) {
     console.log("Loading cookies from file...") //And omitting login
     fs.readFile("./cookies.tmp", function(err, cookies) {
+
       browser.loadCookies(cookies.toString())
+callback
       browser.visit("/", function(e) { //Browser must visit a page
         return callback(e, browser)
       })
@@ -77,11 +91,23 @@ function startBrowser(callback) {
         if (err)
           return callback(err);
 
+
+        // TODO: write cookies to cookieJar here
+
+        // for (var i = 0; i < browser.cookies.length; i++) {
+        //   var tmp = browser.cookies[i]
+        //   tmp = String(tmp)
+        //   console.log(tmp.substring(0,tmp.indexOf(";")));
+        //   cookieJar.setCookie(tmp.substring(0,tmp.indexOf(";")), 'facebook.com',cookieCallback);
+        // }
+
         //Save cookies and return new browser
+
         var cookies = browser.saveCookies()
         fs.writeFile("./cookies.tmp", cookies, function() {
           return callback(null, browser); //Return the browser, which is ready to make requests
         })
+
       }
     )
   }
@@ -155,6 +181,10 @@ function work(browser) {
 
 
 function convertPageToJSON(browser) {
+
+  // obviously, it can't be run like this.
+  //runScraping(browser.html());
+
   var people = []
   var peopleDivs = []
 
@@ -280,11 +310,117 @@ function array_copy(from, to) {
 }
 
 // copied from https://github.com/sergerehem/fb-uid-scraper/blob/master/scripts/script.js
-function decodeEncodedNonAsciiCharacters(x) {
+// this is the old version. easier to understand and should still work
+// the helper functions didn't change
+// the code needs some serious refactoring though
+
+// this is where it starts
+function runScraping(htmlreload) {
+
+    // this might be unnecessary
+    //getData(url, function (htmlreload) {
+        headernextencoded = SubstringHeaderNext(htmlreload);
+        var urlNextPage = cutNextUrl(htmlreload);
+        console.log("urlNextPage: " + urlNextPage)
+        getData(urlNextPage, showNext_callback, function () {
+            console.log("load next data error");
+        });
+
+   // }, function () {
+  //      console.log("load data error");
+  //  });
+}
+
+function showNext_callback(htmlnext) {
+    var htmldoc = SubString({ invl: htmlnext, startvl: 'payload":"', addstartindex: 'payload":"'.length, endvl: 'jsmods', addendindex: -3 });
+    
+    console.log("htmldoc.length: " + htmldoc.length)
+    if (htmldoc.length > 0) {
+
+        var htmldecoded=DecodeEncodedNonAsciiCharacters(htmldoc).replace(/\\\"/g, "'").replace(/\\/g, '');
+        //console.log("f1=" + htmldecoded.indexOf('\\\"'));
+        //console.log("f2=" + htmldecoded.indexOf('\"'));
+        //console.log("f3=" + htmldecoded.indexOf('\\'));
+
+        //console.log(htmldecoded);
+        //selectData(htmldecoded); // deleted, this was just for the chrome plugin
+        footernext = SubstringFooterNext(htmlnext);
+        if (footernext.length <= 0) {
+            return;
+        }
+    }
+    else {
+        return
+        //callback()
+    }
+    // recursive because getData will call showNext_callback
+    var urlNextPage = cutNextUrl(htmlnext);
+    getData(urlNextPage, showNext_callback, function () {
+        console.log("load next data error");
+    });
+}
+
+//--- the following are just helper functions
+
+// replaces every "\uXXXX" encoded character with the actual char
+function DecodeEncodedNonAsciiCharacters(x) {
+
     var r = /\\u([\d\w]{4})/gi;
     x = x.replace(r, function (match, grp) {
         return String.fromCharCode(parseInt(grp, 16));
     });
     x = unescape(x);
     return x;
+}
+
+// cuts outs pieces, depening on the parameter _para, see SubstringFooterNext and SubstringHeaderNext
+function SubString(_para) {
+    var _return = '';
+    var startindex = _para.invl.indexOf(_para.startvl);
+    if (startindex > -1) {
+        startindex += _para.addstartindex;
+        var endindex = -1;
+        if (_para.endvl.length > 0 && (endindex = _para.invl.indexOf(_para.endvl, startindex)) > startindex) {
+            endindex += _para.addendindex;
+            _return = _para.invl.substring(startindex, endindex);
+        }
+        else {
+            _return = _para.invl.substring(startindex);
+        }
+    } return _return;
+}
+
+function SubstringFooterNext(htmlreload) {
+    return SubString({ invl: htmlreload, startvl: '"cursor":', addstartindex: 0, endvl: '}', addendindex: 1 });
+}
+
+function SubstringHeaderNext(htmlreload) {
+    return SubString({ invl: htmlreload, startvl: '{"view":"list"', addstartindex: 0, endvl: 'story_id":', addendindex: 0 }) + 'story_id":null';
+}
+
+function cutNextUrl(htmlreload) {
+    var footernext = SubstringFooterNext(htmlreload);
+    return 'https://www.facebook.com/ajax/pagelet/generic.php/BrowseScrollingSetPagelet?data=' + headernextencoded + ',' + footernext + '&__a';
+}
+
+// instead of using jQuery, this function now uses mikaels request
+function getData(link, onSuccess, onError) {
+
+  console.log("getData URL: " + link);
+
+  // need the cookies here to make the next request
+  var options = {
+    url: link,
+    // is already default, just ot make it clear
+    jar: cookieJar,
+    method: 'GET'
+  }
+
+  request(options, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      onSuccess(body);
+    } else {
+      onError(error)
+    }
+  })
 }
