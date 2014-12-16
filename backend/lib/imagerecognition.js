@@ -39,16 +39,6 @@ function imageToTagsCache(url, callback) {
             return callback(null, JSON.parse(reply))
         }
     })
-    return
-    rc.hget("url", url, function (err, reply) {
-        if (err || !reply) {
-            return imageToTags(url, function (e, r) {
-                rc.hset("url", url, r)
-                return callback(e, r)
-            })
-        }
-        return callback(null, reply)
-    })
 }
 
 tagsToList = function (tags, confidence) {
