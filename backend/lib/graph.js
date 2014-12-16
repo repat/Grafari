@@ -1,4 +1,8 @@
 var graph = require('fbgraph');
+var async = require("async")
+var request = require("request")
+var redis = require("redis")
+var rc = redis.createClient()
 
 // Exported functions
 exports.getIdFromName = getIdFromName
@@ -110,19 +114,21 @@ function getPictureFromID(fbID, callback) {
     });
 }
 
-
 function getProfilePictureFromId(id, callback) {
     getProfilePicturesFromIds([id], callback)
 }
 
 function getProfilePicturesFromIds(ids, callback) {
-    return graph.batch(ids.map(function (id) {
-        return {
-            method: "GET",
-            relative_url: id + "/picture?width=2000&redirect=false"
-        }
-    }), function (e, r) {
-        r = r.map(function (elem, index) {
+  async.map(ids, getIdFromUsernameCache, function (e, r) {
+    var requests = r.map(function (id) {
+      return {
+        method: "GET",
+        relative_url: id + "/picture?width=2000&redirect=false"
+      }
+    })
+
+    return graph.batch(requests, function (e, r1) {
+        r1 = r1.map(function (elem, index) {
             if (JSON.parse(elem.body).error) {
                 e = JSON.parse(elem.body).error
             }
@@ -136,8 +142,36 @@ function getProfilePicturesFromIds(ids, callback) {
         })
         if (e)
             return callback(e, null)
-        return callback(null, r)
+        return callback(null, r1)
     })
+  })
+}
+
+function getIdFromUsername(username, callback) {
+  request({
+    url: 'https://graph.facebook.com/' + username,
+    json: true
+  }, function (error, response, body) {
+    if (!error && response.statusCode === 200) {
+      callback(null, body.id)
+
+    } else {
+      callback(error, null)
+    }
+  })
+}
+
+function getIdFromUsernameCache(username, callback) {
+  rc.hget("fbid", username, function (err, reply) {
+    if (!reply) {
+      return getIdFromUsername(username, function (e, r) {
+        rc.hset("fbid", username, JSON.stringify(r))
+        return callback(e, r)
+      })
+    } else {
+      return callback(null, JSON.parse(reply))
+    }
+  })
 }
 
 /** Function to extend the duration of the access token.
