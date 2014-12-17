@@ -200,6 +200,7 @@ function convertPageToJSON(browser) {
     // and sometimes contains only one elment and the second one is loaded dynamically and contains the remaining people
     array_copy(browser.query("#BrowseResultsContainer").childNodes, peopleDivs)
     array_copy(foldBelow.childNodes, peopleDivs)
+    console.log(foldBelow.html())
 
     peopleDivs.forEach(function (child) {
 
