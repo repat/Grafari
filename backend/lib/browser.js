@@ -193,7 +193,7 @@ function convertPageToJSON(browser) {
     if (!browser.query("#BrowseResultsContainer")) //No results were found
         return []
 
-    var foldBelow = browser.query("#u_0_q_browse_result_below_fold");
+    var foldBelow = browser.query("#u_0_q_browse_result_below_fold") || browser.query("#u_jsonp_2_2_browse_result_below_fold");
 
     // People are returned in two seperate div containers. The first one is loaded statically
     // and sometimes contains only one elment and the second one is loaded dynamically and contains the remaining people
