@@ -193,20 +193,18 @@ function convertPageToJSON(browser) {
     if (!browser.query("#BrowseResultsContainer")) //No results were found
         return []
 
-
-    var foldBelow = browser.query("#u_0_o_browse_result_below_fold") || browser.query("#u_jsonp_2_2_browse_result_below_fold")
+    var foldBelow = browser.query("#u_0_q_browse_result_below_fold");
 
     // People are returned in two seperate div containers. The first one is loaded statically
     // and sometimes contains only one elment and the second one is loaded dynamically and contains the remaining people
     array_copy(browser.query("#BrowseResultsContainer").childNodes, peopleDivs)
     array_copy(foldBelow.childNodes, peopleDivs)
-    console.log(foldBelow.html())
 
     peopleDivs.forEach(function (child) {
 
         var person = {}
-        var link = child.querySelector("._zs.fwb > a")
-        var img = child.querySelector("._7kf._8o._8s.lfloat._ohe > img")
+        var link = child.querySelector("._gll > a")
+        var img = child.querySelector("._8o._8s.lfloat._ohe > img")
 
         person.name = link.textContent
         person.id = extractUserId(link.href)
