@@ -190,14 +190,35 @@ function convertPageToJSON(browser) {
     var people = []
     var peopleDivs = []
 
-    if (!browser.query("#BrowseResultsContainer")) //No results were found
+    
+    var foldBelow = browser.query("#u_0_q_browse_result_below_fold") || browser.query("#u_jsonp_2_2_browse_result_below_fold");
+    var browseResults = browser.query("#BrowseResultsContainer")
+
+    if (!browseResults) //No results were found
         return []
 
-    var foldBelow = browser.query("#u_0_q_browse_result_below_fold") || browser.query("#u_jsonp_2_2_browse_result_below_fold");
+    if (!foldBelow) { //Page incomplete, print warning and dump html
+      var dt = new Date()
+      var logname = "dumps/dump_" + 
+        dt.getFullYear() + "-" + (dt.getMonth()+1) + "-" + dt.getDate() + "_" +
+        dt.getHours() + "-" + dt.getMinutes() + ".html"
+      
+      console.log("ERROR: Missing elements, writing page dump...\n" +
+        "  fold below found: " + !!foldBelow + "\n" +
+        "  browse results found: " + !!browseResults + "\n" +
+        "  filename: " + logname + "\n" + 
+        "  returning empty resultlist, flush redis cache to retry this query")
+
+      if (!fs.existsSync("dumps"))
+        fs.mkdirSync("dumps")
+      fs.writeFileSync(logname, browser.html()) //Sync is important here
+      return []
+    }
+
 
     // People are returned in two seperate div containers. The first one is loaded statically
     // and sometimes contains only one elment and the second one is loaded dynamically and contains the remaining people
-    array_copy(browser.query("#BrowseResultsContainer").childNodes, peopleDivs)
+    array_copy(browseResults.childNodes, peopleDivs)
     array_copy(foldBelow.childNodes, peopleDivs)
 
     peopleDivs.forEach(function (child) {

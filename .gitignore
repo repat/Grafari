@@ -7,3 +7,4 @@ node_modules/
 GRAFARI/.idea/*
 .DS_Store
 nbproject
+*dumps*
