@@ -147,7 +147,8 @@ require(['../common'], function () {
         }
 
         function make_Users() {
-            userData.get(function (users) {
+            userData.get(function (response) {
+                var users = response.users;
                 var results = $('#results');
                 results.isotope('destroy');
                 results.empty();
@@ -155,10 +156,6 @@ require(['../common'], function () {
                 var universitySpanCount = 1;
                 while (!users.empty()) {
                     var user = users.pop();
-                    if (user.hasOwnProperty("type") && user.type === "subqueries") {
-                        //TODO this is only a workaround to handle subqueries in user array
-                        continue;
-                    }
                     var userUrl = 'https://www.facebook.com/' + user.id;
                     var userId = user.id.replace(/\./g, "-");
                     results.append('<div id="' + userId + '" class="result'
