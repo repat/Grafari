@@ -13,13 +13,24 @@ var fs = require('fs');
 //Use 8080 for testing
 var port = 8080
 var securePort = 8443
-if (process.argv.length > 2)
-    port = parseInt(process.argv[2])
+
+var args = process.argv
+args.shift() //node
+args.shift() //main
+
+while(args.length > 0) {
+  var arg = args.shift()
+  if (arg == "-debug") {
+    Browser.debug = true
+  } else { //port number
+    port = parseInt(arg)
+  }
+}
 
 var httpsOptions = {
-    name: "Secure Grafari",
-    key: fs.readFileSync('./keys/grafari.key'),
-    certificate: fs.readFileSync('./keys/grafari.crt')
+  name: "Secure Grafari",
+  key: fs.readFileSync('./keys/grafari.key'),
+  certificate: fs.readFileSync('./keys/grafari.crt')
 };
 
 /** Start-Up (launch browser-module and rest server)

@@ -30,6 +30,9 @@ exports.get = cachedReadPage;
 exports.shutdown = shutdownModule;
 
 function initModule(callback) {
+    if (exports.debug)
+      console.log("Starting browser module in debug mode")
+
     //Initialization
     Zombie.localhost('https://www.facebook.com')
 
@@ -194,8 +197,12 @@ function convertPageToJSON(browser) {
     var foldBelow = browser.query("#u_0_q_browse_result_below_fold") || browser.query("#u_jsonp_2_2_browse_result_below_fold");
     var browseResults = browser.query("#BrowseResultsContainer")
 
+    if (exports.debug)
+      fs.writeFileSync("lastResultPage.html", browser.html())
+
+
     if (!browseResults) //No results were found
-        return []
+      return []
 
     if (!foldBelow) { //Page incomplete, print warning and dump html
       var dt = new Date()
