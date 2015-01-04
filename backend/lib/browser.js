@@ -239,11 +239,17 @@ function convertPageToJSON(browser) {
         person.pictureurl = img.src
 
         // subtitle and the 4 snippets
-        divClasses = ["._pac._dj_",
+        divClasses = ["._pac._dj_", //previously valid queries (doesn't harm to leave them here)
             "div[data-bt*=snippets] ._ajw:nth-of-type(1) ._52eh",
             "div[data-bt*=snippets] ._ajw:nth-of-type(2) ._52eh",
             "div[data-bt*=snippets] ._ajw:nth-of-type(3) ._52eh",
-            "div[data-bt*=snippets] ._ajw:nth-of-type(4) ._52eh"]
+            "div[data-bt*=snippets] ._ajw:nth-of-type(4) ._52eh",
+            "._pac", //new queries
+            "._glo ._ajw:nth-of-type(1) ._52eh",
+            "._glo ._ajw:nth-of-type(2) ._52eh",
+            "._glo ._ajw:nth-of-type(3) ._52eh",
+            "._glo ._ajw:nth-of-type(4) ._52eh"
+            ]
 
         // for every element: in case element exists
         for (var i = 0; i < divClasses.length; i++) {
