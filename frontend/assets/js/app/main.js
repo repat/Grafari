@@ -148,7 +148,7 @@ require(['../common'], function () {
 
                     //userDiv.append('<a class="media-left" href="#">');
                     userDiv.append('<a href="' + userUrl + '" target="_blank"><img class="user-img" src="' + user.pictureurl + '" alt="' + user.name + '"></img></a>');
-                    var infotext = '<b class="userInfo">' + '<a href="' + userUrl + '" target="_blank">' + user.name + '</a>';
+                    var infotext = '<div class="userInfo"><b>' + '<a href="' + userUrl + '" target="_blank">' + user.name + '</a>';
 
                     /*while (!user.query.empty()) {
                      userDiv.addClass('' + user.query.pop());
@@ -196,7 +196,12 @@ require(['../common'], function () {
                     if (user.hasOwnProperty("from") && user.from !== user.lives) {
                         infotext += createInfoElement('used to live in ' + user.from);
                     }
-                    infotext += '</b><br>';
+                    infotext += '</b>';
+
+                    // add tags-section to user div
+                    infotext += '<div class="user-div-tags"><div data-id="' + user.id + '" class="tags-icon tags-icon-default"></div><div class="tags-text"></div></div>';
+                    infotext += '</div><br>';
+
                     userDiv.append(infotext);
                 }
 

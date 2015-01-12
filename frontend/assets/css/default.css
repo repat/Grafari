@@ -61,6 +61,7 @@ body {
     min-height: 190px;
     margin: 10px;
     transition: background-color 0.4s ease 0s;
+    overflow-y: auto;
 }
 
 .userInfo {
@@ -112,4 +113,28 @@ body {
 
 #historySelector {
     margin-bottom: 20px;
+}
+
+.user-div-tags{
+    margin-top: 15px;
+}
+
+.tags-icon {
+    background-size: 100% 100%;
+    width: 28px;
+    height: 28px;
+    float: left;
+    margin: 0px 8px 0px 0px;
+}
+
+.tags-icon-default {
+    background-image: url(../imgs/tag-icon-default.png);
+}
+
+.tags-icon-spinner {
+    background-image: url(../imgs/tag-icon-loader.png);
+}
+
+.tags-text {
+
 }
