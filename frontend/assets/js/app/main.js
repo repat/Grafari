@@ -4,7 +4,7 @@
  */
 require(['../common'], function () {
 
-    require(['jquery', 'isotope', 'queryToggle', 'underscore', 'searchAPI'], function ($, isotope, queryToggle) {
+    require(['jquery', 'isotope', 'queryToggle', 'fancybox', 'underscore', 'searchAPI'], function ($, isotope, queryToggle, fancybox) {
 
         // make Isotope a jQuery plugin
         $.bridget('isotope', isotope);
@@ -19,6 +19,10 @@ require(['../common'], function () {
                 $('#queryinput').val($(this).text());
             });
 
+            $('.fancybox').fancybox({
+                padding : 0,
+                openEffect  : 'elastic'
+            });
         });
 
         /**
@@ -114,7 +118,7 @@ require(['../common'], function () {
                     var spanId = "#uni" + universityCount;
                     var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
                     if (unescapedUrl) {
-                        $(spanId).html('<a href="' + unescapedUrl + '">' + university + '</a>');
+                        $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + university + '</a>');
                     } else {
                         $(spanId).html(university);
                     }
