@@ -102,7 +102,6 @@ body {
 }
 
 .userWell:hover {
-    cursor: pointer;
     background-color: #e7e7e7;
 }
 
@@ -129,6 +128,7 @@ body {
     height: 28px;
     float: left;
     margin: 0px 8px 0px 0px;
+    cursor: pointer;
 }
 
 .tags-icon-default {
@@ -136,7 +136,7 @@ body {
 }
 
 .tags-icon-spinner {
-    background-image: url(../imgs/tag-icon-loader.png);
+    background-image: url(../imgs/tag-icon-spinner.gif);
 }
 
 .tags-text {

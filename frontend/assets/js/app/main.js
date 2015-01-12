@@ -23,6 +23,49 @@ require(['../common'], function () {
                 padding : 0,
                 openEffect  : 'elastic'
             });
+
+            $('#results').on('click', '.tags-icon', function () {
+
+               var tagIconElement = $(this);
+
+                if(tagIconElement.attr('data-status') == '0'){
+                    tagIconElement.attr('data-status','1');
+                    tagIconElement.addClass('tags-icon-spinner');
+
+                    var userId = tagIconElement.attr('data-id');
+                    console.log("Get tags for id:" + userId);
+                    $.ajax({
+                        type: "GET",
+                        url: "http://localhost:8080/tags/id/" + userId,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data, status, jqXHR) {
+                            console.log('-->success', data, status, jqXHR);
+                            console.log('tags:', $.parseJSON(jqXHR.responseText));
+
+                            var response = $.parseJSON(jqXHR.responseText);
+                            var tags = response[userId];
+
+                            var formattedTags = tags.join(", ");
+
+                            tagIconElement.parent().find('.tags-text').text(formattedTags);
+
+                            tagIconElement.removeClass('tags-icon-spinner');
+
+                            //user not allowed to do another tag search on the same profile
+                            //tagIconElement.attr('data-status','1');
+                        },
+                        error: function (jqXHR, status) {
+                            console.log("\n\n\n Token erneuert? \n\n\n");
+                            console.log('-->error', jqXHR, status);
+
+                            tagIconElement.removeClass('tags-icon-spinner');
+                        }
+                    });
+
+                }
+                
+            });
         });
 
         /**
@@ -206,10 +249,12 @@ require(['../common'], function () {
                     infotext += '</b>';
 
                     // add tags-section to user div
-                    infotext += '<div class="user-div-tags"><div data-id="' + user.id + '" class="tags-icon tags-icon-default"></div><div class="tags-text"></div></div>';
+                    infotext += '<div class="user-div-tags"><div data-id="' + user.id + '" data-status="0" class="tags-icon tags-icon-default"></div><div class="tags-text"></div></div>';
                     infotext += '</div><br>';
 
                     userDiv.append(infotext);
+
+
                 }
 
 
