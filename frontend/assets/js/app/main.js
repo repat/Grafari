@@ -46,6 +46,8 @@ require(['../common'], function () {
                             var response = $.parseJSON(jqXHR.responseText);
                             var tags = response[userId];
 
+                            userData.setTagsById(userId, tags);
+
                             var formattedTags = tags.join(", ");
 
                             tagIconElement.parent().find('.tags-text').text(formattedTags);
@@ -77,7 +79,7 @@ require(['../common'], function () {
 
             // Example text for the demo
             // $(".form-control").val("All people who live in Germany AND ( people who are self-employed OR NOT people who are homeless )");
-            $(".form-control").val("All people who live in Hamburg");
+            $("#queryinput").val("All people who live in Hamburg");
         }
 
         /**
@@ -88,6 +90,7 @@ require(['../common'], function () {
             var resultWell = $('#resultWell');
             var queryHistory = $('#queryHistory');
             var resultSpinner = $('#resultSpinner');
+            var tagSearchForm = $('.tag-search-row');
             var results = $('#results');
             var formInput = $('#queryinput');
             var currentQuery = $('#current-query');
@@ -103,6 +106,8 @@ require(['../common'], function () {
 
                 brandRow.removeClass('center');
                 resultSpinner.removeClass('hidden');
+                tagSearchForm.addClass('hidden');
+
             });
 
             $("#queryinput").keyup(function (event) {
@@ -229,15 +234,17 @@ require(['../common'], function () {
         }
 
         function make_Users() {
-            userData.get(function (response) {
+            userData.retrieveData(function (response) {
                 var users = response.users;
+                userData.setData(users);
+
                 var results = $('#results');
                 results.isotope('destroy');
                 results.empty();
 
                 var universitySpanCount = 1, workcount = 1, placecount = 1;
                 while (!users.empty()) {
-                    var user = users.pop();
+                    var user = users.shift();
                     var userUrl = 'https://www.facebook.com/' + user.id;
                     var userId = user.id.replace(/\./g, "-");
                     results.append('<div id="' + userId + '" class="result'
@@ -316,6 +323,7 @@ require(['../common'], function () {
                 var resultWell = $('#resultWell');
                 var queryHistory = $('#queryHistory');
                 var resultSpinner = $('#resultSpinner');
+                var tagSearchForm = $('.tag-search-row');
                 var results = $('#results');
 
 
@@ -323,6 +331,7 @@ require(['../common'], function () {
                 queryHistory.removeClass('hidden');
 
                 resultSpinner.addClass('hidden');
+                tagSearchForm.removeClass('hidden');
                 results.removeClass('hidden');
 
                 var $container = $('#results');
@@ -340,7 +349,8 @@ require(['../common'], function () {
 });
 
 var userData = {
-    get: function (callback) {
+    data: {},
+    retrieveData: function (callback) {
         var searchString = $('#queryinput').val()
         var searchEncoded = searchString.replace(/ /g, "%20")
         $.ajax({
@@ -350,6 +360,7 @@ var userData = {
             dataType: "json",
             success: function (data, status, jqXHR) {
                 $('#resultSpinner').addClass('hidden');
+                $('.tag-search-row').removeClass('hidden');
                 console.log('-->success', data, status, jqXHR);
                 console.log('json string', $.parseJSON(jqXHR.responseText));
                 callback.call(this, $.parseJSON(jqXHR.responseText));
@@ -360,5 +371,44 @@ var userData = {
                 console.log('-->error', jqXHR, status)
             }
         });
+    },
+    setData: function (data) {
+        this.data = clone(data);
+    },
+    getData: function() {
+        return this.data;
+    },
+    getUserById: function(id) {
+        for (var key in this.data) {
+           var obj = this.data[key];
+           for (var prop in obj) {
+              // important check that this is objects own property 
+              // not from prototype prop inherited
+              if(obj.hasOwnProperty(prop) && obj["id"] == id){
+                return key;
+              }
+           }
+        }
+    },
+    setTagsById: function (id,tags) {
+        var user = this.getUserById(id);
+        this.data[user]["tags"] = tags;
+    },
+    getTagsById: function(id) {
+        var user = this.getUserById(id);
+        return this.data[user].tags;
     }
 };
+
+//--- Helper funcs ------------------------------
+function clone(obj){
+    if(obj == null || typeof(obj) != 'object'){
+        return obj;
+    }
+
+    var temp = new obj.constructor();
+    for(var key in obj){
+        temp[key] = clone(obj[key]);
+    }
+    return temp;
+}

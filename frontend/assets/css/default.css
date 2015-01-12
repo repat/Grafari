@@ -118,6 +118,15 @@ body {
     margin-bottom: 20px;
 }
 
+
+
+
+.tag-search-row{
+    width: 70%;
+    height: 90%;
+    margin: 10px auto 0 auto;
+}
+
 .user-div-tags{
     margin-top: 15px;
 }
