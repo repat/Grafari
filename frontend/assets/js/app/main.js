@@ -4,7 +4,7 @@
  */
 require(['../common'], function () {
 
-    require(['jquery', 'isotope', 'queryToggle', 'underscore', 'searchAPI'], function ($, isotope, queryToggle) {
+    require(['jquery', 'isotope', 'queryToggle'], function ($, isotope, queryToggle) {
 
         // make Isotope a jQuery plugin
         $.bridget('isotope', isotope);
