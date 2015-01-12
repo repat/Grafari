@@ -168,7 +168,7 @@ function work(browser) {
                 })
             else {
                 //The result must be bound here, referencing browser from inside the function is invalid
-                var data = convertPageToJSON(browser)
+                var data = getPeopleJsonFromPage(browser)
                 process.nextTick(function () {
                     job.callback(null, data)
                 })
@@ -185,11 +185,11 @@ function work(browser) {
 }
 
 
-function convertPageToJSON(browser) {
+function getPeopleJsonFromPage(browser) {
 
     logLastResultPage(browser)
 
-    var people = []
+    var peopleJson = []
 
     var browseResults = browser.query("#BrowseResultsContainer")
     var foldBelow = browser.query("#u_0_q_browse_result_below_fold") || browser.query("#u_jsonp_2_2_browse_result_below_fold")
@@ -198,10 +198,10 @@ function convertPageToJSON(browser) {
 
     if( browseResults && foldBelow ) {
         var peopleDivs = getPeopleDivs(browseResults, foldBelow)
-        people = getPeopleFromPeopleDivs(peopleDivs)
+        peopleJson = getPeopleFromPeopleDivs(peopleDivs)
     }
 
-    return people
+    return peopleJson
 }
 
 function logLastResultPage(browser) {
@@ -334,7 +334,7 @@ function extractInformationFromDiv(rawDivs) {
             //regexArrax[i][1] ist the regex to test
             if (regexArray[i][1].test(divs[j])) {
 
-                // prepare for return this to convertPageToJSON
+                // prepare for return this to getPeopleJsonFromPage
                 tmpArray = []
                 tmpArray.push(regexArray[i][0])
                 // I have no idea why, but unless this is executed
