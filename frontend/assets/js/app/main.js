@@ -28,7 +28,6 @@ require(['../common'], function () {
             // Setup Button Handler
             miSearch_reg_btn();
 
-
             // Example text for the demo
             // $(".form-control").val("All people who live in Germany AND ( people who are self-employed OR NOT people who are homeless )");
             $(".form-control").val("All people who live in Hamburg");
@@ -238,8 +237,9 @@ var userData = {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data, status, jqXHR) {
+                $('#resultSpinner').addClass('hidden');
                 console.log('-->success', data, status, jqXHR);
-                console.log('json string', $.parseJSON(jqXHR.responseText))
+                console.log('json string', $.parseJSON(jqXHR.responseText));
                 callback.call(this, $.parseJSON(jqXHR.responseText));
 
             },
@@ -247,13 +247,5 @@ var userData = {
                 console.log('-->error', jqXHR, status)
             }
         });
-
-
-        /*var results = new Object;
-         $.getJSON("assets/js/lib/testdata.json", function(data) {
-         console.log(data);
-         results = data;
-         callback.call(this, results);
-         });*/
     }
 };

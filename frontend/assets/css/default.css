@@ -34,6 +34,10 @@ body {
     margin-top: -110px;
 }
 
+#btn_login {
+    display: none;
+}
+
 .brand-row > span > i {
     color: #428bca;
 }
