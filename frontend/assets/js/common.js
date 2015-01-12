@@ -8,6 +8,7 @@ requirejs.config({
     paths: {
         app: '../app',
         bootstrap: 'bootstrap',
+        fancybox: 'fancybox/jquery.fancybox',
         isotope: 'isotope',
         jquery: 'jquery',
         jqueryBridget: 'jquery.bridget',
@@ -19,6 +20,9 @@ requirejs.config({
     shim: {
         isotope: {
             deps: ['jquery', 'jqueryBridget']
+        },
+        fancybox: {
+            deps: ['jquery']
         }
     }
 });
