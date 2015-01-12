@@ -11,10 +11,12 @@ var redis = r.createClient();
 var request = require('request');
 var FileCookieStore = require('tough-cookie-filestore');
 var cookieJar = request.jar(new FileCookieStore('cookies.json'));
-request = request.defaults({jar: cookieJar})
+request = request.defaults({
+    jar: cookieJar
+})
 
 var WORKERS = 5
-// in miliseconds, google: one week in seconds
+    // in miliseconds, google: one week in seconds
 var EXPIRETIME = 604800 * 1000
 
 //The browser instance
@@ -31,14 +33,14 @@ exports.shutdown = shutdownModule;
 
 function initModule(callback) {
     if (exports.debug)
-      console.log("Starting browser module in debug mode")
+        console.log("Starting browser module in debug mode")
 
     //Initialization
     Zombie.localhost('https://www.facebook.com')
 
 
     //start five browsers
-    startBrowser(function (err, browser) {
+    startBrowser(function(err, browser) {
         if (err)
             return callback(err)
 
@@ -70,68 +72,70 @@ function startBrowser(callback) {
 
     if (fs.existsSync("./cookies.tmp")) {
         console.log("Loading cookies from file...") //And omitting login
-        fs.readFile("./cookies.tmp", function (err, cookies) {
+        fs.readFile("./cookies.tmp", function(err, cookies) {
 
             browser.loadCookies(cookies.toString())
-            browser.visit("/", function (e) { //Browser must visit a page
+            browser.visit("/", function(e) { //Browser must visit a page
                 return callback(e, browser)
             })
         })
     } else { //Default login procedure
         async.series([
-            function (cb) {
-                browser.visit('/login.php', cb);
-            },
-            function (cb) {
-                //browser.fill('email', 'haw-mi@wegwerfemail.de');
-                browser.fill("email", "haw-mi-2@wegwerfemail.de")
-                browser.fill('pass', 'geheim123');
-                browser.pressButton('login', cb);
-            }],
-                function (err, data) {
-                    if (err)
-                        return callback(err);
 
-
-                    // TODO: write cookies to cookieJar here
-
-                    // for (var i = 0; i < browser.cookies.length; i++) {
-                    //   var tmp = browser.cookies[i]
-                    //   tmp = String(tmp)
-                    //   console.log(tmp.substring(0,tmp.indexOf(";")));
-                    //   cookieJar.setCookie(tmp.substring(0,tmp.indexOf(";")), 'facebook.com',cookieCallback);
-                    // }
-
-                    //Save cookies and return new browser
-
-                    var cookies = browser.saveCookies()
-                    fs.writeFile("./cookies.tmp", cookies, function () {
-                        return callback(null, browser); //Return the browser, which is ready to make requests
-                    })
-
+                function(cb) {
+                    browser.visit('/login.php', cb);
+                },
+                function(cb) {
+                    //browser.fill('email', 'haw-mi@wegwerfemail.de');
+                    browser.fill("email", "haw-mi-2@wegwerfemail.de")
+                    browser.fill('pass', 'geheim123');
+                    browser.pressButton('login', cb);
                 }
+            ],
+            function(err, data) {
+                if (err)
+                    return callback(err);
+
+
+                // TODO: write cookies to cookieJar here
+
+                // for (var i = 0; i < browser.cookies.length; i++) {
+                //   var tmp = browser.cookies[i]
+                //   tmp = String(tmp)
+                //   console.log(tmp.substring(0,tmp.indexOf(";")));
+                //   cookieJar.setCookie(tmp.substring(0,tmp.indexOf(";")), 'facebook.com',cookieCallback);
+                // }
+
+                //Save cookies and return new browser
+
+                var cookies = browser.saveCookies()
+                fs.writeFile("./cookies.tmp", cookies, function() {
+                    return callback(null, browser); //Return the browser, which is ready to make requests
+                })
+
+            }
         )
     }
 }
 
 function cachedReadPage(url, callback) {
 
-    redis.get(url, function (err, reply) {
+    redis.get(url, function(err, reply) {
         if (err)
             return callback(err)
 
         if (reply)
             return callback(null, JSON.parse(reply))
 
-        readPage(url, function (err, result) {
+        readPage(url, function(err, result) {
             //Don't enter value if an error occurred
             if (err)
                 return callback(err)
-            //Enter 'url' -> 'result' into Redis
-            redis.set(url, JSON.stringify(result), function (err, reply) {
+                    //Enter 'url' -> 'result' into Redis
+            redis.set(url, JSON.stringify(result), function(err, reply) {
                 if (err)
                     return callback(err)
-                redis.expire(url, EXPIRETIME, function (err, reply) {
+                redis.expire(url, EXPIRETIME, function(err, reply) {
                     if (err)
                         return callback(err)
                 })
@@ -146,7 +150,10 @@ function cachedReadPage(url, callback) {
  * internally this adds a job-entry to the workQueue and wakes a an idle worker if available.
  */
 function readPage(url, callback) {
-    workQueue.push({url: url, callback: callback})
+    workQueue.push({
+        url: url,
+        callback: callback
+    })
 
     if (worker.length > 0) { //wake up an idle browser
         var browser = worker.shift()
@@ -161,21 +168,23 @@ function work(browser) {
     console.log("Checking workQueue: " + JSON.stringify(workQueue))
     if (workQueue.length > 0) {
         var job = workQueue.shift()
-        browser.visit(job.url, {duration: "20s"}, function (err, data) {
+        browser.visit(job.url, {
+            duration: "20s"
+        }, function(err, data) {
             if (err)
-                process.nextTick(function () {
+                process.nextTick(function() {
                     job.callback(err)
                 })
             else {
                 //The result must be bound here, referencing browser from inside the function is invalid
                 var data = getPeopleJsonFromPage(browser)
-                process.nextTick(function () {
+                process.nextTick(function() {
                     job.callback(null, data)
                 })
             }
 
             //Job done, check for remaining work
-            process.nextTick(function () {
+            process.nextTick(function() {
                 work(browser)
             })
         })
@@ -196,7 +205,7 @@ function getPeopleJsonFromPage(browser) {
     if (!foldBelow)
         errorPageIncomplete(foldBelow, browseResults, browser)
 
-    if( browseResults && foldBelow ) {
+    if (browseResults && foldBelow) {
         var peopleDivs = getPeopleDivs(browseResults, foldBelow)
         peopleJson = getPeopleFromPeopleDivs(peopleDivs)
     }
@@ -206,15 +215,15 @@ function getPeopleJsonFromPage(browser) {
 
 function logLastResultPage(browser) {
     if (exports.debug)
-      fs.writeFileSync("lastResultPage.html", browser.html())
+        fs.writeFileSync("lastResultPage.html", browser.html())
 }
 
 // Page incomplete, print warning and dump html
 function errorPageIncomplete(foldBelow, browseResults, browser) {
     var date = new Date()
     var logname = "dumps/dump_" +
-    date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate() + "_" +
-    date.getHours() + "-" + date.getMinutes() + ".html"
+        date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + "_" +
+        date.getHours() + "-" + date.getMinutes() + ".html"
 
     console.log("ERROR: Missing elements, writing page dump...\n" +
         "  fold below found: " + !!foldBelow + "\n" +
@@ -246,7 +255,7 @@ function arrayCopy(from, to) {
 function getPeopleFromPeopleDivs(peopleDivs) {
     var people = []
 
-    peopleDivs.forEach(function (peopleDiv) {
+    peopleDivs.forEach(function(peopleDiv) {
         var person = getPeopleFromPeopleDiv(peopleDiv)
         people.push(person)
     })
@@ -254,7 +263,7 @@ function getPeopleFromPeopleDivs(peopleDivs) {
     return people
 }
 
-function getPeopleFromPeopleDiv(peopleDiv)  {
+function getPeopleFromPeopleDiv(peopleDiv) {
     var person = {}
     var link = peopleDiv.querySelector("._gll > a")
     var img = peopleDiv.querySelector("._8o._8s.lfloat._ohe > img")
@@ -274,7 +283,7 @@ function getPeopleFromPeopleDiv(peopleDiv)  {
         "._glo ._ajw:nth-of-type(2) ._52eh",
         "._glo ._ajw:nth-of-type(3) ._52eh",
         "._glo ._ajw:nth-of-type(4) ._52eh"
-        ]
+    ]
 
     // for every element: in case element exists
     for (var i = 0; i < divClasses.length; i++) {
@@ -363,7 +372,13 @@ function extractUserId(url) {
 }
 
 function showNext_callback(htmlnext) {
-    var htmldoc = SubString({invl: htmlnext, startvl: 'payload":"', addstartindex: 'payload":"'.length, endvl: 'jsmods', addendindex: -3});
+    var htmldoc = SubString({
+        invl: htmlnext,
+        startvl: 'payload":"',
+        addstartindex: 'payload":"'.length,
+        endvl: 'jsmods',
+        addendindex: -3
+    });
 
     console.log("htmldoc.length: " + htmldoc.length)
     if (htmldoc.length > 0) {
@@ -379,14 +394,13 @@ function showNext_callback(htmlnext) {
         if (footernext.length <= 0) {
             return;
         }
-    }
-    else {
+    } else {
         return
         //callback()
     }
     // recursive because getData will call showNext_callback
     var urlNextPage = cutNextUrl(htmlnext);
-    getData(urlNextPage, showNext_callback, function () {
+    getData(urlNextPage, showNext_callback, function() {
         console.log("load next data error");
     });
 }
@@ -397,7 +411,7 @@ function showNext_callback(htmlnext) {
 function DecodeEncodedNonAsciiCharacters(x) {
 
     var r = /\\u([\d\w]{4})/gi;
-    x = x.replace(r, function (match, grp) {
+    x = x.replace(r, function(match, grp) {
         return String.fromCharCode(parseInt(grp, 16));
     });
     x = unescape(x);
@@ -414,8 +428,7 @@ function SubString(_para) {
         if (_para.endvl.length > 0 && (endindex = _para.invl.indexOf(_para.endvl, startindex)) > startindex) {
             endindex += _para.addendindex;
             _return = _para.invl.substring(startindex, endindex);
-        }
-        else {
+        } else {
             _return = _para.invl.substring(startindex);
         }
     }
@@ -423,11 +436,23 @@ function SubString(_para) {
 }
 
 function SubstringFooterNext(htmlreload) {
-    return SubString({invl: htmlreload, startvl: '"cursor":', addstartindex: 0, endvl: '}', addendindex: 1});
+    return SubString({
+        invl: htmlreload,
+        startvl: '"cursor":',
+        addstartindex: 0,
+        endvl: '}',
+        addendindex: 1
+    });
 }
 
 function SubstringHeaderNext(htmlreload) {
-    return SubString({invl: htmlreload, startvl: '{"view":"list"', addstartindex: 0, endvl: 'story_id":', addendindex: 0}) + 'story_id":null';
+    return SubString({
+        invl: htmlreload,
+        startvl: '{"view":"list"',
+        addstartindex: 0,
+        endvl: 'story_id":',
+        addendindex: 0
+    }) + 'story_id":null';
 }
 
 function cutNextUrl(htmlreload) {
@@ -448,7 +473,7 @@ function getData(link, onSuccess, onError) {
         method: 'GET'
     }
 
-    request(options, function (error, response, body) {
+    request(options, function(error, response, body) {
         if (!error && response.statusCode == 200) {
             onSuccess(body);
         } else {
