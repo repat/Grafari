@@ -118,7 +118,11 @@ require(['../common'], function () {
                     var spanId = "#uni" + universityCount;
                     var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
                     if (unescapedUrl) {
-                        $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + university + '</a>');
+                        if (unescapedUrl.indexOf("facebook.com") >= 0) {
+                            $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + university + '</a>');
+                        } else {
+                            $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + university + '</a>');
+                        }
                     } else {
                         $(spanId).html(university);
                     }
@@ -248,6 +252,7 @@ var userData = {
 
             },
             error: function (jqXHR, status) {
+                console.log("\n\n\n Token erneuert? \n\n\n");
                 console.log('-->error', jqXHR, status)
             }
         });
