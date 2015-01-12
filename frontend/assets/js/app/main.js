@@ -176,6 +176,54 @@ require(['../common'], function () {
             });
         }
 
+        var addWorkLink = function (work, count) {
+            $.ajax({
+                type: "GET",
+                url: "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=" + work.replace(/ /g, "+"),
+                dataType: "jsonp",
+                success: function (data) {
+                    var spanId = "#work" + count;
+                    var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
+                    if (unescapedUrl) {
+                        if (unescapedUrl.indexOf("facebook.com") >= 0) {
+                            $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + work + '</a>');
+                        } else {
+                            $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + work + '</a>');
+                        }
+                    } else {
+                        $(spanId).html(work);
+                    }
+                },
+                error: function (jqXHR, status) {
+                    console.log('-->2error', jqXHR, status)
+                }
+            });
+        }
+
+        var addPlaceLink = function (place, count) {
+            $.ajax({
+                type: "GET",
+                url: "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=" + place.replace(/ /g, "+"),
+                dataType: "jsonp",
+                success: function (data) {
+                    var spanId = "#place" + count;
+                    var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
+                    if (unescapedUrl) {
+                        if (unescapedUrl.indexOf("facebook.com") >= 0) {
+                            $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + place + '</a>');
+                        } else {
+                            $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + place + '</a>');
+                        }
+                    } else {
+                        $(spanId).html(place);
+                    }
+                },
+                error: function (jqXHR, status) {
+                    console.log('-->2error', jqXHR, status)
+                }
+            });
+        }
+
         var createInfoElement = function (spanText) {
             return '</br>&#183;' + spanText;
         }
@@ -187,7 +235,7 @@ require(['../common'], function () {
                 results.isotope('destroy');
                 results.empty();
 
-                var universitySpanCount = 1;
+                var universitySpanCount = 1, workcount = 1, placecount = 1;
                 while (!users.empty()) {
                     var user = users.pop();
                     var userUrl = 'https://www.facebook.com/' + user.id;
@@ -228,7 +276,10 @@ require(['../common'], function () {
                                 infotext += createInfoElement(user.profession + ' at ' + user.employer);
                             }
                         } else {
-                            infotext += createInfoElement('works at ' + user.employer);
+                            var workText = 'works at <span id="work' + workcount + '"></span>';
+                            addWorkLink(user.employer, workcount);
+                            workcount++;
+                            infotext += createInfoElement(workText);
                         }
                     }
                     if (user.hasOwnProperty("studies")) {
@@ -241,7 +292,10 @@ require(['../common'], function () {
                         infotext += createInfoElement(studieText);
                     }
                     if (user.hasOwnProperty("lives")) {
-                        infotext += createInfoElement('lives in ' + user.lives);
+                        var placeText = 'lives in <span id="place' + placecount + '"></span>';
+                        addPlaceLink(user.lives, placecount);
+                        placecount++;
+                        infotext += createInfoElement(placeText);
                     }
                     if (user.hasOwnProperty("from") && user.from !== user.lives) {
                         infotext += createInfoElement('used to live in ' + user.from);
