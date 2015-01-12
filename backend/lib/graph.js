@@ -12,7 +12,7 @@ exports.getPictureFromID = getPictureFromID
 exports.getProfilePicturesFromIds = getProfilePicturesFromIds
 exports.getProfilePictureFromId = getProfilePictureFromId
 
-graph.setAccessToken('736322176438280|N8bcT0U2C4-PHlvoJpqe8ytN1Y8'); //<- AppToken (sollte nicht auslaufen)
+graph.setAccessToken('CAACEdEose0cBAHuaMWbIx8nMEHzuR1qJkc0xaLbsmCIFGsel2ldpzJoUNRESnQZAxnxfSYsZAUhuUPHwpEGH3SZCtUZAaCRNQDZBbYkPzdvGls2V4s1Ju1K63n6tAAYPcogQJjZAWfRZBTiV6vtS8rS0o9YGHYvRA9pZCXe2XPJ9dYGqBY19XjFshIbvwDBIDI5O7vbtZC2ZB06CaDzxwATMOY'); //<- AppToken (sollte nicht auslaufen)
 
 
 /** A generic method to query the facebook graph for a certain ID

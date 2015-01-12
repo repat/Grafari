@@ -28,7 +28,7 @@ async.series({
         browser.visit('/login.php')
                 .done(function () {
 
-                    browser.fill('email', 'haw-mi@wegwerfemail.de');
+                    browser.fill('email', 'haw-mi-2@wegwerfemail.de');
                     browser.fill('pass', 'geheim123');
                     browser.pressButton('login');
                     console.log('Facebook loged in!');

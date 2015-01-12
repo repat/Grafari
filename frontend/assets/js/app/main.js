@@ -4,7 +4,7 @@
  */
 require(['../common'], function () {
 
-    require(['jquery', 'isotope', 'queryToggle'], function ($, isotope, queryToggle) {
+    require(['jquery', 'isotope', 'queryToggle', 'underscore', 'searchAPI'], function ($, isotope, queryToggle) {
 
         // make Isotope a jQuery plugin
         $.bridget('isotope', isotope);
@@ -15,24 +15,8 @@ require(['../common'], function () {
 
             var $container = $('#results');
 
-            $('.result').on('click', '.subQuery', function () {
-
-                var id = $(this).attr("data-id");
-
-                $container.isotope({
-                    itemSelector: '.result',
-                    layoutMode: 'fitRows',
-                    filter: id
-                });
-
-            });
-
-            $('.result').on('click', '.mainQuery', function () {
-                $container.isotope({
-                    itemSelector: '.result',
-                    layoutMode: 'fitRows',
-                    filter: ''
-                });
+            $('.result').on('click', '.subQuery, .mainQuery', function () {
+                $('#queryinput').val($(this).text());
             });
 
         });
@@ -159,7 +143,7 @@ require(['../common'], function () {
                     var userUrl = 'https://www.facebook.com/' + user.id;
                     var userId = user.id.replace(/\./g, "-");
                     results.append('<div id="' + userId + '" class="result'
-                            + ' well userWell"></div>');
+                    + ' well userWell"></div>');
                     var userDiv = $('#' + userId);
 
                     //userDiv.append('<a class="media-left" href="#">');
