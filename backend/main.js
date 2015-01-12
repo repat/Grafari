@@ -18,25 +18,25 @@ var args = process.argv
 args.shift() //node
 args.shift() //main
 
-while(args.length > 0) {
-  var arg = args.shift()
-  if (arg == "-debug") {
-    Browser.debug = true
-  } else { //port number
-    port = parseInt(arg)
-  }
+while (args.length > 0) {
+    var arg = args.shift()
+    if (arg == "-debug") {
+        Browser.debug = true
+    } else { //port number
+        port = parseInt(arg)
+    }
 }
 
 var httpsOptions = {
-  name: "Secure Grafari",
-  key: fs.readFileSync('./keys/grafari.key'),
-  certificate: fs.readFileSync('./keys/grafari.crt')
+    name: "Secure Grafari",
+    key: fs.readFileSync('./keys/grafari.key'),
+    certificate: fs.readFileSync('./keys/grafari.crt')
 };
 
 /** Start-Up (launch browser-module and rest server)
  */
 console.log("Starting up...")
-Browser.init(function (err) {
+Browser.init(function(err) {
     if (err) {
         console.log("Browser initialization failed!\n" + JSON.stringify(err))
         throw "Browser initialization failed!"
@@ -54,7 +54,7 @@ Browser.init(function (err) {
     server.head('/tags/id/:str', tags);
     server.post('/tags/id', tags);
 
-    server.listen(port, function () {
+    server.listen(port, function() {
         console.log('%s listening at %s', server.name, server.url);
     });
 
@@ -68,7 +68,7 @@ Browser.init(function (err) {
     httpsServer.head('/tags/id/:str', tags);
     httpsServer.post('/tags/id', tags);
 
-    httpsServer.listen(securePort, function () {
+    httpsServer.listen(securePort, function() {
         console.log('%s listening at %s', httpsServer.name, httpsServer.url);
     });
 })
@@ -84,11 +84,11 @@ function search(req, res, done) {
 
     //Parse request
     var parseTree = Requests.parse(request)
-    Requests.translateTree(parseTree, function (err, requestList) {
-        var lookupFunctions = requestList.map(function (request) {
-            return function (callback) {
+    Requests.translateTree(parseTree, function(err, requestList) {
+        var lookupFunctions = requestList.map(function(request) {
+            return function(callback) {
                 console.log("Fetching: " + request.url)
-                Browser.get("/search" + request.url, function (err, ary) {
+                Browser.get("/search" + request.url, function(err, ary) {
                     if (err)
                         return callback(err)
                     return callback(null, {
@@ -101,7 +101,7 @@ function search(req, res, done) {
         })
 
         //Execute requests
-        async.parallel(lookupFunctions, function (err, jsonArray) {
+        async.parallel(lookupFunctions, function(err, jsonArray) {
             if (err)
                 return handleError(err, res, done)
 
@@ -130,55 +130,58 @@ function tags(req, res, done) {
     res.charSet('utf-8')
 
     graph.getProfilePicturesFromIds(ids,
-            function (err, result) {
-                if (err) {
-                    return handleError(err, res, done)
-                }
-
-                url_list = result.map(function (e) {
-                    if (!e.hasOwnProperty('url'))
-                        return e
-                    return e.url
-                }
-                )
-
-                async.map(url_list, imgrec.imageToTags, function (e, r) {
-                    if (e) {
-                        return handleError(e, res, done)
-                    }
-
-                    a = {}
-                    r.forEach(function (e, index) {
-                        a[result[index].id] = e.tags
-                    })
-                    res.send(a)
-                    return done()
-                })
+        function(err, result) {
+            if (err) {
+                return handleError(err, res, done)
             }
+
+            url_list = result.map(function(e) {
+                if (!e.hasOwnProperty('url'))
+                    return e
+                return e.url
+            })
+
+            async.map(url_list, imgrec.imageToTags, function(e, r) {
+                if (e) {
+                    return handleError(e, res, done)
+                }
+
+                a = {}
+                r.forEach(function(e, index) {
+                    a[result[index].id] = e.tags
+                })
+                res.send(a)
+                return done()
+            })
+        }
     )
 }
 
 function handleError(err, res, done) {
     console.log("An error ocurred: \n" + JSON.stringify(err))
-    res.send({"Internal error": err})
+    res.send({
+        "Internal error": err
+    })
     return done()
 }
 
 
 function mergeResults(jsonData) {
-    var results = {"users": []}
-    var queries = []   //List of all subqueries
+    var results = {
+        "users": []
+    }
+    var queries = [] //List of all subqueries
 
     var personMap = {} //Map ID -> person
-    var people = []    //List of all people ids
+    var people = [] //List of all people ids
 
     //For every query
-    jsonData.forEach(function (queryData) {
+    jsonData.forEach(function(queryData) {
         var qid = queries.length
         queries.push(queryData.query)
 
         //For every person in that query
-        queryData.results.forEach(function (person) {
+        queryData.results.forEach(function(person) {
             if (personMap[person.id]) { //Person already known from other query
                 //TODO merge properties (If query a returned other attributes for that person than query b)
                 personMap[person.id].subqueries.push(qid)
@@ -193,7 +196,7 @@ function mergeResults(jsonData) {
     results.queries = queries
 
     //Now append all people
-    people.forEach(function (pid) {
+    people.forEach(function(pid) {
         results.users.push(personMap[pid])
     })
 

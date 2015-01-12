@@ -23,7 +23,7 @@ function lookupData(name, callback) {
         type: 'page'
     };
 
-    graph.search(searchOptions, function (err, res) {
+    graph.search(searchOptions, function(err, res) {
         if (err)
             return callback(err)
 
@@ -37,15 +37,14 @@ function lookupData(name, callback) {
 /** Resolves a name to the first ID it finds
  */
 function getIdFromName(name, callback) {
-    lookupData(name, function (err, res) {
+    lookupData(name, function(err, res) {
         if (err)
             return callback(err)
 
         //if everything went well, return first ID
         return callback(null, res.data[0].id)
     })
-}
-;
+};
 
 
 /** Helper function for implementing getIdFromLocation()
@@ -66,17 +65,17 @@ function array_contains(ary, predicate) {
  *
  */
 function getIdFromLocation(location, callback) {
-    lookupData(location, function (err, res) {
+    lookupData(location, function(err, res) {
         if (err)
             return callback(err)
 
-        var locationObject = array_findFirst(res.data, function (element) {
+        var locationObject = array_findFirst(res.data, function(element) {
             if (element.category_list != undefined)
-                return array_contains(element.category_list, function (entry) {
+                return array_contains(element.category_list, function(entry) {
                     return entry.name == "City" ||
-                            entry.name == "Country" ||
-                            entry.name == "State" || //eg. Florida
-                            entry.name == "Landmark"  //eg. Africa
+                        entry.name == "Country" ||
+                        entry.name == "State" || //eg. Florida
+                        entry.name == "Landmark" //eg. Africa
                 })
             return false
         })
@@ -91,11 +90,11 @@ function getIdFromLocation(location, callback) {
 /** This resolves the given langauge into an ID
  */
 function getIdFromLanguage(lang, callback) {
-    lookupData(lang, function (err, res) {
+    lookupData(lang, function(err, res) {
         if (err)
             return callback(err)
 
-        var language = array_findFirst(res.data, function (element) {
+        var language = array_findFirst(res.data, function(element) {
             return element.category == "Language"
         })
 
@@ -106,10 +105,10 @@ function getIdFromLanguage(lang, callback) {
 }
 
 function getPictureFromID(fbID, callback) {
-    graph.get("/" + fbID + "/picture", function (err, res) {
+    graph.get("/" + fbID + "/picture", function(err, res) {
         if (err)
             return callback(err)
-        // sic
+                // sic
         callback(null, res.location)
     });
 }
@@ -119,59 +118,59 @@ function getProfilePictureFromId(id, callback) {
 }
 
 function getProfilePicturesFromIds(ids, callback) {
-  async.map(ids, getIdFromUsernameCache, function (e, r) {
-    var requests = r.map(function (id) {
-      return {
-        method: "GET",
-        relative_url: id + "/picture?width=2000&redirect=false"
-      }
-    })
-
-    return graph.batch(requests, function (e, r1) {
-        r1 = r1.map(function (elem, index) {
-            if (JSON.parse(elem.body).error) {
-                e = JSON.parse(elem.body).error
-            }
-
-            var url = (JSON.parse(elem.body).data) ?
-                    JSON.parse(elem.body).data.url : null
+    async.map(ids, getIdFromUsernameCache, function(e, r) {
+        var requests = r.map(function(id) {
             return {
-                "url": url,
-                "id": ids[index]
+                method: "GET",
+                relative_url: id + "/picture?width=2000&redirect=false"
             }
         })
-        if (e)
-            return callback(e, null)
-        return callback(null, r1)
+
+        return graph.batch(requests, function(e, r1) {
+            r1 = r1.map(function(elem, index) {
+                if (JSON.parse(elem.body).error) {
+                    e = JSON.parse(elem.body).error
+                }
+
+                var url = (JSON.parse(elem.body).data) ?
+                    JSON.parse(elem.body).data.url : null
+                return {
+                    "url": url,
+                    "id": ids[index]
+                }
+            })
+            if (e)
+                return callback(e, null)
+            return callback(null, r1)
+        })
     })
-  })
 }
 
 function getIdFromUsername(username, callback) {
-  request({
-    url: 'https://graph.facebook.com/' + username,
-    json: true
-  }, function (error, response, body) {
-    if (!error && response.statusCode === 200) {
-      callback(null, body.id)
+    request({
+        url: 'https://graph.facebook.com/' + username,
+        json: true
+    }, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+            callback(null, body.id)
 
-    } else {
-      callback(error, null)
-    }
-  })
+        } else {
+            callback(error, null)
+        }
+    })
 }
 
 function getIdFromUsernameCache(username, callback) {
-  rc.hget("fbid", username, function (err, reply) {
-    if (!reply) {
-      return getIdFromUsername(username, function (e, r) {
-        rc.hset("fbid", username, JSON.stringify(r))
-        return callback(e, r)
-      })
-    } else {
-      return callback(null, JSON.parse(reply))
-    }
-  })
+    rc.hget("fbid", username, function(err, reply) {
+        if (!reply) {
+            return getIdFromUsername(username, function(e, r) {
+                rc.hset("fbid", username, JSON.stringify(r))
+                return callback(e, r)
+            })
+        } else {
+            return callback(null, JSON.parse(reply))
+        }
+    })
 }
 
 /** Function to extend the duration of the access token.
@@ -179,7 +178,7 @@ function getIdFromUsernameCache(username, callback) {
  */
 function extendAccessToken(callback) {
     graph.extendAccessToken({
-        "client_id": "736322176438280"
-        , "client_secret": "b15e0263baa65d34312aaf3a0ad8bc44"
+        "client_id": "736322176438280",
+        "client_secret": "b15e0263baa65d34312aaf3a0ad8bc44"
     }, callback)
 }

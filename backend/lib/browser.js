@@ -58,12 +58,6 @@ function shutdownModule() {
         browser.close();
 }
 
-// function cookieCallback(err,res) {
-//   if (err)
-//     console.log(err)
-
-// }
-
 /** This function creates a browser, logs it in into facebook and then
  *  returns the browser to the callback after the login has completed
  */
