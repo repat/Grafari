@@ -8,7 +8,7 @@ requirejs.config({
     paths: {
         app: '../app',
         bootstrap: 'bootstrap',
-        fancybox: 'fancybox/jquery.fancybox',
+        fancybox: './fancybox/jquery.fancybox',
         isotope: 'isotope',
         jquery: 'jquery',
         jqueryBridget: 'jquery.bridget',
