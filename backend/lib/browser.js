@@ -187,92 +187,114 @@ function work(browser) {
 
 function convertPageToJSON(browser) {
 
-    // obviously, it can't be run like this.
-    //runScraping(browser.html());
+    logLastResultPage(browser)
 
     var people = []
-    var peopleDivs = []
 
-    
-    var foldBelow = browser.query("#u_0_q_browse_result_below_fold") || browser.query("#u_jsonp_2_2_browse_result_below_fold");
     var browseResults = browser.query("#BrowseResultsContainer")
+    var foldBelow = browser.query("#u_0_q_browse_result_below_fold") || browser.query("#u_jsonp_2_2_browse_result_below_fold")
+    if (!foldBelow)
+        errorPageIncomplete(foldBelow, browseResults, browser)
 
-    if (exports.debug)
-      fs.writeFileSync("lastResultPage.html", browser.html())
-
-
-    if (!browseResults) //No results were found
-      return []
-
-    if (!foldBelow) { //Page incomplete, print warning and dump html
-      var dt = new Date()
-      var logname = "dumps/dump_" + 
-        dt.getFullYear() + "-" + (dt.getMonth()+1) + "-" + dt.getDate() + "_" +
-        dt.getHours() + "-" + dt.getMinutes() + ".html"
-      
-      console.log("ERROR: Missing elements, writing page dump...\n" +
-        "  fold below found: " + !!foldBelow + "\n" +
-        "  browse results found: " + !!browseResults + "\n" +
-        "  filename: " + logname + "\n" + 
-        "  returning empty resultlist, flush redis cache to retry this query")
-
-      if (!fs.existsSync("dumps"))
-        fs.mkdirSync("dumps")
-      fs.writeFileSync(logname, browser.html()) //Sync is important here
-      return []
+    if( browseResults && foldBelow ) {
+        var peopleDivs = getPeopleDivs(browseResults, foldBelow)
+        people = getPeopleFromPeopleDivs(peopleDivs)
     }
 
+    return people
+}
 
-    // People are returned in two seperate div containers. The first one is loaded statically
-    // and sometimes contains only one elment and the second one is loaded dynamically and contains the remaining people
-    array_copy(browseResults.childNodes, peopleDivs)
-    array_copy(foldBelow.childNodes, peopleDivs)
+function logLastResultPage(browser) {
+    if (exports.debug)
+      fs.writeFileSync("lastResultPage.html", browser.html())
+}
 
-    peopleDivs.forEach(function (child) {
+// Page incomplete, print warning and dump html
+function errorPageIncomplete(foldBelow, browseResults, browser) {
+    var date = new Date()
+    var logname = "dumps/dump_" +
+    date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate() + "_" +
+    date.getHours() + "-" + date.getMinutes() + ".html"
 
-        var person = {}
-        var link = child.querySelector("._gll > a")
-        var img = child.querySelector("._8o._8s.lfloat._ohe > img")
+    console.log("ERROR: Missing elements, writing page dump...\n" +
+        "  fold below found: " + !!foldBelow + "\n" +
+        "  browse results found: " + !!browseResults + "\n" +
+        "  filename: " + logname + "\n" +
+        "  returning empty resultlist, flush redis cache to retry this query")
 
-        person.name = link.textContent
-        person.id = extractUserId(link.href)
-        person.pictureurl = img.src
+    if (!fs.existsSync("dumps"))
+        fs.mkdirSync("dumps")
+    fs.writeFileSync(logname, browser.html()) //Sync is important here
+}
 
-        // subtitle and the 4 snippets
-        divClasses = ["._pac._dj_", //previously valid queries (doesn't harm to leave them here)
-            "div[data-bt*=snippets] ._ajw:nth-of-type(1) ._52eh",
-            "div[data-bt*=snippets] ._ajw:nth-of-type(2) ._52eh",
-            "div[data-bt*=snippets] ._ajw:nth-of-type(3) ._52eh",
-            "div[data-bt*=snippets] ._ajw:nth-of-type(4) ._52eh",
-            "._pac", //new queries
-            "._glo ._ajw:nth-of-type(1) ._52eh",
-            "._glo ._ajw:nth-of-type(2) ._52eh",
-            "._glo ._ajw:nth-of-type(3) ._52eh",
-            "._glo ._ajw:nth-of-type(4) ._52eh"
-            ]
+function getPeopleDivs(browseResults, foldBelow) {
+    var peopleDivs = []
 
-        // for every element: in case element exists
-        for (var i = 0; i < divClasses.length; i++) {
-            if (child.querySelector(divClasses[i]) != null) {
-                // extract information through regex
-                returnArray = extractInformationFromDiv(child.querySelector(divClasses[i]).textContent);
-                if (returnArray != null && returnArray.length != 0) {
-                    for (var j = 0; j < returnArray.length; j++) {
-                        // trim() removes white spaces at beginning and end
-                        person[returnArray[j][0]] = returnArray[j][1].trim();
-                    }
-                }
-            }
-        }
+    // People are returned in two seperate div containers. The first one is loaded statically and sometimes contains
+    // only one elment and the second one is loaded dynamically and contains the remaining people
+    arrayCopy(browseResults.childNodes, peopleDivs)
+    arrayCopy(foldBelow.childNodes, peopleDivs)
+
+    return peopleDivs
+}
+
+function arrayCopy(from, to) {
+    for (var c = 0; c < from.length; ++c)
+        to.push(from[c])
+}
+
+function getPeopleFromPeopleDivs(peopleDivs) {
+    var people = []
+
+    peopleDivs.forEach(function (peopleDiv) {
+        var person = getPeopleFromPeopleDiv(peopleDiv)
         people.push(person)
     })
 
     return people
 }
 
+function getPeopleFromPeopleDiv(peopleDiv)  {
+    var person = {}
+    var link = peopleDiv.querySelector("._gll > a")
+    var img = peopleDiv.querySelector("._8o._8s.lfloat._ohe > img")
+
+    person.name = link.textContent
+    person.id = extractUserId(link.href)
+    person.pictureurl = img.src
+
+    // subtitle and the 4 snippets
+    divClasses = ["._pac._dj_", //previously valid queries (doesn't harm to leave them here)
+        "div[data-bt*=snippets] ._ajw:nth-of-type(1) ._52eh",
+        "div[data-bt*=snippets] ._ajw:nth-of-type(2) ._52eh",
+        "div[data-bt*=snippets] ._ajw:nth-of-type(3) ._52eh",
+        "div[data-bt*=snippets] ._ajw:nth-of-type(4) ._52eh",
+        "._pac", //new queries
+        "._glo ._ajw:nth-of-type(1) ._52eh",
+        "._glo ._ajw:nth-of-type(2) ._52eh",
+        "._glo ._ajw:nth-of-type(3) ._52eh",
+        "._glo ._ajw:nth-of-type(4) ._52eh"
+        ]
+
+    // for every element: in case element exists
+    for (var i = 0; i < divClasses.length; i++) {
+        if (peopleDiv.querySelector(divClasses[i]) != null) {
+            // extract information through regex
+            returnArray = extractInformationFromDiv(peopleDiv.querySelector(divClasses[i]).textContent)
+            if (returnArray != null && returnArray.length != 0) {
+                for (var j = 0; j < returnArray.length; j++) {
+                    // trim() removes white spaces at beginning and end
+                    person[returnArray[j][0]] = returnArray[j][1].trim()
+                }
+            }
+        }
+    }
+
+    return person
+}
 
 function extractInformationFromDiv(rawDivs) {
-// regex101.com ftw
+    // regex101.com ftw
     regexArray = [
         ['gender', /(female)(?!s)/gmi],
         ['gender', /\s(male)(?!s)/gmi],
@@ -325,6 +347,7 @@ function extractInformationFromDiv(rawDivs) {
             }
         }
     }
+
     return returnArray;
 }
 
@@ -337,33 +360,6 @@ function extractUserId(url) {
     // extracts the facebook user id from URL
     var pattern = /https:\/\/www\.facebook\.com\/(.*)[?].*/i
     return pattern.exec(url)[1];
-}
-
-function array_copy(from, to) {
-    for (var c = 0; c < from.length; ++c)
-        to.push(from[c])
-}
-
-// copied from https://github.com/sergerehem/fb-uid-scraper/blob/master/scripts/script.js
-// this is the old version. easier to understand and should still work
-// the helper functions didn't change
-// the code needs some serious refactoring though
-
-// this is where it starts
-function runScraping(htmlreload) {
-
-    // this might be unnecessary
-    //getData(url, function (htmlreload) {
-    headernextencoded = SubstringHeaderNext(htmlreload);
-    var urlNextPage = cutNextUrl(htmlreload);
-    console.log("urlNextPage: " + urlNextPage)
-    getData(urlNextPage, showNext_callback, function () {
-        console.log("load next data error");
-    });
-
-    // }, function () {
-    //      console.log("load data error");
-    //  });
 }
 
 function showNext_callback(htmlnext) {
