@@ -2,6 +2,10 @@
  * MiSearch main.js
  * PA 27-10-2014
  */
+
+var SEARCH_TAG_FIX = "";
+var DEBUG_IMAGE = false;
+
 require(['../common'], function () {
 
     require(['jquery', 'isotope', 'queryToggle', 'fancybox', 'underscore', 'searchAPI'], function ($, isotope, queryToggle, fancybox) {
@@ -9,31 +13,60 @@ require(['../common'], function () {
         // make Isotope a jQuery plugin
         $.bridget('isotope', isotope);
 
-        $(function () {
-            console.log('Setting up ...');
-            miSearch_init();
+       
+        console.log('Setting up ...');
+        miSearch_init();
 
-            var $container = $('#results');
+        var $container = $('#results');
 
-            $('.result').on('click', '.subQuery, .mainQuery', function () {
-                $('#queryinput').val($(this).text());
-            });
+        $('.result').on('click', '.subQuery, .mainQuery', function () {
+            $('#queryinput').val($(this).text());
+        });
 
-            $('.fancybox').fancybox({
-                padding : 0,
-                openEffect  : 'elastic'
-            });
+        $('.fancybox').fancybox({
+            padding : 0,
+            openEffect  : 'elastic'
+        });
 
-            $('#results').on('click', '.tags-icon', function () {
+        $('#results').on('click', '.tags-icon', function () {
 
-               var tagIconElement = $(this);
+           var tagIconElement = $(this);
 
-                if(tagIconElement.attr('data-status') == '0'){
-                    tagIconElement.attr('data-status','1');
-                    tagIconElement.addClass('tags-icon-spinner');
+            if(tagIconElement.attr('data-status') == '0'){
+                tagIconElement.attr('data-status','1');
 
-                    var userId = tagIconElement.attr('data-id');
-                    console.log("Get tags for id:" + userId);
+                var userId = tagIconElement.attr('data-id');
+                retrieveTagsForId(userId,tagIconElement);
+            }
+            
+        });
+
+        /**
+         * Initial Page Setup
+         */
+        function miSearch_init() {
+            // Setup Button Handler
+            miSearch_reg_btn();
+
+            // Example text for the demo
+            // $(".form-control").val("All people who live in Germany AND ( people who are self-employed OR NOT people who are homeless )");
+            $("#queryinput").val("All people who live in Hamburg");
+        }
+
+        function retrieveTagsForId(userId,tagIconElement) {
+
+            if(tagIconElement === null || userId === null) {
+                console.log("retrieveTagsForId: MISSING PARAMS");
+                return 0;
+            } 
+
+            console.log("Get tags for id:" + userId);
+
+            if(!userData.getTagsById(userId)) {
+
+                tagIconElement.addClass('tags-icon-spinner');
+
+                if(DEBUG_IMAGE){
                     $.ajax({
                         type: "GET",
                         url: "http://localhost:8080/tags/id/" + userId,
@@ -64,22 +97,11 @@ require(['../common'], function () {
                             tagIconElement.removeClass('tags-icon-spinner');
                         }
                     });
-
+                } else {
+                    console.log("Image search not active! set DEBUG_IMAGE to true");
                 }
-                
-            });
-        });
 
-        /**
-         * Initial Page Setup
-         */
-        function miSearch_init() {
-            // Setup Button Handler
-            miSearch_reg_btn();
-
-            // Example text for the demo
-            // $(".form-control").val("All people who live in Germany AND ( people who are self-employed OR NOT people who are homeless )");
-            $("#queryinput").val("All people who live in Hamburg");
+            }
         }
 
         /**
@@ -116,12 +138,51 @@ require(['../common'], function () {
                 }
             });
 
+
             $('#btn_clear').click(function () {
                 resultWell.addClass('hidden');
                 brandRow.addClass('center');
                 resultSpinner.removeClass('hidden');
                 results.addClass('hidden');
             });
+
+
+           $("#taginput").keyup(function (event) {
+                if (event.keyCode == 13) {
+                    $("#btn_tag_search").click();
+                }
+            });
+            $('#btn_tag_search').click(function () {
+
+                resetUserTagSearchView();
+
+                SEARCH_TAG_FIX =  $("#taginput").val();
+
+                if(SEARCH_TAG_FIX == "") {
+                    return 0;
+                }
+
+                userData.getAllIds().forEach(function(userId) {
+                    var tagIconElement = $("#results").find('[data-id="'+userId+'"]');
+
+                    retrieveTagsForId(userId,tagIconElement);
+                });
+
+                setTimeout(function() {
+                    var foundIds = userData.getIdsByTag(SEARCH_TAG_FIX);
+
+                    if(foundIds.length > 0) {
+                        markIdWithClassName(foundIds,"tagFound");
+                        showUsersWithTagSearch();                        
+                    } else {
+                        alert("no id found for tag" + SEARCH_TAG_FIX);
+                    }
+
+                }, 1500);
+
+
+            });
+
 
         }
 
@@ -236,6 +297,13 @@ require(['../common'], function () {
         function make_Users() {
             userData.retrieveData(function (response) {
                 var users = response.users;
+
+                if(DEBUG_IMAGE) {
+                    for(i=0; i<= 9; i++) {
+                        users.shift();
+                    }
+                }
+
                 userData.setData(users);
 
                 var results = $('#results');
@@ -243,6 +311,7 @@ require(['../common'], function () {
                 results.empty();
 
                 var universitySpanCount = 1, workcount = 1, placecount = 1;
+
                 while (!users.empty()) {
                     var user = users.shift();
                     var userUrl = 'https://www.facebook.com/' + user.id;
@@ -390,6 +459,31 @@ var userData = {
            }
         }
     },
+    getAllIds: function() {
+        var ids = [];
+        for (var obj in this.data) {
+            if('id' in this.data[obj]) {
+                ids.push(this.data[obj]["id"]);
+            }
+        }
+        return ids;
+    },
+    getIdsByTag: function(searchTag) {
+        var ids = [];
+
+        for (var user in this.data) {
+           var obj = this.data[user];
+           if('tags' in obj && typeof obj["tags"] != 'undefined') {
+               obj["tags"].forEach(function(tag) {
+                    if(tag == searchTag) {
+                        found = true;
+                        ids.push(obj.id)
+                    }
+                });            
+           }
+        }
+        return ids;
+    },
     setTagsById: function (id,tags) {
         var user = this.getUserById(id);
         this.data[user]["tags"] = tags;
@@ -412,3 +506,32 @@ function clone(obj){
     }
     return temp;
 }
+
+        // ids []
+        function markIdWithClassName(ids,className) {
+            if(ids != null && className != null) {
+                ids.forEach(function(id) {
+                    $('#'+id.replace(/\./g, "-")).addClass(className);
+                });
+            }
+        }
+
+
+        function showUsersWithTagSearch() {
+
+            $("#results > .result").hide();
+            $("#results > .tagFound").show();
+            setTimeout(function() {
+                $('#results').isotope();
+            }, 100);
+            
+        }
+
+        function resetUserTagSearchView() {
+
+            $(".result").removeClass("tagFound");
+            $("#results > .result").show();
+            setTimeout(function() {
+                $('#results').isotope();
+            }, 100);
+        }
