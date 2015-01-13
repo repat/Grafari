@@ -108,27 +108,33 @@ require(['../common'], function () {
          * Register Page-Handler
          */
         function miSearch_reg_btn() {
-            var brandRow = $('#brandRow');
-            var resultWell = $('#resultWell');
-            var queryHistory = $('#queryHistory');
-            var resultSpinner = $('#resultSpinner');
-            var tagSearchForm = $('.tag-search-row');
-            var results = $('#results');
-            var formInput = $('#queryinput');
-            var currentQuery = $('#current-query');
-
+            
+        	var $brandRow = $('#brandRow');
+            var $resultWell = $('#resultWell');
+            var $queryHistory = $('#queryHistory');
+            var $resultSpinner = $('#resultSpinner');
+            var $tagSearchForm = $('.tag-search-row');
+            var $results = $('#results');
+            var $formInput = $('#queryinput');
+            var $currentQuery = $('#currentQuery');
+            
             $('#btn_search').click(function () {
-                make_Users();
 
-                var tokens = search._tokenize(formInput.val());
-                currentQuery.empty();
-                currentQuery.append(make_Current_Query(formInput.val()));
+            	// Save new Query in History
+            	queryHistory.add($formInput.val());
+            	updateHistoryBtns();
+                
+            	make_Users();
+
+                var tokens = search._tokenize($formInput.val());
+                $currentQuery.empty();
+                $currentQuery.append(make_Current_Query($formInput.val()));
                 //console.log('Tokenized: ' + JSON.stringify(tokens));
                 //console.log('Tokenized: ' + JSON.stringify(parser.parse(tokens)));
 
-                brandRow.removeClass('center');
-                resultSpinner.removeClass('hidden');
-                tagSearchForm.addClass('hidden');
+                $brandRow.removeClass('center');
+                $resultSpinner.removeClass('hidden');
+                $tagSearchForm.addClass('hidden');
 
             });
 
@@ -140,10 +146,10 @@ require(['../common'], function () {
 
 
             $('#btn_clear').click(function () {
-                resultWell.addClass('hidden');
-                brandRow.addClass('center');
-                resultSpinner.removeClass('hidden');
-                results.addClass('hidden');
+                $resultWell.addClass('hidden');
+                $brandRow.addClass('center');
+                $resultSpinner.removeClass('hidden');
+                $results.addClass('hidden');
             });
 
 
@@ -184,6 +190,141 @@ require(['../common'], function () {
             });
 
 
+
+           $("#taginput").keyup(function (event) {
+                if (event.keyCode == 13) {
+                    $("#btn_tag_search").click();
+                }
+            });
+            $('#btn_tag_search').click(function () {
+
+                resetUserTagSearchView();
+
+                SEARCH_TAG_FIX =  $("#taginput").val();
+
+                if(SEARCH_TAG_FIX == "") {
+                    return 0;
+                }
+
+                userData.getAllIds().forEach(function(userId) {
+                    var tagIconElement = $("#results").find('[data-id="'+userId+'"]');
+
+                    retrieveTagsForId(userId,tagIconElement);
+                });
+
+                setTimeout(function() {
+                    var foundIds = userData.getIdsByTag(SEARCH_TAG_FIX);
+
+                    if(foundIds.length > 0) {
+                        markIdWithClassName(foundIds,"tagFound");
+                        showUsersWithTagSearch();                        
+                    } else {
+                        alert("no id found for tag" + SEARCH_TAG_FIX);
+                    }
+
+                }, 1500);
+
+
+            });
+
+
+        }
+        
+        // History Btn handlers
+
+        var $historyNextBtn = $('#historyNextBtn');
+        var $historyPrevBtn = $('#historyPrevBtn');
+        var $formInput = $('#queryinput');
+        var $currentQuery = $('#currentQuery');
+
+        /**
+         * Update Query-History Buttons
+         */
+        function updateHistoryBtns(){
+        	console.log('updating HistoryBtns');
+        	
+        	if(queryHistory.idx === 0){
+        		
+        		// Current Query is the only Query present in History
+        		if(queryHistory.idx === (queryHistory.history.length-1)){
+                	$historyNextBtn.attr('disabled', 'disabled');
+                	$historyNextBtn.off('click');
+                	
+                	$historyPrevBtn.attr('disabled', 'disabled');
+                	$historyPrevBtn.off('click');
+                
+                // Current Query is the first but not only in History
+                } else if(queryHistory.idx != (queryHistory.history.length-1)){
+                	$historyNextBtn.removeAttr('disabled');
+                	$historyNextBtn.off('click').on('click', function(){
+                		nextQuery();
+                	});
+                	
+                	$historyPrevBtn.attr('disabled', 'disabled');
+                	$historyPrevBtn.off('click');
+                }
+        	} else {
+        		
+        		// Current Query is the last Query present in History
+        		if(queryHistory.idx === (queryHistory.history.length-1)){
+                	$historyNextBtn.attr('disabled', 'disabled');
+                	$historyNextBtn.off('click');
+                	
+                	$historyPrevBtn.removeAttr('disabled');
+                	$historyPrevBtn.off('click').on('click', function(){
+                		previousQuery();
+                	});
+                
+                // Current Query is neither first nor last in History
+                } else if(queryHistory.idx != (queryHistory.history.length-1)){
+                	$historyNextBtn.removeAttr('disabled');
+                	$historyNextBtn.off('click').on('click', function(){
+                		nextQuery();
+                	});
+                	
+                	$historyPrevBtn.removeAttr('disabled');
+                	$historyPrevBtn.off('click').on('click', function(){
+                		previousQuery();
+                	});
+                }
+        	}
+            
+        }
+
+        /**
+         * Select previously called Query in History
+         */
+        function previousQuery(){
+        	console.log('Calling previous Query');
+        	var query = queryHistory.previous();
+        	updateHistoryBtns();
+        	
+        	// Show Query in Search-Field
+        	$formInput.val(query);
+        	
+        	make_Users();
+
+            var tokens = search._tokenize(query);
+            $currentQuery.empty();
+            $currentQuery.append(make_Current_Query(query));
+        }
+
+        /**
+         * Select next called Query in History
+         */
+        function nextQuery(){
+        	console.log('Calling next Query');
+        	var query = queryHistory.next();
+        	updateHistoryBtns();
+        	
+        	// Show Query in Search-Field
+        	$formInput.val(query);
+        	
+        	make_Users();
+
+            var tokens = search._tokenize(query);
+            $currentQuery.empty();
+            $currentQuery.append(make_Current_Query(query));
         }
 
         function init_isotope() {
@@ -197,24 +338,24 @@ require(['../common'], function () {
         }
 
         function make_Current_Query(query) {
-            var queryDivs = '<div class="mainQuery queryText">' + query + '</div><ul class="history">';
+            var queryDivs = '';
             var tokens = search._tokenize(query).reverse();
             var querycounter = 1;
             while (!tokens.empty()) {
                 var cur = tokens.pop();
                 if (typeof cur === "string") {
-                    queryDivs += '<li class="subQuery queryText" data-id=".' + querycounter++ + '">' + cur + '</li>';
+                    queryDivs += '<li class="subQuery active" data-id=".' + querycounter++ + '">' + cur + '<i class="fa fa-times fa-1"></i></li>';
                 } else {
                     if (cur.name === "(") {
-                        queryDivs += '<li><ul class="history">';
+                        queryDivs += '<li class="token">(</li><li><ul class="subQueryList">';
                     } else if (cur.name === ")") {
-                        queryDivs += '</ul></li>';
+                        queryDivs += '</ul></li><li class="token">)</li>';
                     } else {
-                        queryDivs += '<li class="token nav">' + cur.name + '</li>';
+                        queryDivs += '<li class="token">' + cur.name + '</li>';
                     }
                 }
             }
-            queryDivs += '</ul>';
+            queryDivs += '<li class="subQuery tag"><i class="fa fa-plus-circle"> Image Tag</i></li></ul>';
             return queryDivs;
         }
 
@@ -306,9 +447,9 @@ require(['../common'], function () {
 
                 userData.setData(users);
 
-                var results = $('#results');
-                results.isotope('destroy');
-                results.empty();
+                var $results = $('#results');
+                $results.isotope('destroy');
+                $results.empty();
 
                 var universitySpanCount = 1, workcount = 1, placecount = 1;
 
@@ -316,7 +457,7 @@ require(['../common'], function () {
                     var user = users.shift();
                     var userUrl = 'https://www.facebook.com/' + user.id;
                     var userId = user.id.replace(/\./g, "-");
-                    results.append('<div id="' + userId + '" class="result'
+                    $results.append('<div id="' + userId + '" class="result'
                     + ' well userWell"></div>');
                     var userDiv = $('#' + userId);
 
@@ -388,20 +529,19 @@ require(['../common'], function () {
                 }
 
 
-                var brandRow = $('#brandRow');
-                var resultWell = $('#resultWell');
-                var queryHistory = $('#queryHistory');
-                var resultSpinner = $('#resultSpinner');
-                var tagSearchForm = $('.tag-search-row');
-                var results = $('#results');
+                var $brandRow = $('#brandRow');
+                var $resultWell = $('#resultWell');
+                var $queryHistory = $('#query');
+                var $resultSpinner = $('#resultSpinner');
+                var $tagSearchForm = $('.tag-search-row');
+                var $results = $('#results');
 
+                $resultWell.removeClass('hidden');
+                $queryHistory.removeClass('hidden');
 
-                resultWell.removeClass('hidden');
-                queryHistory.removeClass('hidden');
-
-                resultSpinner.addClass('hidden');
-                tagSearchForm.removeClass('hidden');
-                results.removeClass('hidden');
+                $resultSpinner.addClass('hidden');
+                $tagSearchForm.removeClass('hidden');
+                $results.removeClass('hidden');
 
                 var $container = $('#results');
                 // init
@@ -416,6 +556,31 @@ require(['../common'], function () {
         }
     });
 });
+
+// History for all Query made by User
+
+var queryHistory = {
+		history: [],
+		idx: 0,
+		add: function(query){
+			if(typeof query === 'string'){
+				this.history.push(query);
+				this.idx = this.history.length-1;
+			} else throw 'invalid Query to be saved in History';
+		},
+		current: function(){
+			return this.history[this.idx];
+		},
+		next: function(){
+			return this.history[++this.idx];
+		},
+		previous: function(){
+			if(this.idx === 0){
+				return null;
+			} else return this.history[--this.idx];
+		}
+};
+
 
 var userData = {
     data: {},
@@ -507,31 +672,31 @@ function clone(obj){
     return temp;
 }
 
-        // ids []
-        function markIdWithClassName(ids,className) {
-            if(ids != null && className != null) {
-                ids.forEach(function(id) {
-                    $('#'+id.replace(/\./g, "-")).addClass(className);
-                });
-            }
-        }
+// ids []
+function markIdWithClassName(ids,className) {
+    if(ids != null && className != null) {
+        ids.forEach(function(id) {
+            $('#'+id.replace(/\./g, "-")).addClass(className);
+        });
+    }
+}
 
 
-        function showUsersWithTagSearch() {
+function showUsersWithTagSearch() {
 
-            $("#results > .result").hide();
-            $("#results > .tagFound").show();
-            setTimeout(function() {
-                $('#results').isotope();
-            }, 100);
-            
-        }
+    $("#results > .result").hide();
+    $("#results > .tagFound").show();
+    setTimeout(function() {
+        $('#results').isotope();
+    }, 100);
+    
+}
 
-        function resetUserTagSearchView() {
+function resetUserTagSearchView() {
 
-            $(".result").removeClass("tagFound");
-            $("#results > .result").show();
-            setTimeout(function() {
-                $('#results').isotope();
-            }, 100);
-        }
+    $(".result").removeClass("tagFound");
+    $("#results > .result").show();
+    setTimeout(function() {
+        $('#results').isotope();
+    }, 100);
+}

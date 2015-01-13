@@ -98,46 +98,38 @@
 
             </div>
 
-            <div class="row hidden" id="resultSpinner" >
-                <!-- Result Pane -->
-                <div class="well well-lg text-center">
-                    <i class="fa fa-cog fa-spin fa-2x"></i>
-                </div>
-            </div>
-
-
             <div class="row">
-
-                <div id="resultWell" class="col-md-6 hidden">
+            
+                <div id="resultWell" class="col-md-12 hidden">
                     <!-- Result Pane -->
                     <div class="well well-lg">
+                    
+                    	<!-- Query History and SubQuery selection -->
+                    	 <div id="query" class="query text-center">
+		                        <b>Effective Subqueries</b>
+		                        
+		                        <!-- Current Query & SubQueries -->
+		                        <div><ul id="currentQuery" class="subQueryList"></ul></div>
+		                        
+		                        <!-- History -->
+		                        <div id="queryHistory" class="queryHistory">
+		                        	<button id="historyPrevBtn" class="btn btn-default" disabled="disabled" ><i class="fa fa-arrow-left"></i></button>
+		                        	Query History
+		                        	<button id="historyNextBtn" class="btn btn-default" disabled="disabled" ><i class="fa fa-arrow-right"></i></button>
+		                        </div>
+		                </div>
+                        
                         <!-- Loading Query Spinner -->
-                        <!-- <i id="resultSpinner" class="fa fa-cog fa-spin fa-2x"></i> -->
-
-
-
-                        <!-- TESTDATA -->
-                        <div id="results" class="hidden" data-isotope-options='{ "itemSelector": ".item" }'>
-                        </div>
+						<div id="resultSpinner" class="text-center">
+		                    <i class="fa fa-cog fa-spin fa-2x"></i>
+		            	</div>
+					
+                        <!-- USERDATA -->
+                        <div id="results" class="hidden" data-isotope-options='{ "itemSelector": ".item" }'></div>
                     </div>
                 </div>
 
-                <div id="queryHistory" class="col-md-6 hidden">
-                    <div class="well">
-                        <b>Current Query:</b>
-                        <div id="current-query" class="result well queryWell">
-                        </div>
-                        <!--<b>Last Queries:</b>
-                        <div class="result well queryWell">
-                            <div class="mainQuery queryText">All people who live in Poland AND people who are over 20 years old</div>
-                            <ul class="history">
-                                <li class="subQuery queryText">All people who live in Poland</li>
-                                <li class="token nav">AND</li>
-                                <li class="subQuery queryText">people who are over 20 years old</li>
-                            </ul>
-                        </div>-->
-                    </div>
-                </div>
+               
             </div>
 
 

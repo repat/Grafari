@@ -74,35 +74,100 @@ body {
     top: 20px;
 }
 
-.queryWell {
-    background-color: white;
-    height: auto;
-    margin: 10px;
-    transition: background-color 0.4s ease 0s;
+/* Display of Query and History  */
+
+.query {
+    border-bottom: solid 2px lightgrey;
+    padding: 5px;
+    margin-bottom: 20px;
+}
+
+.query > b {
+	margin-bottom: 10px;
+}
+
+.subQueryList {
+	list-style: none outside none;
+	display: inline;
+}
+
+.subQueryList > li {
+	display: inline-block;
+	margin: 3px 4px;
+}
+
+.subQuery {
+	color: lightgrey;
+	display: inline-block;
+	padding-left: 15px;
+	line-height: 30px;
+}
+
+.subQuery > i {
+	opacity: 0;
+	padding: 0 5px;
+	color: lightgrey;
+}
+
+.subQuery > i:hover{
+	color: #333;
+} 
+
+.subQuery:hover {
+	color: #333;
+	cursor: pointer;
+    background-color: #e7e7e7;
+}
+
+.active.subQuery {
+	background-color: white;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	box-shadox: 0 1px 1px rgba(0, 0, 0, 0.075);
+	transition: background-color 0.4s ease 0s;
+	transition: border 0.15s ease 0s;
+	color: #333;
+}
+
+.tag.subQuery {
+	background-color: #428bca;
+	border: 1px solid #357edb;
+	border-radius: 4px;
+	box-shadox: 0 1px 1px rgba(0, 0, 0, 0.075);
+	transition: background-color 0.4s ease 0s;
+	transition: border 0.15s ease 0s;
+	color: #fff;
+	padding: 0 3px;
+}
+
+.tag.subQuery > i {
+	opacity: 1;
+	color: #fff;
+}
+
+.tag.subQuery > i:hover {
+	color: #fff;
+}
+
+.queryHistory {
+	margin: 10px auto;
+	display: inline-block;
+}
+
+.active.subQuery:hover {
+	border: thin solid #aaa;
+}
+
+.active.subQuery > i {
+	opacity: 1;
 }
 
 .mainQuery > .well {
     padding: 5px;
 }
 
-.mainQuery {
-    border-bottom: solid 2px lightgrey;
-    padding: 5px;
-    margin-bottom: 10px;
-}
-
-.mainQuery:hover {
-    cursor: pointer;
-    background-color: #e7e7e7;
-}
-
-.subQuery:hover {
-    cursor: pointer;
-    background-color: #e7e7e7;
-}
-
 .userWell:hover {
-    background-color: #e7e7e7;
+    background-color: #e9e9e9;
 }
 
 .token {
