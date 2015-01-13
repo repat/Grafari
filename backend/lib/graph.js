@@ -127,6 +127,7 @@ function getProfilePicturesFromIds(ids, callback) {
         })
 
         return graph.batch(requests, function(e, r1) {
+            if (e) return callback(e, null)
             r1 = r1.map(function(elem, index) {
                 if (JSON.parse(elem.body).error) {
                     e = JSON.parse(elem.body).error
@@ -139,8 +140,6 @@ function getProfilePicturesFromIds(ids, callback) {
                     "id": ids[index]
                 }
             })
-            if (e)
-                return callback(e, null)
             return callback(null, r1)
         })
     })
