@@ -547,8 +547,7 @@ require(['../common'], function () {
                 // init
                 $container.isotope({
                     // options
-                    itemSelector: '.result',
-                    layoutMode: 'vertical'
+                    itemSelector: '.result'
                 });
 
                 queryToggle.toggle();
