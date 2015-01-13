@@ -13,32 +13,32 @@ require(['../common'], function () {
         // make Isotope a jQuery plugin
         $.bridget('isotope', isotope);
 
-       
+
         console.log('Setting up ...');
         miSearch_init();
-
-        var $container = $('#results');
 
         $('.result').on('click', '.subQuery, .mainQuery', function () {
             $('#queryinput').val($(this).text());
         });
 
         $('.fancybox').fancybox({
-            padding : 0,
-            openEffect  : 'elastic'
+            padding: 0,
+            openEffect: 'elastic'
         });
 
         $('#results').on('click', '.tags-icon', function () {
+            var tagIconElement = $(this);
 
-           var tagIconElement = $(this);
-
-            if(tagIconElement.attr('data-status') == '0'){
-                tagIconElement.attr('data-status','1');
+            if (tagIconElement.attr('data-status') == '0') {
+                tagIconElement.attr('data-status', '1');
 
                 var userId = tagIconElement.attr('data-id');
-                retrieveTagsForId(userId,tagIconElement);
+                retrieveTagsForId(userId, tagIconElement);
             }
-            
+        });
+
+        $(document).on('click', '.subQuery.active', function () {
+            $('#queryinput').val($(this).text());
         });
 
         /**
@@ -53,20 +53,20 @@ require(['../common'], function () {
             $("#queryinput").val("All people who live in Hamburg");
         }
 
-        function retrieveTagsForId(userId,tagIconElement) {
+        function retrieveTagsForId(userId, tagIconElement) {
 
-            if(tagIconElement === null || userId === null) {
+            if (tagIconElement === null || userId === null) {
                 console.log("retrieveTagsForId: MISSING PARAMS");
                 return 0;
-            } 
+            }
 
             console.log("Get tags for id:" + userId);
 
-            if(!userData.getTagsById(userId)) {
+            if (!userData.getTagsById(userId)) {
 
                 tagIconElement.addClass('tags-icon-spinner');
 
-                if(DEBUG_IMAGE){
+                if (DEBUG_IMAGE) {
                     $.ajax({
                         type: "GET",
                         url: "http://localhost:8080/tags/id/" + userId,
@@ -108,8 +108,8 @@ require(['../common'], function () {
          * Register Page-Handler
          */
         function miSearch_reg_btn() {
-            
-        	var $brandRow = $('#brandRow');
+
+            var $brandRow = $('#brandRow');
             var $resultWell = $('#resultWell');
             var $queryHistory = $('#queryHistory');
             var $resultSpinner = $('#resultSpinner');
@@ -117,14 +117,14 @@ require(['../common'], function () {
             var $results = $('#results');
             var $formInput = $('#queryinput');
             var $currentQuery = $('#currentQuery');
-            
+
             $('#btn_search').click(function () {
 
-            	// Save new Query in History
-            	queryHistory.add($formInput.val());
-            	updateHistoryBtns();
-                
-            	make_Users();
+                // Save new Query in History
+                queryHistory.add($formInput.val());
+                updateHistoryBtns();
+
+                make_Users();
 
                 var tokens = search._tokenize($formInput.val());
                 $currentQuery.empty();
@@ -153,7 +153,7 @@ require(['../common'], function () {
             });
 
 
-           $("#taginput").keyup(function (event) {
+            $("#taginput").keyup(function (event) {
                 if (event.keyCode == 13) {
                     $("#btn_tag_search").click();
                 }
@@ -163,25 +163,25 @@ require(['../common'], function () {
                 resetUserTagSearchView();
                 $("#btn_tag_search").removeClass('btn-success').removeClass('btn-danges');
 
-                SEARCH_TAG_FIX =  $("#taginput").val();
+                SEARCH_TAG_FIX = $("#taginput").val();
 
-                if(SEARCH_TAG_FIX == "") {
+                if (SEARCH_TAG_FIX == "") {
                     return 0;
                 }
 
-                userData.getAllIds().forEach(function(userId) {
-                    var tagIconElement = $("#results").find('[data-id="'+userId+'"]');
+                userData.getAllIds().forEach(function (userId) {
+                    var tagIconElement = $("#results").find('[data-id="' + userId + '"]');
 
-                    retrieveTagsForId(userId,tagIconElement);
+                    retrieveTagsForId(userId, tagIconElement);
                 });
 
-                setTimeout(function() {
+                setTimeout(function () {
                     var foundIds = userData.getIdsByTag(SEARCH_TAG_FIX);
 
-                    if(foundIds.length > 0) {
-                        markIdWithClassName(foundIds,"tagFound");
+                    if (foundIds.length > 0) {
+                        markIdWithClassName(foundIds, "tagFound");
                         showUsersWithTagSearch();
-                        $("#btn_tag_search").addClass('btn-success');                        
+                        $("#btn_tag_search").addClass('btn-success');
                     } else {
                         $("#btn_tag_search").addClass('btn-danger');
                     }
@@ -192,7 +192,7 @@ require(['../common'], function () {
             });
 
         }
-        
+
         // History Btn handlers
 
         var $historyNextBtn = $('#historyNextBtn');
@@ -203,69 +203,69 @@ require(['../common'], function () {
         /**
          * Update Query-History Buttons
          */
-        function updateHistoryBtns(){
-        	console.log('updating HistoryBtns');
-        	
-        	if(queryHistory.idx === 0){
-        		
-        		// Current Query is the only Query present in History
-        		if(queryHistory.idx === (queryHistory.history.length-1)){
-                	$historyNextBtn.attr('disabled', 'disabled');
-                	$historyNextBtn.off('click');
-                	
-                	$historyPrevBtn.attr('disabled', 'disabled');
-                	$historyPrevBtn.off('click');
-                
-                // Current Query is the first but not only in History
-                } else if(queryHistory.idx != (queryHistory.history.length-1)){
-                	$historyNextBtn.removeAttr('disabled');
-                	$historyNextBtn.off('click').on('click', function(){
-                		nextQuery();
-                	});
-                	
-                	$historyPrevBtn.attr('disabled', 'disabled');
-                	$historyPrevBtn.off('click');
+        function updateHistoryBtns() {
+            console.log('updating HistoryBtns');
+
+            if (queryHistory.idx === 0) {
+
+                // Current Query is the only Query present in History
+                if (queryHistory.idx === (queryHistory.history.length - 1)) {
+                    $historyNextBtn.attr('disabled', 'disabled');
+                    $historyNextBtn.off('click');
+
+                    $historyPrevBtn.attr('disabled', 'disabled');
+                    $historyPrevBtn.off('click');
+
+                    // Current Query is the first but not only in History
+                } else if (queryHistory.idx != (queryHistory.history.length - 1)) {
+                    $historyNextBtn.removeAttr('disabled');
+                    $historyNextBtn.off('click').on('click', function () {
+                        nextQuery();
+                    });
+
+                    $historyPrevBtn.attr('disabled', 'disabled');
+                    $historyPrevBtn.off('click');
                 }
-        	} else {
-        		
-        		// Current Query is the last Query present in History
-        		if(queryHistory.idx === (queryHistory.history.length-1)){
-                	$historyNextBtn.attr('disabled', 'disabled');
-                	$historyNextBtn.off('click');
-                	
-                	$historyPrevBtn.removeAttr('disabled');
-                	$historyPrevBtn.off('click').on('click', function(){
-                		previousQuery();
-                	});
-                
-                // Current Query is neither first nor last in History
-                } else if(queryHistory.idx != (queryHistory.history.length-1)){
-                	$historyNextBtn.removeAttr('disabled');
-                	$historyNextBtn.off('click').on('click', function(){
-                		nextQuery();
-                	});
-                	
-                	$historyPrevBtn.removeAttr('disabled');
-                	$historyPrevBtn.off('click').on('click', function(){
-                		previousQuery();
-                	});
+            } else {
+
+                // Current Query is the last Query present in History
+                if (queryHistory.idx === (queryHistory.history.length - 1)) {
+                    $historyNextBtn.attr('disabled', 'disabled');
+                    $historyNextBtn.off('click');
+
+                    $historyPrevBtn.removeAttr('disabled');
+                    $historyPrevBtn.off('click').on('click', function () {
+                        previousQuery();
+                    });
+
+                    // Current Query is neither first nor last in History
+                } else if (queryHistory.idx != (queryHistory.history.length - 1)) {
+                    $historyNextBtn.removeAttr('disabled');
+                    $historyNextBtn.off('click').on('click', function () {
+                        nextQuery();
+                    });
+
+                    $historyPrevBtn.removeAttr('disabled');
+                    $historyPrevBtn.off('click').on('click', function () {
+                        previousQuery();
+                    });
                 }
-        	}
-            
+            }
+
         }
 
         /**
          * Select previously called Query in History
          */
-        function previousQuery(){
-        	console.log('Calling previous Query');
-        	var query = queryHistory.previous();
-        	updateHistoryBtns();
-        	
-        	// Show Query in Search-Field
-        	$formInput.val(query);
-        	
-        	make_Users();
+        function previousQuery() {
+            console.log('Calling previous Query');
+            var query = queryHistory.previous();
+            updateHistoryBtns();
+
+            // Show Query in Search-Field
+            $formInput.val(query);
+
+            make_Users();
 
             var tokens = search._tokenize(query);
             $currentQuery.empty();
@@ -275,15 +275,15 @@ require(['../common'], function () {
         /**
          * Select next called Query in History
          */
-        function nextQuery(){
-        	console.log('Calling next Query');
-        	var query = queryHistory.next();
-        	updateHistoryBtns();
-        	
-        	// Show Query in Search-Field
-        	$formInput.val(query);
-        	
-        	make_Users();
+        function nextQuery() {
+            console.log('Calling next Query');
+            var query = queryHistory.next();
+            updateHistoryBtns();
+
+            // Show Query in Search-Field
+            $formInput.val(query);
+
+            make_Users();
 
             var tokens = search._tokenize(query);
             $currentQuery.empty();
@@ -329,15 +329,19 @@ require(['../common'], function () {
                 dataType: "jsonp",
                 success: function (data) {
                     var spanId = "#uni" + universityCount;
-                    var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
-                    if (unescapedUrl) {
-                        if (unescapedUrl.indexOf("facebook.com") >= 0) {
-                            $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + university + '</a>');
-                        } else {
-                            $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + university + '</a>');
-                        }
-                    } else {
+                    if (!data.responseData) {
                         $(spanId).html(university);
+                    } else {
+                        var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
+                        if (unescapedUrl) {
+                            if (unescapedUrl.indexOf("facebook.com") >= 0) {
+                                $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + university + '</a>');
+                            } else {
+                                $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + university + '</a>');
+                            }
+                        } else {
+                            $(spanId).html(university);
+                        }
                     }
                 },
                 error: function (jqXHR, status) {
@@ -353,15 +357,20 @@ require(['../common'], function () {
                 dataType: "jsonp",
                 success: function (data) {
                     var spanId = "#work" + count;
-                    var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
-                    if (unescapedUrl) {
-                        if (unescapedUrl.indexOf("facebook.com") >= 0) {
-                            $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + work + '</a>');
-                        } else {
-                            $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + work + '</a>');
-                        }
-                    } else {
+                    if (!data.responseData) {
+                        console.log("Google search: " + data.responseDetails);
                         $(spanId).html(work);
+                    } else {
+                        var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
+                        if (unescapedUrl) {
+                            if (unescapedUrl.indexOf("facebook.com") >= 0) {
+                                $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + work + '</a>');
+                            } else {
+                                $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + work + '</a>');
+                            }
+                        } else {
+                            $(spanId).html(work);
+                        }
                     }
                 },
                 error: function (jqXHR, status) {
@@ -377,15 +386,19 @@ require(['../common'], function () {
                 dataType: "jsonp",
                 success: function (data) {
                     var spanId = "#place" + count;
-                    var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
-                    if (unescapedUrl) {
-                        if (unescapedUrl.indexOf("facebook.com") >= 0) {
-                            $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + place + '</a>');
-                        } else {
-                            $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + place + '</a>');
-                        }
-                    } else {
+                    if (!data.responseData) {
                         $(spanId).html(place);
+                    } else {
+                        var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
+                        if (unescapedUrl) {
+                            if (unescapedUrl.indexOf("facebook.com") >= 0) {
+                                $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + place + '</a>');
+                            } else {
+                                $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + place + '</a>');
+                            }
+                        } else {
+                            $(spanId).html(place);
+                        }
                     }
                 },
                 error: function (jqXHR, status) {
@@ -402,8 +415,8 @@ require(['../common'], function () {
             userData.retrieveData(function (response) {
                 var users = response.users;
 
-                if(DEBUG_IMAGE) {
-                    for(i=0; i<= 9; i++) {
+                if (DEBUG_IMAGE) {
+                    for (i = 0; i <= 9; i++) {
                         users.shift();
                     }
                 }
@@ -497,7 +510,6 @@ require(['../common'], function () {
                 var $queryHistory = $('#query');
                 var $resultSpinner = $('#resultSpinner');
                 var $tagSearchForm = $('.tag-search-row');
-                var $results = $('#results');
 
                 $resultWell.removeClass('hidden');
                 $queryHistory.removeClass('hidden');
@@ -506,9 +518,8 @@ require(['../common'], function () {
                 $tagSearchForm.removeClass('hidden');
                 $results.removeClass('hidden');
 
-                var $container = $('#results');
                 // init
-                $container.isotope({
+                $results.isotope({
                     // options
                     itemSelector: '.result'
                 });
@@ -522,25 +533,25 @@ require(['../common'], function () {
 // History for all Query made by User
 
 var queryHistory = {
-		history: [],
-		idx: 0,
-		add: function(query){
-			if(typeof query === 'string'){
-				this.history.push(query);
-				this.idx = this.history.length-1;
-			} else throw 'invalid Query to be saved in History';
-		},
-		current: function(){
-			return this.history[this.idx];
-		},
-		next: function(){
-			return this.history[++this.idx];
-		},
-		previous: function(){
-			if(this.idx === 0){
-				return null;
-			} else return this.history[--this.idx];
-		}
+    history: [],
+    idx: 0,
+    add: function (query) {
+        if (typeof query === 'string') {
+            this.history.push(query);
+            this.idx = this.history.length - 1;
+        } else throw 'invalid Query to be saved in History';
+    },
+    current: function () {
+        return this.history[this.idx];
+    },
+    next: function () {
+        return this.history[++this.idx];
+    },
+    previous: function () {
+        if (this.idx === 0) {
+            return null;
+        } else return this.history[--this.idx];
+    }
 };
 
 
@@ -571,74 +582,74 @@ var userData = {
     setData: function (data) {
         this.data = clone(data);
     },
-    getData: function() {
+    getData: function () {
         return this.data;
     },
-    getUserById: function(id) {
+    getUserById: function (id) {
         for (var key in this.data) {
-           var obj = this.data[key];
-           for (var prop in obj) {
-              // important check that this is objects own property 
-              // not from prototype prop inherited
-              if(obj.hasOwnProperty(prop) && obj["id"] == id){
-                return key;
-              }
-           }
+            var obj = this.data[key];
+            for (var prop in obj) {
+                // important check that this is objects own property
+                // not from prototype prop inherited
+                if (obj.hasOwnProperty(prop) && obj["id"] == id) {
+                    return key;
+                }
+            }
         }
     },
-    getAllIds: function() {
+    getAllIds: function () {
         var ids = [];
         for (var obj in this.data) {
-            if('id' in this.data[obj]) {
+            if ('id' in this.data[obj]) {
                 ids.push(this.data[obj]["id"]);
             }
         }
         return ids;
     },
-    getIdsByTag: function(searchTag) {
+    getIdsByTag: function (searchTag) {
         var ids = [];
 
         for (var user in this.data) {
-           var obj = this.data[user];
-           if('tags' in obj && typeof obj["tags"] != 'undefined') {
-               obj["tags"].forEach(function(tag) {
-                    if(tag == searchTag) {
+            var obj = this.data[user];
+            if ('tags' in obj && typeof obj["tags"] != 'undefined') {
+                obj["tags"].forEach(function (tag) {
+                    if (tag == searchTag) {
                         found = true;
                         ids.push(obj.id)
                     }
-                });            
-           }
+                });
+            }
         }
         return ids;
     },
-    setTagsById: function (id,tags) {
+    setTagsById: function (id, tags) {
         var user = this.getUserById(id);
         this.data[user]["tags"] = tags;
     },
-    getTagsById: function(id) {
+    getTagsById: function (id) {
         var user = this.getUserById(id);
         return this.data[user].tags;
     }
 };
 
 //--- Helper funcs ------------------------------
-function clone(obj){
-    if(obj == null || typeof(obj) != 'object'){
+function clone(obj) {
+    if (obj == null || typeof(obj) != 'object') {
         return obj;
     }
 
     var temp = new obj.constructor();
-    for(var key in obj){
+    for (var key in obj) {
         temp[key] = clone(obj[key]);
     }
     return temp;
 }
 
 // ids []
-function markIdWithClassName(ids,className) {
-    if(ids != null && className != null) {
-        ids.forEach(function(id) {
-            $('#'+id.replace(/\./g, "-")).addClass(className);
+function markIdWithClassName(ids, className) {
+    if (ids != null && className != null) {
+        ids.forEach(function (id) {
+            $('#' + id.replace(/\./g, "-")).addClass(className);
         });
     }
 }
@@ -648,17 +659,17 @@ function showUsersWithTagSearch() {
 
     $("#results > .result").hide();
     $("#results > .tagFound").show();
-    setTimeout(function() {
+    setTimeout(function () {
         $('#results').isotope();
     }, 100);
-    
+
 }
 
 function resetUserTagSearchView() {
 
     $(".result").removeClass("tagFound");
     $("#results > .result").show();
-    setTimeout(function() {
+    setTimeout(function () {
         $('#results').isotope();
     }, 100);
 }
