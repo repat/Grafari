@@ -161,6 +161,7 @@ require(['../common'], function () {
             $('#btn_tag_search').click(function () {
 
                 resetUserTagSearchView();
+                $("#btn_tag_search").removeClass('btn-success').removeClass('btn-danges');
 
                 SEARCH_TAG_FIX =  $("#taginput").val();
 
@@ -179,54 +180,16 @@ require(['../common'], function () {
 
                     if(foundIds.length > 0) {
                         markIdWithClassName(foundIds,"tagFound");
-                        showUsersWithTagSearch();                        
+                        showUsersWithTagSearch();
+                        $("#btn_tag_search").addClass('btn-success');                        
                     } else {
-                        alert("no id found for tag" + SEARCH_TAG_FIX);
+                        $("#btn_tag_search").addClass('btn-danger');
                     }
 
                 }, 1500);
 
 
             });
-
-
-
-           $("#taginput").keyup(function (event) {
-                if (event.keyCode == 13) {
-                    $("#btn_tag_search").click();
-                }
-            });
-            $('#btn_tag_search').click(function () {
-
-                resetUserTagSearchView();
-
-                SEARCH_TAG_FIX =  $("#taginput").val();
-
-                if(SEARCH_TAG_FIX == "") {
-                    return 0;
-                }
-
-                userData.getAllIds().forEach(function(userId) {
-                    var tagIconElement = $("#results").find('[data-id="'+userId+'"]');
-
-                    retrieveTagsForId(userId,tagIconElement);
-                });
-
-                setTimeout(function() {
-                    var foundIds = userData.getIdsByTag(SEARCH_TAG_FIX);
-
-                    if(foundIds.length > 0) {
-                        markIdWithClassName(foundIds,"tagFound");
-                        showUsersWithTagSearch();                        
-                    } else {
-                        alert("no id found for tag" + SEARCH_TAG_FIX);
-                    }
-
-                }, 1500);
-
-
-            });
-
 
         }
         
