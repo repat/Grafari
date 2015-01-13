@@ -69,7 +69,8 @@ require(['../common'], function () {
                 if (DEBUG_IMAGE) {
                     $.ajax({
                         type: "GET",
-                        url: "http://localhost:8080/tags/id/" + userId,
+                        url: "http://minf-mip-g2.informatik.haw-hamburg.de:80/tags/id/" + userId,
+                        //url: "http://141.22.69.63:8080/tags/id/" + userId,
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
                         success: function (data, status, jqXHR) {
@@ -120,24 +121,24 @@ require(['../common'], function () {
 
             $('#btn_search').click(function () {
 
-                // Save new Query in History
-                queryHistory.add($formInput.val());
-                updateHistoryBtns();
-
-                make_Users();
-
+            	// Save new Query in History
+            	queryHistory.add($formInput.val());
+            	updateHistoryBtns();
+                
                 var tokens = search._tokenize($formInput.val());
                 $currentQuery.empty();
                 $currentQuery.append(make_Current_Query($formInput.val()));
-                //console.log('Tokenized: ' + JSON.stringify(tokens));
-                //console.log('Tokenized: ' + JSON.stringify(parser.parse(tokens)));
-
+                registerSubQueryHandlers();
+                
                 $brandRow.removeClass('center');
                 $resultSpinner.removeClass('hidden');
                 $tagSearchForm.addClass('hidden');
-
+                //console.log('Tokenized: ' + JSON.stringify(tokens));
+                //console.log('Tokenized: ' + JSON.stringify(parser.parse(tokens)));
+                
+                make_Users();
             });
-
+            
             $("#queryinput").keyup(function (event) {
                 if (event.keyCode == 13) {
                     $("#btn_search").click();
@@ -270,6 +271,7 @@ require(['../common'], function () {
             var tokens = search._tokenize(query);
             $currentQuery.empty();
             $currentQuery.append(make_Current_Query(query));
+            registerSubQueryHandlers();
         }
 
         /**
@@ -288,6 +290,7 @@ require(['../common'], function () {
             var tokens = search._tokenize(query);
             $currentQuery.empty();
             $currentQuery.append(make_Current_Query(query));
+            registerSubQueryHandlers();
         }
 
         function init_isotope() {
@@ -318,8 +321,17 @@ require(['../common'], function () {
                     }
                 }
             }
-            queryDivs += '<li class="subQuery tag"><i class="fa fa-plus-circle"> Image Tag</i></li></ul>';
+            queryDivs += '<li id="addTagBtn" class="subQuery tag"><i class="fa fa-plus-circle"> Image Tag</i></li></ul>';
             return queryDivs;
+        }
+        
+        function registerSubQueryHandlers(){
+        	console.log('registering SubQuery Handlers')
+        	
+        	$('.subQuery').off('click').on('click', function(){
+        		console.log($(this).attr('data-id'));
+        	});
+        
         }
 
         var addUniLink = function (university, universityCount) {
@@ -562,7 +574,8 @@ var userData = {
         var searchEncoded = searchString.replace(/ /g, "%20")
         $.ajax({
             type: "GET",
-            url: "http://localhost:8080/search/" + searchEncoded,
+            //url: "http://141.22.69.63:8080/search/" + searchEncoded,
+            url: "http://minf-mip-g2.informatik.haw-hamburg.de:80/search/" + searchEncoded,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data, status, jqXHR) {
