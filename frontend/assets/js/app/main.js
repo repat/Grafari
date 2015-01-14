@@ -608,6 +608,7 @@ var userData = {
 
             },
             error: function (jqXHR, status) {
+            	alert('Unknown Error occured!');
                 console.log("\n\n\n Token erneuert? \n\n\n");
                 console.log('-->error', jqXHR, status)
             }
@@ -733,17 +734,21 @@ function updateResults(){
 		}
 	});
 	
+	//TODO Check if Tags are active
+	// if (tagsActive){
+	// 	showUsersWithTagSearch;
+	// } else {
 	$('#results > .result').hide();
 	$('#results > .result.activeSubQuery').show();
+	resetUsers();
+	// }
 }
 
 function showUsersWithTagSearch() {
 
     $("#results > .result").hide();
     $("#results > .tagFound.activeSubQuery").show();
-    setTimeout(function () {
-        $('#results').isotope();
-    }, 100);
+    resetUsers();
 
 }
 
@@ -751,7 +756,14 @@ function resetUserTagSearchView() {
 
     $(".result").removeClass("tagFound");
     $("#results > .result.activeSubQuery").show();
-    setTimeout(function () {
-        $('#results').isotope();
-    }, 100);
+    resetUsers();
+}
+
+/**
+ * Trigger Isotop-Reset
+ */
+function resetUsers(){
+	 setTimeout(function () {
+	        $('#results').isotope();
+	    }, 100);
 }
