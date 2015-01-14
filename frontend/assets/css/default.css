@@ -140,6 +140,14 @@ body {
 	padding: 0 3px;
 }
 
+.tag.subQuery:hover {
+	background-color: #286090;
+    border-color: #204d74;
+    color: #fff;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.125) inset;
+    outline: 0 none;
+}
+
 .tag.subQuery > i {
 	opacity: 1;
 	color: #fff;
