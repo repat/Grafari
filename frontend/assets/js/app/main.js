@@ -140,7 +140,10 @@ require(['../common'], function () {
                 $brandRow.removeClass('center');
                 $resultSpinner.removeClass('hidden');
                 
-                make_Users();
+                setTimeout(function () {
+                	 make_Users();
+        	    }, 500);
+               
             });
             
             $("#queryinput").keyup(function (event) {
@@ -314,7 +317,8 @@ require(['../common'], function () {
             while (!tokens.empty()) {
                 var cur = tokens.pop();
                 if (typeof cur === "string") {
-                    queryDivs += '<li class="subQuery active" data-id="' + querycounter++ + '">' + cur + '<i class="fa fa-times fa-1"></i></li>';
+                    queryDivs += '<li class="subQuery active" data-id="%">' + cur + '<i class="fa fa-times fa-1"></i></li>';
+                    querycounter++;
                 } else {
                     if (cur.name === "(") {
                         queryDivs += '<li class="token">(</li><li><ul class="subQueryList">';
@@ -327,6 +331,13 @@ require(['../common'], function () {
             }
             queryDivs += '<li id="addTagBtn" class="subQuery tag"><i class="fa fa-plus-circle"> Image Tag</i></li><li id="tagToken" class="token hidden">AND</li></ul>';
             
+            // Replace placeholders in Subqueries String with actual SubQuery-IDs
+            for(var idx=querycounter; idx>0; idx--){
+            	console.log(idx);
+            	queryDivs = queryDivs.replace('%', idx-1);
+            }
+
+            // Hide TagSearch Form
             $('#tagSearch').addClass('hidden');
             return queryDivs;
         }
@@ -391,6 +402,16 @@ require(['../common'], function () {
         }
 
         function make_Users() {
+        	
+        	var $brandRow = $('#brandRow');
+            var $resultWell = $('#resultWell');
+            var $queryHistory = $('#query');
+            var $resultSpinner = $('#resultSpinner');
+
+            $resultWell.removeClass('hidden');
+            $queryHistory.removeClass('hidden');
+
+        	
             userData.retrieveData(function (response) {
                 var users = response.users;
                 
@@ -486,14 +507,6 @@ require(['../common'], function () {
 
                 }
 
-
-                var $brandRow = $('#brandRow');
-                var $resultWell = $('#resultWell');
-                var $queryHistory = $('#query');
-                var $resultSpinner = $('#resultSpinner');
-
-                $resultWell.removeClass('hidden');
-                $queryHistory.removeClass('hidden');
 
                 $resultSpinner.addClass('hidden');
                 $results.removeClass('hidden');
@@ -666,9 +679,9 @@ function updateResults(){
 		var setVisible = false;
 		
 		for(var idx=0; idx<subQueries.length; idx++){
-			if(inactiveSubQueries[subQueries[idx]] == null){
+			if(!inactiveSubQueries[subQueries[idx]]){
 				setVisible = true;
-				return;
+				break;
 			}
 		}
 		
