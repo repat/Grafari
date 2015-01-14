@@ -40,6 +40,14 @@ require(['../common'], function () {
         $(document).on('click', '.subQuery.active', function () {
             $('#queryinput').val($(this).text());
         });
+        
+        $(document).on('click', '.subQuery', function () {
+            if(!$(this).hasClass('active')){
+            	$(this).addClass('active');
+            	var subQueryID = $(this).attr('data-id');
+            	showSubQuery(subQueryID);
+            }
+        });
 
         /**
          * Initial Page Setup
@@ -306,11 +314,11 @@ require(['../common'], function () {
         function make_Current_Query(query) {
             var queryDivs = '';
             var tokens = search._tokenize(query).reverse();
-            var querycounter = 1;
+            var querycounter = 0;
             while (!tokens.empty()) {
                 var cur = tokens.pop();
                 if (typeof cur === "string") {
-                    queryDivs += '<li class="subQuery active" data-id=".' + querycounter++ + '">' + cur + '<i class="fa fa-times fa-1"></i></li>';
+                    queryDivs += '<li class="subQuery active" data-id="' + querycounter++ + '">' + cur + '<i class="fa fa-times fa-1"></i></li>';
                 } else {
                     if (cur.name === "(") {
                         queryDivs += '<li class="token">(</li><li><ul class="subQueryList">';
@@ -328,8 +336,18 @@ require(['../common'], function () {
         function registerSubQueryHandlers(){
         	console.log('registering SubQuery Handlers')
         	
-        	$('.subQuery').off('click').on('click', function(){
-        		console.log($(this).attr('data-id'));
+        	$('.subQuery > i').off('click').on('click', function(e){
+        		var isActive = !$(this).parent('li').hasClass('active');
+        		var subQueryID = $(this).parent('li').attr('data-id');
+        		console.log('Toggle SubQuery with ID: '+subQueryID+' isActive='+isActive);
+        		
+        		// Toogle Active Class
+        		if(!isActive){
+        			$(this).parent('li').removeClass('active');
+            		hideSubQuery(subQueryID);
+            		
+            		e.stopPropagation();
+        		}
         	});
         
         }
@@ -426,6 +444,8 @@ require(['../common'], function () {
         function make_Users() {
             userData.retrieveData(function (response) {
                 var users = response.users;
+                
+                inativeSubQueries = {};
 
                 if (DEBUG_IMAGE) {
                     for (i = 0; i <= 9; i++) {
@@ -434,7 +454,7 @@ require(['../common'], function () {
                 }
 
                 userData.setData(users);
-
+                
                 var $results = $('#results');
                 $results.isotope('destroy');
                 $results.empty();
@@ -445,8 +465,9 @@ require(['../common'], function () {
                     var user = users.shift();
                     var userUrl = 'https://www.facebook.com/' + user.id;
                     var userId = user.id.replace(/\./g, "-");
+                    var subQueryIds = user.subqueries;
                     $results.append('<div id="' + userId + '" class="result'
-                    + ' well userWell"></div>');
+                    + ' well userWell" data-id="'+subQueryIds+'"></div>');
                     var userDiv = $('#' + userId);
 
                     //userDiv.append('<a class="media-left" href="#">');
@@ -667,11 +688,59 @@ function markIdWithClassName(ids, className) {
     }
 }
 
+var inactiveSubQueries = {};
+
+function showSubQuery(id){
+	inactiveSubQueries[id] = null;
+	
+	updateResults();
+}
+
+function hideSubQuery(id){
+	inactiveSubQueries[id] = true;
+	
+	updateResults();
+}
+
+function updateResults(){
+	$('#results > .result').each(function(){
+		var userId = $(this).attr('id').replace(/-/g, '.');
+		
+		var user = userData.getData()[userData.getUserById(userId)];
+		
+		if(!user){
+			throw 'User not found';
+		}
+		
+		var subQueries = user.subqueries;
+		console.log('checking Result with subqueries: ', subQueries, inactiveSubQueries);
+		
+		var setVisible = false;
+		
+		for(var idx=0; idx<subQueries.length; idx++){
+			if(inactiveSubQueries[subQueries[idx]] == null){
+				setVisible = true;
+				return;
+			}
+		}
+		
+		if(setVisible){
+			console.log('showing');
+			$(this).addClass('activeSubQuery');
+		} else {
+			console.log('hiding')
+			$(this).removeClass('activeSubQuery');
+		}
+	});
+	
+	$('#results > .result').hide();
+	$('#results > .result.activeSubQuery').show();
+}
 
 function showUsersWithTagSearch() {
 
     $("#results > .result").hide();
-    $("#results > .tagFound").show();
+    $("#results > .tagFound.activeSubQuery").show();
     setTimeout(function () {
         $('#results').isotope();
     }, 100);
@@ -681,7 +750,7 @@ function showUsersWithTagSearch() {
 function resetUserTagSearchView() {
 
     $(".result").removeClass("tagFound");
-    $("#results > .result").show();
+    $("#results > .result.activeSubQuery").show();
     setTimeout(function () {
         $('#results').isotope();
     }, 100);
