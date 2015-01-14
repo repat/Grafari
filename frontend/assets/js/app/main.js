@@ -358,82 +358,25 @@ require(['../common'], function () {
         	});
         }
 
-        var addUniLink = function (university, universityCount) {
+        var addLink = function (elementId, element, count) {
             $.ajax({
                 type: "GET",
-                url: "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=" + university.replace(/ /g, "+"),
+                url: "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=" + element.replace(/ /g, "+"),
                 dataType: "jsonp",
                 success: function (data) {
-                    var spanId = "#uni" + universityCount;
+                    var spanId = elementId + count;
                     if (!data.responseData) {
-                        $(spanId).html(university);
+                        $(spanId).html(element);
                     } else {
                         var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
                         if (unescapedUrl) {
                             if (unescapedUrl.indexOf("facebook.com") >= 0) {
-                                $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + university + '</a>');
+                                $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + element + '</a>');
                             } else {
-                                $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + university + '</a>');
+                                $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + element + '</a>');
                             }
                         } else {
-                            $(spanId).html(university);
-                        }
-                    }
-                },
-                error: function (jqXHR, status) {
-                    console.log('-->2error', jqXHR, status)
-                }
-            });
-        }
-
-        var addWorkLink = function (work, count) {
-            $.ajax({
-                type: "GET",
-                url: "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=" + work.replace(/ /g, "+"),
-                dataType: "jsonp",
-                success: function (data) {
-                    var spanId = "#work" + count;
-                    if (!data.responseData) {
-                        console.log("Google search: " + data.responseDetails);
-                        $(spanId).html(work);
-                    } else {
-                        var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
-                        if (unescapedUrl) {
-                            if (unescapedUrl.indexOf("facebook.com") >= 0) {
-                                $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + work + '</a>');
-                            } else {
-                                $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + work + '</a>');
-                            }
-                        } else {
-                            $(spanId).html(work);
-                        }
-                    }
-                },
-                error: function (jqXHR, status) {
-                    console.log('-->2error', jqXHR, status)
-                }
-            });
-        }
-
-        var addPlaceLink = function (place, count) {
-            $.ajax({
-                type: "GET",
-                url: "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=" + place.replace(/ /g, "+"),
-                dataType: "jsonp",
-                success: function (data) {
-                    var spanId = "#place" + count;
-                    if (!data.responseData) {
-                        $(spanId).html(place);
-                    } else {
-                        var unescapedUrl = data.responseData.results[0].unescapedUrl.toString();
-                        if (unescapedUrl) {
-                            if (unescapedUrl.indexOf("facebook.com") >= 0) {
-                                $(spanId).html('<a class="fancybox" href="' + unescapedUrl + '">' + place + '</a>');
-                            } else {
-                                $(spanId).html('<a class="fancybox" data-fancybox-type="iframe" href="' + unescapedUrl + '">' + place + '</a>');
-                            }
-                        } else {
-                            $(spanId).html(place);
+                            $(spanId).html(element);
                         }
                     }
                 },
@@ -509,7 +452,7 @@ require(['../common'], function () {
                             }
                         } else {
                             var workText = 'works at <span id="work' + workcount + '"></span>';
-                            addWorkLink(user.employer, workcount);
+                            addLink("#work", user.employer, workcount);
                             workcount++;
                             infotext += createInfoElement(workText);
                         }
@@ -518,14 +461,14 @@ require(['../common'], function () {
                         var studieText = 'studies ' + user.studies;
                         if (user.hasOwnProperty("university")) {
                             studieText += ' at ' + '<span id="uni' + universitySpanCount + '"></span>';
-                            addUniLink(user.university, universitySpanCount);
+                            addLink("#uni", user.university, universitySpanCount);
                             universitySpanCount++;
                         }
                         infotext += createInfoElement(studieText);
                     }
                     if (user.hasOwnProperty("lives")) {
                         var placeText = 'lives in <span id="place' + placecount + '"></span>';
-                        addPlaceLink(user.lives, placecount);
+                        addLink("#place", user.lives, placecount);
                         placecount++;
                         infotext += createInfoElement(placeText);
                     }
