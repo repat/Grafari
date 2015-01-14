@@ -100,7 +100,7 @@ body {
 	color: lightgrey;
 	display: inline-block;
 	padding-left: 15px;
-	line-height: 30px;
+	line-height: 31px;
 }
 
 .subQuery > i {
@@ -147,6 +147,12 @@ body {
 
 .tag.subQuery > i:hover {
 	color: #fff;
+}
+
+form.tagForm {
+	margin: 0;
+	display: inline;
+	padding: 0 3px;
 }
 
 .queryHistory {

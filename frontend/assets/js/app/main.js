@@ -122,7 +122,6 @@ require(['../common'], function () {
             var $resultWell = $('#resultWell');
             var $queryHistory = $('#queryHistory');
             var $resultSpinner = $('#resultSpinner');
-            var $tagSearchForm = $('.tag-search-row');
             var $results = $('#results');
             var $formInput = $('#queryinput');
             var $currentQuery = $('#currentQuery');
@@ -140,9 +139,6 @@ require(['../common'], function () {
                 
                 $brandRow.removeClass('center');
                 $resultSpinner.removeClass('hidden');
-                $tagSearchForm.addClass('hidden');
-                //console.log('Tokenized: ' + JSON.stringify(tokens));
-                //console.log('Tokenized: ' + JSON.stringify(parser.parse(tokens)));
                 
                 make_Users();
             });
@@ -329,7 +325,9 @@ require(['../common'], function () {
                     }
                 }
             }
-            queryDivs += '<li id="addTagBtn" class="subQuery tag"><i class="fa fa-plus-circle"> Image Tag</i></li></ul>';
+            queryDivs += '<li id="addTagBtn" class="subQuery tag"><i class="fa fa-plus-circle"> Image Tag</i></li><li id="tagToken" class="token hidden">AND</li></ul>';
+            
+            $('#tagSearch').addClass('hidden');
             return queryDivs;
         }
         
@@ -350,6 +348,14 @@ require(['../common'], function () {
         		}
         	});
         
+        	
+        	$('#addTagBtn').off('click').on('click', function(e){
+        		$(this).addClass('hidden');
+        		$('#tagToken').removeClass('hidden');
+        		$('#tagSearch').removeClass('hidden');
+        		
+        		e.stopPropagation();
+        	});
         }
 
         var addUniLink = function (university, universityCount) {
@@ -542,13 +548,11 @@ require(['../common'], function () {
                 var $resultWell = $('#resultWell');
                 var $queryHistory = $('#query');
                 var $resultSpinner = $('#resultSpinner');
-                var $tagSearchForm = $('.tag-search-row');
 
                 $resultWell.removeClass('hidden');
                 $queryHistory.removeClass('hidden');
 
                 $resultSpinner.addClass('hidden');
-                $tagSearchForm.removeClass('hidden');
                 $results.removeClass('hidden');
 
                 // init

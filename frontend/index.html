@@ -97,7 +97,19 @@
 		                        <b>Effective Subqueries</b>
 		                        
 		                        <!-- Current Query & SubQueries -->
-		                        <div><ul id="currentQuery" class="subQueryList"></ul></div>
+		                        <div><ul id="currentQuery" class="subQueryList"></ul>
+		                        
+			                         <!-- Tag Search Form -->
+			                        <form id="tagSearch" class="tagForm navbar-form hidden">
+				                        <div class="input-group" >
+				                            <input type="text" id="taginput" class="form-control" placeholder="Type tag ..." autofocus="autofocus">
+				                            <div class="input-group-btn">
+				                                <button id="btn_tag_search" type="button" class="btn btn-primary">Tag search</button>
+				                            </div>
+				                        </div>
+			                        </form>
+			                    
+			                    </div>
 		                        
 		                        <!-- History -->
 		                        <div id="queryHistory" class="queryHistory">
@@ -106,17 +118,6 @@
 		                        	<button id="historyNextBtn" class="btn btn-default" disabled="disabled" ><i class="fa fa-arrow-right"></i></button>
 		                        </div>
 		                        
-		                         <!-- Tag Search Form -->
-				                <div style="display: none;" class="row tag-search-row hidden">
-				                    <div id="tagSearchForm" class="trans">
-				                        <div class="input-group">
-				                            <input type="text" id="taginput" class="form-control" placeholder="Type tag ..." autofocus="autofocus">
-				                            <div class="input-group-btn">
-				                                <button id="btn_tag_search" type="button" class="btn btn-primary">Tag search</button>
-				                            </div>
-				                        </div>
-				                    </div>
-				                </div>
 		                </div>
                         
                         <!-- Loading Query Spinner -->
