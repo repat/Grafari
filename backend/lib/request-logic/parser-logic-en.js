@@ -181,6 +181,8 @@ function Condition(tokens) {
             tokens.is('are', 'divorced') ||
             tokens.is('are', 'dating'))
         return CondRelationship(tokens)
+    if (tokens.is('are', 'from'))
+        return CondFrom(tokens)
     if (tokens.is('are'))
         return CondAgeEqual(tokens)
 

@@ -28,7 +28,7 @@ var Requests = require("./lib/request-logic")
 //var input = 'All people who speak German'
 //var input = 'All people who lived in Germany AND who worked at "IBM" AND were born in 1990'
 //var input = 'All men who study at "HAW Hamburg"'
-var input = 'All women who (are in an open relationship OR are single)'
+//var input = 'All women who (are in an open relationship OR are single)'
 //var input = 'All people who are living in Germany';
 //var input = 'All women who are under 20 years old'
 //var input = 'All women who ( are younger than 20 OR are older than 20 OR are under 10 years old)'
@@ -37,6 +37,8 @@ var input = 'All women who (are in an open relationship OR are single)'
 //var input = 'women who like "Justin Bieber" AND are under 20 years old AND live in "Hamburg, Germany"';
 //var input = 'All people who live in Germany AND (are under 23 years old OR are older than 17) AND (like "Who Am I" OR are named "Bob")';
 //var input = 'People who (like A OR like B OR (like C AND (like D OR like E)))'; //Um nachzuvollziehen, wie Gruppen aufgelöst werden
+//var input = 'All people who are from Germany'
+var input = 'All women who live in Germany AND (are from Germany OR are from France) AND (are single OR (are divorced AND are dating)) AND are between 25 and 35 years old'
 
 console.log("Input:\n" + input + "\n");
 
@@ -58,9 +60,12 @@ console.log("Flattened Parse-Tree:\n" + parseTree.toString() + "\n");
  */
 Requests.translateTree(parseTree, function (err, requestList) {
     console.log("Resolved into following requests:")
-    requestList.forEach(function (request) {
+    if (err)
+      console.log("translateTree failed with an error\n" + JSON.stringify(err))
+    else
+      requestList.forEach(function (request) {
         console.log(request)
-    })
+      })
     process.nextTick(function () {
         process.exit()
     })
