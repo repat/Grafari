@@ -4,7 +4,11 @@
  */
 
 var SEARCH_TAG_FIX = "";
-var DEBUG_IMAGE = false;
+
+var SERVER_URL = "http://localhost:8080/";
+//var SERVER_URL = "http://minf-mip-g2.informatik.haw-hamburg.de:80/"; 
+
+var DEBUG_IMAGE = true;
 
 require(['../common'], function () {
 
@@ -43,9 +47,9 @@ require(['../common'], function () {
         
         $(document).on('click', '.subQuery', function () {
             if(!$(this).hasClass('active')){
-            	$(this).addClass('active');
-            	var subQueryID = $(this).attr('data-id');
-            	showSubQuery(subQueryID);
+                $(this).addClass('active');
+                var subQueryID = $(this).attr('data-id');
+                showSubQuery(subQueryID);
             }
         });
 
@@ -74,10 +78,10 @@ require(['../common'], function () {
 
                 tagIconElement.addClass('tags-icon-spinner');
 
-                if (DEBUG_IMAGE) {
+                // if (DEBUG_IMAGE) {
                     $.ajax({
                         type: "GET",
-                        url: "http://minf-mip-g2.informatik.haw-hamburg.de:80/tags/id/" + userId,
+                        url: SERVER_URL + "tags/id/" + userId,
                         //url: "http://141.22.69.63:8080/tags/id/" + userId,
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
@@ -106,9 +110,9 @@ require(['../common'], function () {
                             tagIconElement.removeClass('tags-icon-spinner');
                         }
                     });
-                } else {
-                    console.log("Image search not active! set DEBUG_IMAGE to true");
-                }
+                // } else {
+                //     console.log("Image search not active! set DEBUG_IMAGE to true");
+                // }
 
             }
         }
@@ -128,9 +132,9 @@ require(['../common'], function () {
 
             $('#btn_search').click(function () {
 
-            	// Save new Query in History
-            	queryHistory.add($formInput.val());
-            	updateHistoryBtns();
+                // Save new Query in History
+                queryHistory.add($formInput.val());
+                updateHistoryBtns();
                 
                 var tokens = search._tokenize($formInput.val());
                 $currentQuery.empty();
@@ -141,8 +145,8 @@ require(['../common'], function () {
                 $resultSpinner.removeClass('hidden');
                 
                 setTimeout(function () {
-                	 make_Users();
-        	    }, 500);
+                     make_Users();
+                }, 1500);
                
             });
             
@@ -333,8 +337,8 @@ require(['../common'], function () {
             
             // Replace placeholders in Subqueries String with actual SubQuery-IDs
             for(var idx=querycounter; idx>0; idx--){
-            	console.log(idx);
-            	queryDivs = queryDivs.replace('%', idx-1);
+                console.log(idx);
+                queryDivs = queryDivs.replace('%', idx-1);
             }
 
             // Hide TagSearch Form
@@ -343,30 +347,30 @@ require(['../common'], function () {
         }
         
         function registerSubQueryHandlers(){
-        	console.log('registering SubQuery Handlers')
-        	
-        	$('.subQuery > i').off('click').on('click', function(e){
-        		var isActive = !$(this).parent('li').hasClass('active');
-        		var subQueryID = $(this).parent('li').attr('data-id');
-        		console.log('Toggle SubQuery with ID: '+subQueryID+' isActive='+isActive);
-        		
-        		// Toogle Active Class
-        		if(!isActive){
-        			$(this).parent('li').removeClass('active');
-            		hideSubQuery(subQueryID);
-            		
-            		e.stopPropagation();
-        		}
-        	});
+            console.log('registering SubQuery Handlers')
+            
+            $('.subQuery > i').off('click').on('click', function(e){
+                var isActive = !$(this).parent('li').hasClass('active');
+                var subQueryID = $(this).parent('li').attr('data-id');
+                console.log('Toggle SubQuery with ID: '+subQueryID+' isActive='+isActive);
+                
+                // Toogle Active Class
+                if(!isActive){
+                    $(this).parent('li').removeClass('active');
+                    hideSubQuery(subQueryID);
+                    
+                    e.stopPropagation();
+                }
+            });
         
-        	
-        	$('#addTagBtn').off('click').on('click', function(e){
-        		$(this).addClass('hidden');
-        		$('#tagToken').removeClass('hidden');
-        		$('#tagSearch').removeClass('hidden');
-        		
-        		e.stopPropagation();
-        	});
+            
+            $('#addTagBtn').off('click').on('click', function(e){
+                $(this).addClass('hidden');
+                $('#tagToken').removeClass('hidden');
+                $('#tagSearch').removeClass('hidden');
+                
+                e.stopPropagation();
+            });
         }
 
         var addLink = function (elementId, element, count) {
@@ -402,8 +406,8 @@ require(['../common'], function () {
         }
 
         function make_Users() {
-        	
-        	var $brandRow = $('#brandRow');
+            
+            var $brandRow = $('#brandRow');
             var $resultWell = $('#resultWell');
             var $queryHistory = $('#query');
             var $resultSpinner = $('#resultSpinner');
@@ -411,17 +415,17 @@ require(['../common'], function () {
             $resultWell.removeClass('hidden');
             $queryHistory.removeClass('hidden');
 
-        	
+            
             userData.retrieveData(function (response) {
                 var users = response.users;
                 
                 inativeSubQueries = {};
 
-                if (DEBUG_IMAGE) {
-                    for (i = 0; i <= 9; i++) {
-                        users.shift();
-                    }
-                }
+                // if (DEBUG_IMAGE) {
+                //     for (i = 0; i <= 9; i++) {
+                //         users.shift();
+                //     }
+                // }
 
                 userData.setData(users);
                 
@@ -556,7 +560,7 @@ var userData = {
         $.ajax({
             type: "GET",
             //url: "http://141.22.69.63:8080/search/" + searchEncoded,
-            url: "http://minf-mip-g2.informatik.haw-hamburg.de:80/search/" + searchEncoded,
+            url: SERVER_URL + "search/" + searchEncoded,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data, status, jqXHR) {
@@ -568,7 +572,7 @@ var userData = {
 
             },
             error: function (jqXHR, status) {
-            	alert('Unknown Error occured!');
+                alert('Unknown Error occured!');
                 console.log("\n\n\n Token erneuert? \n\n\n");
                 console.log('-->error', jqXHR, status)
             }
@@ -652,62 +656,63 @@ function markIdWithClassName(ids, className) {
 var inactiveSubQueries = {};
 
 function showSubQuery(id){
-	inactiveSubQueries[id] = null;
-	
-	updateResults();
+    inactiveSubQueries[id] = null;
+    
+    updateResults();
 }
 
 function hideSubQuery(id){
-	inactiveSubQueries[id] = true;
-	
-	updateResults();
+    inactiveSubQueries[id] = true;
+    
+    updateResults();
 }
 
 function updateResults(){
-	$('#results > .result').each(function(){
-		var userId = $(this).attr('id').replace(/-/g, '.');
-		
-		var user = userData.getData()[userData.getUserById(userId)];
-		
-		if(!user){
-			throw 'User not found';
-		}
-		
-		var subQueries = user.subqueries;
-		console.log('checking Result with subqueries: ', subQueries, inactiveSubQueries);
-		
-		var setVisible = false;
-		
-		for(var idx=0; idx<subQueries.length; idx++){
-			if(!inactiveSubQueries[subQueries[idx]]){
-				setVisible = true;
-				break;
-			}
-		}
-		
-		if(setVisible){
-			console.log('showing');
-			$(this).addClass('activeSubQuery');
-		} else {
-			console.log('hiding')
-			$(this).removeClass('activeSubQuery');
-		}
-	});
-	
-	//TODO Check if Tags are active
-	// if (tagsActive){
-	// 	showUsersWithTagSearch;
-	// } else {
-	$('#results > .result').hide();
-	$('#results > .result.activeSubQuery').show();
-	resetUsers();
-	// }
+    $('#results > .result').each(function(){
+        var userId = $(this).attr('id').replace(/-/g, '.');
+        
+        var user = userData.getData()[userData.getUserById(userId)];
+        
+        if(!user){
+            throw 'User not found';
+        }
+        
+        var subQueries = user.subqueries;
+        console.log('checking Result with subqueries: ', subQueries, inactiveSubQueries);
+        
+        var setVisible = false;
+        
+        for(var idx=0; idx<subQueries.length; idx++){
+            if(!inactiveSubQueries[subQueries[idx]]){
+                setVisible = true;
+                break;
+            }
+        }
+        
+        if(setVisible){
+            console.log('showing');
+            $(this).addClass('activeSubQuery');
+        } else {
+            console.log('hiding')
+            $(this).removeClass('activeSubQuery');
+        }
+    });
+    
+    //TODO Check if Tags are active
+    // if (tagsActive){
+    //  showUsersWithTagSearch;
+    // } else {
+    $('#results > .result').hide();
+    $('#results > .result.activeSubQuery').show();
+    resetUsers();
+    // }
 }
 
 function showUsersWithTagSearch() {
 
     $("#results > .result").hide();
     $("#results > .tagFound.activeSubQuery").show();
+    $("#results > .tagFound").show();
     resetUsers();
 
 }
@@ -715,6 +720,7 @@ function showUsersWithTagSearch() {
 function resetUserTagSearchView() {
 
     $(".result").removeClass("tagFound");
+    $("#results > .result").show();
     $("#results > .result.activeSubQuery").show();
     resetUsers();
 }
@@ -723,7 +729,7 @@ function resetUserTagSearchView() {
  * Trigger Isotop-Reset
  */
 function resetUsers(){
-	 setTimeout(function () {
-	        $('#results').isotope();
-	    }, 100);
+     setTimeout(function () {
+            $('#results').isotope();
+        }, 100);
 }
