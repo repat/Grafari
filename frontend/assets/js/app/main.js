@@ -193,9 +193,9 @@ require(['../common'], function () {
                     if (foundIds.length > 0) {
                         markIdWithClassName(foundIds, "tagFound");
                         showUsersWithTagSearch();
-                        $("#btn_tag_search").addClass('btn-success');
+                        $("#btn_tag_search").addClass('btn-success').removeClass('btn-danger');
                     } else {
-                        $("#btn_tag_search").addClass('btn-danger');
+                        $("#btn_tag_search").addClass('btn-danger').removeClass('btn-success');
                     }
 
                 }, 1500);
