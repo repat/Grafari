@@ -2,6 +2,7 @@ var graph = require('fbgraph');
 var async = require("async")
 var request = require("request")
 var redis = require("redis")
+var fs = require("fs")
 var rc = redis.createClient()
 
 // Exported functions
@@ -12,8 +13,11 @@ exports.getPictureFromID = getPictureFromID
 exports.getProfilePicturesFromIds = getProfilePicturesFromIds
 exports.getProfilePictureFromId = getProfilePictureFromId
 
-graph.setAccessToken('CAACEdEose0cBAGwlMZBKOwUhnTmOtL1n7ZAER8Ja617yH64akkZCpSWwh7yKnc4zDZBZAqNWetpI7ZC4NaJU4nASDFkPqzRI1ZCSM236Lj3gGZCHMtNhoYDxmcNiP7ZA8fYfB7VtQ8HlxeKEUsVVcCHDyprGMyLE6pi5MuXVssTfSVQZBT5nToIZC5GcxN0ZB8cpbpqzuE9vn0ZCdOdzPun7YrnqF'); //<- AppToken (sollte nicht auslaufen)
-
+//Unser altes App-Token
+var accessToken = 'CAACEdEose0cBAEwMPBeoZBRi3LD0ZCUiH3uW5TY32xAHwrgRzL5MPlyB8hcjZC7KqKDF6wAQUPK7W8TbsstH11K6xpFZBnevyjV3ZA8ZBlZCx6K9gIqHLnRfXjJqqdSZBFlfKCfABfEf8rOZA5CkP2Cp7LBFRYa61xZAoBIEtpALci2eIOz7SBHDkLge57z3rzTXdFwz2QKTRXwKZCzhEMTiAOz8mCWzdfFZCEsZD'
+if (fs.existsSync("accessToken.tmp"))
+  accessToken = fs.readFileSync("accessToken.tmp", {encoding:"utf8"})
+graph.setAccessToken(accessToken)
 
 /** A generic method to query the facebook graph for a certain ID
  */
