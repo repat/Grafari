@@ -5,6 +5,9 @@ var fs = require('fs');
 var restify = require('restify');
 var graph = require('./lib/graph.js');
 
+const FB_EMAIL = "your@email.com";
+const FB_PASSWORD = "YourSuperSecretPassword";
+
 
 // bootstrap
 Browser.localhost('https://www.facebook.com');
@@ -28,8 +31,8 @@ async.series({
         browser.visit('/login.php')
             .done(function() {
 
-                browser.fill('email', 'haw-mi-2@wegwerfemail.de');
-                browser.fill('pass', 'geheim123');
+                browser.fill('email', FB_EMAIL);
+                browser.fill('pass', FB_PASSWORD);
                 browser.pressButton('login');
                 console.log('Facebook loged in!');
                 callback(null);

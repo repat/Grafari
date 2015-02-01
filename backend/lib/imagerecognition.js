@@ -1,6 +1,7 @@
 var request = require("request")
 var redis = require("redis")
 var rc = redis.createClient()
+const IMAGGA_API_KEY = "EnterYourAPIKeyHere"
 
 // Exported functions
 exports.imageToTags = imageToTagsCache
@@ -8,7 +9,7 @@ exports.imageToTags = imageToTagsCache
 function imageToTags(url, callback) {
     if (!url)
         return callback("url not defined", null)
-    var url = "http://api.imagga.com/draft/tags?api_key=acc_0cc34ea494b2b58&url=" + encodeURIComponent(url)
+    var url = "http://api.imagga.com/draft/tags?api_key="+ IMAGGA_API_KEY + "&url=" + encodeURIComponent(url)
 
     request({
         url: url,

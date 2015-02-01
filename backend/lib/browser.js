@@ -9,11 +9,14 @@ var Zombie = require("zombie");
 var r = require("redis");
 var redis = r.createClient();
 var request = require('request');
+// this is unused at the moment
 var FileCookieStore = require('tough-cookie-filestore');
 var cookieJar = request.jar(new FileCookieStore('cookies.json'));
 request = request.defaults({
     jar: cookieJar
 })
+const FB_EMAIL = "your@email.com";
+const FB_PASSWORD = "YourSuperSecretPassword";
 
 var WORKERS = 5
     // in miliseconds, google: one week in seconds
@@ -80,9 +83,8 @@ function startBrowser(callback) {
                     browser.visit('/login.php', cb);
                 },
                 function(cb) {
-                    //browser.fill('email', 'haw-mi@wegwerfemail.de');
-                    browser.fill("email", "haw-mi-2@wegwerfemail.de")
-                    browser.fill('pass', 'geheim123');
+                    browser.fill("email", FB_EMAIL)
+                    browser.fill('pass', FB_PASSWORD);
                     browser.pressButton('login', cb);
                 }
             ],
@@ -365,6 +367,8 @@ function extractUserId(url) {
     return pattern.exec(url)[1];
 }
 
+// The following code is copied from autoclick's fb-uid-scraper
+// https://github.com/autoclick/fb-uid-scraper
 function showNext_callback(htmlnext) {
     var htmldoc = SubString({
         invl: htmlnext,

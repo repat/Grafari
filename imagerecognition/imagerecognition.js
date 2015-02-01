@@ -7,7 +7,7 @@
 var imageToTags = function (imageUrl) {
     var api = "http://api.imagga.com/draft/tags";
     //var api = "http://private-anon-f6a08a52d-imagga.apiary-mock.com/draft/tags"; // mock-api
-    var api_key = "acc_0cc34ea494b2b58";
+    var api_key = "Your_API_Key";
     var ret = null;
 
     $.ajax({

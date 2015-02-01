@@ -14,7 +14,7 @@ exports.getProfilePicturesFromIds = getProfilePicturesFromIds
 exports.getProfilePictureFromId = getProfilePictureFromId
 
 //Unser altes App-Token
-var accessToken = 'CAACEdEose0cBAEwMPBeoZBRi3LD0ZCUiH3uW5TY32xAHwrgRzL5MPlyB8hcjZC7KqKDF6wAQUPK7W8TbsstH11K6xpFZBnevyjV3ZA8ZBlZCx6K9gIqHLnRfXjJqqdSZBFlfKCfABfEf8rOZA5CkP2Cp7LBFRYa61xZAoBIEtpALci2eIOz7SBHDkLge57z3rzTXdFwz2QKTRXwKZCzhEMTiAOz8mCWzdfFZCEsZD'
+var accessToken = 'InsertYourAppToken'
 if (fs.existsSync("accessToken.tmp"))
   accessToken = fs.readFileSync("accessToken.tmp", {encoding:"utf8"})
 graph.setAccessToken(accessToken)
@@ -181,7 +181,7 @@ function getIdFromUsernameCache(username, callback) {
  */
 function extendAccessToken(callback) {
     graph.extendAccessToken({
-        "client_id": "736322176438280",
-        "client_secret": "b15e0263baa65d34312aaf3a0ad8bc44"
+        "client_id": "InsertYourClientId",
+        "client_secret": "InsertYourClientSecret"
     }, callback)
 }
